@@ -1,4 +1,4 @@
-import { useMediaQuery } from "react-responsive";
+//import { useMediaQuery } from "react-responsive";
 import MobileNavbar from "./MobileNavbar";
 import DesktopNavbar from "./DesktopNavbar";
 
