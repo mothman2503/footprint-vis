@@ -3,16 +3,16 @@ import './App.css';
 
 function App() {
   return (
-    <div className="App" style={{backgroundColor : 'yellow'}}>
-      <header className="App-header" style={{backgroundColor : '#996622', color : '#000'}}>
-        <img src={logo} className="" alt="logo" />
-        <p>
+    <div>
+      <header style={{backgroundColor : '#996622', color : '#000', minHeight:"100vh", maxWidth:"100vw", padding:"20px", alignItems:"center", display:"flex", flexDirection:"column", }}>
+        <img src={logo} className="" alt="logo" style={{maxWidth : 'calc(100% - 40px)'}}/>
+        <h1>
           Visualise your internet footprint
-        </p>
+        </h1>
 
-        <p>
+        <h4>
           Coming soon...
-        </p>
+        </h4>
       </header>
     </div>
   );
