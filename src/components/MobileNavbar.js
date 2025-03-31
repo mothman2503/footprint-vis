@@ -1,30 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import navLinks from "../navLinks";
+import { VscMenu, VscClose } from "react-icons/vsc";
 
 const MobileNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  // Disable scrolling when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden"; // Prevent scrolling
+    } else {
+      document.body.style.overflow = "auto"; // Restore scrolling
+    }
+
+    return () => {
+      document.body.style.overflow = "auto"; // Cleanup when component unmounts
+    };
+  }, [isOpen]);
 
   return (
     <>
-      {/* Hamburger Icon */}
-      <button
-        className="p-3 fixed top-4 left-4 z-50 bg-gray-800 text-white rounded-lg"
-        onClick={() => setIsOpen(true)}
-      >
-        click
-      </button>
+
+      <div className="bg-slate-100/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center shadow-lg z-40">
+        {/* Hamburger Icon */}
+        <VscMenu size={30} onClick={() => setIsOpen(true)} />
+      </div>
+
 
       {/* Sidebar Drawer */}
-      <div
-        className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-white transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out z-40 shadow-lg`}
-      >
+      <div className={`fixed top-0 left-0 h-full w-4/6 max-w-80 bg-slate-100/85 backdrop-blur-sm transform 
+        ${isOpen ? "translate-x-0" : "-translate-x-full"
+        } 
+        transition-transform duration-300 ease-in-out z-40 shadow-lg`}>
+
         {/* Close Button */}
-        <button className="absolute top-4 right-4" onClick={() => setIsOpen(false)}>
-          X
-        </button>
+        <VscClose size={25} onClick={() => setIsOpen(false)} className="absolute top-4 right-4" />
 
         {/* Navigation Links */}
         <nav className="mt-12 p-4">
@@ -33,7 +43,7 @@ const MobileNavbar = () => {
               <li key={path}>
                 <Link
                   to={path}
-                  className="block py-2 px-4 text-lg hover:bg-gray-700 rounded"
+                  className="block py-2 px-4 text-lg font-mono font-semibold no-underline	hover:text-sky-950 hover:italic"
                   onClick={() => setIsOpen(false)} // Close menu on link click
                 >
                   {label}
@@ -48,8 +58,9 @@ const MobileNavbar = () => {
       {isOpen && (
         <div
           className="fixed inset-0 bg-black opacity-50 z-30"
-          onClick={() => setIsOpen(false)}
-        ></div>
+          onClick={() => setIsOpen(false)}>
+
+        </div>
       )}
     </>
   );
