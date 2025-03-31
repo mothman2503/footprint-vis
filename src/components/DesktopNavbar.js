@@ -5,7 +5,7 @@ import navLinks from "../navLinks";
 
 const DesktopNavbar = () => {
   return (
-    <div className="bg-slate-100/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap space-x-8 items-center shadow-lg z-40">
+    <div className="bg-slate-50/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap space-x-8 items-center shadow-lg z-40">
 
       <img src={logo} className="max-w-20" alt="logo" />
 
