@@ -5,19 +5,17 @@ import navLinks from "../navLinks";
 
 const DesktopNavbar = () => {
   return (
-    <nav>
-      <div style={{backgroundColor : '#fff', color : '#000', maxWidth:"100vw", alignItems:"center", display:"flex", flexDirection:"row", boxShadow : '2px 2px 2px 1px rgb(0 0 0 / 20%)', flexWrap : 'wrap'}}>
+    <div className="bg-slate-100/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap space-x-8 items-center shadow-lg z-40">
 
-      <img src={logo} className="" alt="logo" style={{maxWidth : '90px', margin : '5px'}}/>
+      <img src={logo} className="max-w-20" alt="logo" />
 
 
-        {navLinks.map((link, index) => (
-          <h3 key={index} style={{marginInline : '15px'}}>
-            <Link style={{textDecoration : 'none'}} to={link.path}>{link.label}</Link>
-          </h3>
-        ))}
-      </div>
-    </nav>
+      {navLinks.map((link, index) => (
+        <p key={index}>
+          <Link className="font-mono font-semibold text-xl no-underline	hover:text-sky-950 hover:italic" to={link.path}>{link.label}</Link>
+        </p>
+      ))}
+    </div>
   );
 };
 

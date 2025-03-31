@@ -1,23 +1,23 @@
 import logo from '../logo.png';
 
-function Home () { return (
-    <div>
+function Home() {
+  return (
+    <div className='bg-slate-100 flex flex-col space-y-4 items-center content-start text-center w-full h-dvh pt-12'>
+
+      <img src={logo} className='max-w-full' alt="logo" />
+
+      <p className='font-mono font-semibold text-2xl'>
+        Visualise your internet footprint
+      </p>
+
+      <div className='bg-slate-500 w-11/12 max-w-md h-0.5 ' />
 
 
-      <header style={{ color : '#000', maxWidth:"100vw", padding:"20px", alignItems:"center", display:"flex", flexDirection:"column", textAlign : 'center'}}>
+      <p className='font-mono font-semibold text-base'>
+        Coming soon...
+      </p>
 
-        <img src={logo} className="" alt="logo" style={{maxWidth : 'calc(100% - 40px)', marginTop : '20px', marginBottom : '20px'}}/>
-
-        <h1>
-          Visualise your internet footprint
-        </h1>
-        <div style={{backgroundColor : '#000', height :'1px', maxWidth:'500px',  width:'calc(100% - 20px)'   }} />
-
-        <h4>
-          Coming soon...
-        </h4>
-      </header>
     </div>
-  );;
+  );
 }
 export default Home;

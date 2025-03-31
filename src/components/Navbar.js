@@ -1,9 +1,9 @@
-//import { useMediaQuery } from "react-responsive";
+import { useMediaQuery } from "react-responsive";
 import MobileNavbar from "./MobileNavbar";
 import DesktopNavbar from "./DesktopNavbar";
 
 const Navbar = () => {
-  const isMobile = false; // useMediaQuery({ maxWidth: 767 });
+  const isMobile = useMediaQuery({ maxWidth: 767 });
 
   return isMobile ? <MobileNavbar /> : <DesktopNavbar />;
 };
