@@ -21,14 +21,14 @@ const MobileNavbar = () => {
   return (
     <>
 
-      <div className="bg-slate-100/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center shadow-lg z-40">
+      <div className="bg-slate-50/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center shadow-lg z-40">
         {/* Hamburger Icon */}
         <VscMenu size={30} onClick={() => setIsOpen(true)} />
       </div>
 
 
       {/* Sidebar Drawer */}
-      <div className={`fixed top-0 left-0 h-full w-4/6 max-w-80 bg-slate-100/85 backdrop-blur-sm transform 
+      <div className={`fixed top-0 left-0 h-full w-4/6 max-w-80 bg-slate-50/85 backdrop-blur-sm transform 
         ${isOpen ? "translate-x-0" : "-translate-x-full"
         } 
         transition-transform duration-300 ease-in-out z-40 shadow-lg`}>
