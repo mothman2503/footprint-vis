@@ -52,7 +52,7 @@ const MobileNavbar = () => {
                   className="block py-2 px-4 text-lg font-mono font-semibold no-underline	hover:text-sky-950 hover:italic"
                   onClick={() => setIsOpen(false)} // Close menu on link click
                 >
-                  {t("nav."+link.label)}
+                 {t(`nav.${link.label}`)}
                 </Link>
               </li>
             ))}
