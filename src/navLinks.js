@@ -1,9 +1,8 @@
 const navLinks = [
-    { path: "/", label: "Home" },
-    { path: "/about", label: "About" },
-    { path: "/datasets", label: "Datasets" },
-    { path: "/visualisation", label: "Visualisation" }
+    { path: "/", label: "home" },
+    { path: "/about", label: "about" },
+    { path: "/datasets", label: "datasets" },
+    { path: "/visualisation", label: "visualisation" }
   ];
   
   export default navLinks;
-  

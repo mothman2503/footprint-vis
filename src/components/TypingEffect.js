@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 const TypingEffect = ({ 
     words, 
@@ -6,8 +7,10 @@ const TypingEffect = ({
     delay = 1000, 
     initialDelay = 500, 
     disableSpaces = false, 
+    disableCursor = false, 
     onComplete 
 }) => {
+    const { i18n } = useTranslation(); // Access the current language
     const [displayedText, setDisplayedText] = useState(""); 
     const [currentWord, setCurrentWord] = useState(""); 
     const [wordIndex, setWordIndex] = useState(-1);
@@ -16,25 +19,36 @@ const TypingEffect = ({
     const [showCursor, setShowCursor] = useState(true);
     const [isTyping, setIsTyping] = useState(true); 
 
+    const typingTimeoutRef = useRef(null); // Ref to store typing timeout
+    const delayTimeoutRef = useRef(null); // Ref to store delay timeout
+
+    // Reset typing effect when the language changes
     useEffect(() => {
+        setDisplayedText("");
+        setCurrentWord("");
+        setWordIndex(-1);
+        setCharIndex(0);
+        setStartTyping(false);
+        setIsTyping(true);
+
         const timer = setTimeout(() => {
             setStartTyping(true);
             setWordIndex(0);
         }, initialDelay);
+
         return () => clearTimeout(timer);
-    }, [initialDelay]);
+    }, [i18n.language, initialDelay]); // Trigger reset when the language changes
 
     useEffect(() => {
         if (!startTyping || wordIndex >= words.length) return;
 
         if (charIndex < words[wordIndex].length) {
-            const timeout = setTimeout(() => {
+            typingTimeoutRef.current = setTimeout(() => {
                 setCurrentWord((prev) => prev + words[wordIndex][charIndex]);
                 setCharIndex(charIndex + 1);
             }, speed);
-            return () => clearTimeout(timeout);
         } else {
-            setTimeout(() => {
+            delayTimeoutRef.current = setTimeout(() => {
                 setDisplayedText((prev) => prev + currentWord + (disableSpaces ? "" : " "));
                 setCurrentWord("");
                 if (wordIndex === words.length - 1) {
@@ -46,6 +60,11 @@ const TypingEffect = ({
                 }
             }, delay);
         }
+
+        return () => {
+            clearTimeout(typingTimeoutRef.current);
+            clearTimeout(delayTimeoutRef.current);
+        };
     }, [charIndex, wordIndex, words, speed, delay, disableSpaces, onComplete, currentWord, startTyping]);
 
     useEffect(() => {
@@ -63,7 +82,7 @@ const TypingEffect = ({
                     display: "inline-block",
                     width: "8px",
                     height: "18px",
-                    backgroundColor: (showCursor && isTyping) ? "black" : "transparent",
+                    backgroundColor: (showCursor && isTyping && !disableCursor) ? "black" : "transparent",
                     marginLeft: "2px"
                 }}></span>
         </span>
