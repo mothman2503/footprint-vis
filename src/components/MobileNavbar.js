@@ -45,7 +45,7 @@ const MobileNavbar = () => {
         {/* Navigation Links */}
         <nav className="mt-12 p-4">
           <ul className="space-y-4">
-            {navLinks.map(({ link, index }) => (
+            {navLinks.map(( link, index ) => (
               <li key={index}>
                 <Link
                   to={link.path}
