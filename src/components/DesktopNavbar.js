@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import logo from '../logo.png';
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import "../i18n";
 
 import navLinks from "../navLinks";
 
@@ -15,7 +16,7 @@ const DesktopNavbar = () => {
       {navLinks.map((link, index) => (
         <p key={index}>
           <Link className="font-mono font-semibold text-xl no-underline hover:text-sky-950 hover:italic" to={link.path}>
-            {t(`nav.${link.label}`)}
+          {t(`nav.${link.label}`, { defaultValue: link.label })}
           </Link>
         </p>
       ))}
