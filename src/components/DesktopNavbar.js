@@ -11,7 +11,7 @@ const DesktopNavbar = () => {
 
   // Function to handle dynamic translation based on the path
   const getTranslation = (link) => {
-    switch (link.path) {
+    switch (link) {
       case '/':
         return t('nav.home');
       case '/about':
@@ -31,7 +31,7 @@ const DesktopNavbar = () => {
 
       {navLinks.map((link, index) => (
         <p key={index}>
-          <Link className="font-mono font-semibold text-xl no-underline hover:text-sky-950 hover:italic" to={link.path}>
+          <Link className="font-mono font-semibold text-xl no-underline hover:text-sky-950 hover:italic" to={link}>
             {getTranslation(link)}
           </Link>
         </p>

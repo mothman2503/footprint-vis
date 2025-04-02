@@ -25,7 +25,7 @@ const MobileNavbar = () => {
 
   // Function to handle dynamic translation based on the link path
   const getTranslation = (link) => {
-    switch (link.path) {
+    switch (link) {
       case '/':
         return t('nav.home');
       case '/about':
@@ -61,7 +61,7 @@ const MobileNavbar = () => {
             {navLinks.map((link, index) => (
               <li key={index}>
                 <Link
-                  to={link.path} // Assuming each link has a 'path' property
+                  to={link} // Assuming each link has a 'path' property
                   className="block py-2 px-4 text-lg font-mono font-semibold no-underline hover:text-sky-950 hover:italic"
                   onClick={() => setIsOpen(false)} // Close menu on link click
                 >
