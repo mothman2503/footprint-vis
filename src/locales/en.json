@@ -5,5 +5,13 @@
     "basedOn": "Based on the",
     "madeToMeasure": "Made to Measure project"
   },
+
+  "nav": {
+    "home": "HOME",
+    "about": "ABOUT",
+    "datasets": "DATASETS",
+    "visualisation": "VISUALISATION"
+  },
+
   "Visualise your internet footprint!": "Visualise your internet footprint!"
 }
