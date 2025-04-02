@@ -1,17 +1,15 @@
 {
-  "footer": {
-    "about": "ABOUT",
-    "readAbout": "Read about it here",
-    "basedOn": "Based on the",
-    "madeToMeasure": "Made to Measure project"
-  },
-
   "nav": {
     "home": "HOME",
     "about": "ABOUT",
     "datasets": "DATASETS",
     "visualisation": "VISUALISATION"
   },
-
+  "footer": {
+    "about": "ABOUT",
+    "readAbout": "Read about it here",
+    "basedOn": "Based on the",
+    "madeToMeasure": "Made to Measure project"
+  },
   "Visualise your internet footprint!": "Visualise your internet footprint!"
 }
