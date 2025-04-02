@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import "../i18n";
 
 const MobileNavbar = () => {
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(false);
   // Disable scrolling when menu is open
@@ -23,6 +23,21 @@ const MobileNavbar = () => {
     };
   }, [isOpen]);
 
+  // Function to handle dynamic translation based on the link path
+  const getTranslation = (link) => {
+    switch (link.path) {
+      case '/':
+        return t('nav.home');
+      case '/about':
+        return t('nav.about');
+      case '/datasets':
+        return t('nav.datasets');
+        case '/visualisation':
+        return t('nav.visualisation');
+      default:
+        return link.label;  // Fallback to the label if the key doesn't exist
+    }
+  };
   return (
     <>
       <div className="bg-slate-50/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center shadow-lg z-40">
@@ -46,11 +61,11 @@ const MobileNavbar = () => {
             {navLinks.map((link, index) => (
               <li key={index}>
                 <Link
-                  to={link.path}
+                  to={link.path} // Assuming each link has a 'path' property
                   className="block py-2 px-4 text-lg font-mono font-semibold no-underline hover:text-sky-950 hover:italic"
                   onClick={() => setIsOpen(false)} // Close menu on link click
                 >
-                  {t(`nav.${link.label}`, { defaultValue: link.label })}
+                  {getTranslation(link)}  {/* Use the translated label here */}
                 </Link>
               </li>
             ))}
