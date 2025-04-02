@@ -2,8 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import navLinks from "../navLinks";
 import { VscMenu, VscClose } from "react-icons/vsc";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useTranslation } from "react-i18next";
+
 
 const MobileNavbar = () => {
+  const { t } = useTranslation(); 
+
   const [isOpen, setIsOpen] = useState(false);
   // Disable scrolling when menu is open
   useEffect(() => {
@@ -24,6 +29,7 @@ const MobileNavbar = () => {
       <div className="bg-slate-50/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center shadow-lg z-40">
         {/* Hamburger Icon */}
         <VscMenu size={30} onClick={() => setIsOpen(true)} />
+        <LanguageSwitcher />
       </div>
 
 
@@ -46,7 +52,7 @@ const MobileNavbar = () => {
                   className="block py-2 px-4 text-lg font-mono font-semibold no-underline	hover:text-sky-950 hover:italic"
                   onClick={() => setIsOpen(false)} // Close menu on link click
                 >
-                  {label}
+                  {t("nav."+label)}
                 </Link>
               </li>
             ))}
