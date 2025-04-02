@@ -16,7 +16,7 @@ const DesktopNavbar = () => {
       {navLinks.map((link, index) => (
         <p key={index}>
           <Link className="font-mono font-semibold text-xl no-underline hover:text-sky-950 hover:italic" to={link.path}>
-          {t(`nav.${link.label}`, { defaultValue: `nav.${link.label}` })}
+          {t(`nav.${link.label}`, { defaultValue: "nav." + link.label })}
           </Link>
         </p>
       ))}
