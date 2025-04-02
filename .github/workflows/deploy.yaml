@@ -21,6 +21,9 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Generate Translation Files
+        run: npm run generate-i18n  # This runs the JSON translation generation step
+
       - name: Build Project
         run: npm run build
 
@@ -34,4 +37,4 @@ jobs:
           netlify-site-id: ${{ secrets.NETLIFY_SITE_ID }}
 
       - name: Log Deployment Success
-        run: echo "Deployment to Netlify completed successfully!"
+        run: echo "✅ Deployment to Netlify completed successfully!"
