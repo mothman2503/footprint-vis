@@ -6,7 +6,7 @@ import About from "./pages/About";
 import Datasets from "./pages/Datasets";
 import Visualisation from "./pages/Visualisation";
 import './App.css';
-
+import "./i18n"; 
 
 function App() {
   return (

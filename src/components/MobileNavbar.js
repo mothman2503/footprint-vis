@@ -4,7 +4,7 @@ import navLinks from "../navLinks";
 import { VscMenu, VscClose } from "react-icons/vsc";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
-
+import "../i18n";
 
 const MobileNavbar = () => {
   const { t } = useTranslation(); 
@@ -25,13 +25,11 @@ const MobileNavbar = () => {
 
   return (
     <>
-
       <div className="bg-slate-50/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center shadow-lg z-40">
         {/* Hamburger Icon */}
         <VscMenu size={30} onClick={() => setIsOpen(true)} />
         <LanguageSwitcher />
       </div>
-
 
       {/* Sidebar Drawer */}
       <div className={`fixed top-0 left-0 h-full w-4/6 max-w-80 bg-slate-50/85 backdrop-blur-sm transform 
@@ -45,14 +43,14 @@ const MobileNavbar = () => {
         {/* Navigation Links */}
         <nav className="mt-12 p-4">
           <ul className="space-y-4">
-            {navLinks.map(( link, index ) => (
+            {navLinks.map((link, index) => (
               <li key={index}>
                 <Link
                   to={link.path}
-                  className="block py-2 px-4 text-lg font-mono font-semibold no-underline	hover:text-sky-950 hover:italic"
+                  className="block py-2 px-4 text-lg font-mono font-semibold no-underline hover:text-sky-950 hover:italic"
                   onClick={() => setIsOpen(false)} // Close menu on link click
                 >
-                 {t(`nav.${link.label}`)}
+                  {t(`nav.${link.label}`, { defaultValue: link.label })}
                 </Link>
               </li>
             ))}
