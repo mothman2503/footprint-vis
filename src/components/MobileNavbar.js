@@ -45,14 +45,14 @@ const MobileNavbar = () => {
         {/* Navigation Links */}
         <nav className="mt-12 p-4">
           <ul className="space-y-4">
-            {navLinks.map(({ path, label }) => (
-              <li key={path}>
+            {navLinks.map(({ link, index }) => (
+              <li key={index}>
                 <Link
-                  to={path}
+                  to={link.path}
                   className="block py-2 px-4 text-lg font-mono font-semibold no-underline	hover:text-sky-950 hover:italic"
                   onClick={() => setIsOpen(false)} // Close menu on link click
                 >
-                  {t("nav."+label)}
+                  {t("nav."+link.label)}
                 </Link>
               </li>
             ))}
