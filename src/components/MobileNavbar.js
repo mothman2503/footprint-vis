@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import navLinks from "../navLinks";
 import { VscMenu, VscClose } from "react-icons/vsc";
-import LanguageSwitcher from "./LanguageSwitcher";
+import LanguageSwitcherMobile from "./LanguageSwitcherMobile";
 import { useTranslation } from "react-i18next";
 import "../i18n";
 
@@ -10,6 +10,8 @@ const MobileNavbar = () => {
   const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false); // State for animation visibility
+
   // Disable scrolling when menu is open
   useEffect(() => {
     if (isOpen) {
@@ -23,6 +25,15 @@ const MobileNavbar = () => {
     };
   }, [isOpen]);
 
+  // Trigger navbar visibility when the component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true); // After the page loads, make navbar visible
+    }, 200); // Delay to allow other components to load
+
+    return () => clearTimeout(timer); // Clean up the timer
+  }, []);
+
   // Function to handle dynamic translation based on the link path
   const getTranslation = (link) => {
     switch (link) {
@@ -32,24 +43,29 @@ const MobileNavbar = () => {
         return t('nav.about');
       case '/datasets':
         return t('nav.datasets');
-        case '/visualisation':
+      case '/visualisation':
         return t('nav.visualisation');
       default:
         return link.label;  // Fallback to the label if the key doesn't exist
     }
   };
+
   return (
     <>
-      <div className="bg-slate-50/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center shadow-lg z-40">
+      {/* Sticky Navbar */}
+      <div
+        className={`bg-slate-50/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center justify-between shadow-lg z-40 
+        transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`}
+      >
         {/* Hamburger Icon */}
         <VscMenu size={30} onClick={() => setIsOpen(true)} />
-        <LanguageSwitcher />
+
+        <LanguageSwitcherMobile />
       </div>
 
       {/* Sidebar Drawer */}
       <div className={`fixed top-0 left-0 h-full w-4/6 max-w-80 bg-slate-50/85 backdrop-blur-sm transform 
-        ${isOpen ? "translate-x-0" : "-translate-x-full"
-        } 
+        ${isOpen ? "translate-x-0" : "-translate-x-full"} 
         transition-transform duration-300 ease-in-out z-40 shadow-lg`}>
 
         {/* Close Button */}

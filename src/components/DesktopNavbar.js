@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import logo from '../logo.png';
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import { useState, useEffect } from "react";
+
 import "../i18n";
 
 import navLinks from "../navLinks";
@@ -24,9 +26,19 @@ const DesktopNavbar = () => {
         return link.label;  // Fallback to the label if the key doesn't exist
     }
   };
+  const [isVisible, setIsVisible] = useState(false); // State for animation visibility
 
+  // Trigger navbar visibility when the component mounts
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsVisible(true); // After the page loads, make navbar visible
+      }, 200); // Delay to allow other components to load
+  
+      return () => clearTimeout(timer); // Clean up the timer
+    }, []);
+  
   return (
-    <div className="bg-slate-50/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap space-x-8 items-center shadow-lg z-40">
+    <div className={`bg-slate-50/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap space-x-8 items-center shadow-lg z-40 px-3 transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`}>
       <img src={logo} className="max-w-20" alt="logo" />
 
       {navLinks.map((link, index) => (
@@ -36,7 +48,7 @@ const DesktopNavbar = () => {
           </Link>
         </p>
       ))}
-
+<div className="flex grow" />
       <LanguageSwitcher />
     </div>
   );

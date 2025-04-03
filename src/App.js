@@ -11,24 +11,20 @@ import "./i18n";
 function App() {
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/datasets" element={<Datasets />} />
-        <Route path="/visualisation" element={<Visualisation />} />
-      </Routes>
-      <Footer />
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Navbar />
+        <main style={{ flex: 1 }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/datasets" element={<Datasets />} />
+            <Route path="/visualisation" element={<Visualisation />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
     </Router>
   );
 }
 
 export default App;
-
-
-/**
- * 
-function App() {
-  
-}
- */

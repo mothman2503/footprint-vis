@@ -35,7 +35,7 @@ function Home() {
 
 
   return (
-    <div className='bg-slate-50 flex flex-col space-y-4 items-center content-start text-center w-full h-dvh pt-12 px-5'>
+    <div className='bg-slate-50 flex flex-col space-y-4 items-center content-start text-center w-full pt-12 px-5'>
 
       <img src={logo} className={`max-w-full transition-transform duration-1000 ease-in-out ${isUp ? "translate-y-0" : "translate-y-1"}`} alt="logo" />
 
