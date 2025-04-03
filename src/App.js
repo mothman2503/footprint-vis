@@ -11,9 +11,9 @@ import "./i18n";
 function App() {
   return (
     <Router>
-      <div className="bg-slate-50 flex flex-col min-h-dvh">
+      <div className="bg-slate-50 flex flex-col min-h-dvh items-center w-full">
         <Navbar />
-        <main style={{ flex: 1 }}>
+        <main className="max-w-screen-2xl py-4 w-full grow">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />

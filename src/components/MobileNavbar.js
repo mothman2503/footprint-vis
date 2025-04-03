@@ -54,7 +54,7 @@ const MobileNavbar = () => {
     <>
       {/* Sticky Navbar */}
       <div
-        className={`bg-slate-50/85 backdrop-blur-sm max-w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center justify-between shadow-lg z-40 
+        className={`bg-slate-50/85 backdrop-blur-sm w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center justify-between shadow-lg z-40 
         transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`}
       >
         {/* Hamburger Icon */}
