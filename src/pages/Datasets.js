@@ -1,2 +1,12 @@
-const Datasets = () => <h1>Datasets Page</h1>;
+import FileUploader from "../components/FileUploader";
+
+function Datasets() {
+    return (
+        <>
+        <h1 className="font-mono font-semibold">Upload File</h1>
+            <FileUploader />
+        </>
+    );
+
+}
 export default Datasets;
