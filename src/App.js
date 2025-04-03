@@ -11,7 +11,7 @@ import "./i18n";
 function App() {
   return (
     <Router>
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <div className="bg-slate-50 flex flex-col min-h-dvh">
         <Navbar />
         <main style={{ flex: 1 }}>
           <Routes>
