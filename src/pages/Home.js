@@ -39,7 +39,8 @@ function Home() {
 
       <img src={logo} className={`max-w-full transition-transform duration-1000 ease-in-out ${isUp ? "translate-y-0" : "translate-y-1"}`} alt="logo" />
 
-      <p className='font-mono font-semibold text-2xl'>
+     <div className='min-h-32 flex flex-col space-y-4 items-center content-start'>
+     <p className='font-mono font-semibold text-2xl'>
         <TypingEffect words={[t("Visualise your internet footprint!")]}
           speed={60} delay={50} disableSpaces={true} onComplete={() => setShowSecond(true)} />
       </p>
@@ -52,6 +53,7 @@ function Home() {
         </p>
 
       )}
+     </div>
 
     </div>
   );
