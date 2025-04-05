@@ -3,7 +3,7 @@ import FileUploader from "../components/FileUploader";
 function Datasets() {
     return (
         <>
-        <h1 className="font-mono font-semibold">Upload File</h1>
+        <h1 className="font-mono font-semibold my-4">Upload File</h1>
             <FileUploader />
         </>
     );

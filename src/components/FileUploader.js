@@ -129,13 +129,13 @@ const FileUploader = () => {
   };
 
   return (
-    <div className="p-4">
+    <>
       {/* File upload input */}
       <div className="w-full h-36 bg-slate-50 flex flex-col items-center justify-center cursor-pointer border-dashed border-slate-300 border-2 box-border rounded hover:bg-slate-200 hover:border-slate-500" onClick={() => document.querySelector('input[type="file"]').click()}>
       <input type="file" accept=".csv,.json" multiple onChange={handleFileUpload} className="max-w-screen-2xl opacity-0 hidden"/>
 
 <VscFile className="h-12 w-8"/>
-<div className="relative -top-6 left-3 rounded-full p-0 bg-indigo-300">
+<div className="relative -top-6 left-3 rounded-full p-0 bg-indigo-300/90">
 <VscArrowCircleUp />
 </div>
         <p className=" text-sm text-slate-800 ">
@@ -191,7 +191,7 @@ const FileUploader = () => {
 
       {/* Render FileViewer if a file is selected */}
       {renderFileViewer()}
-    </div>
+    </>
   );
 };
 
