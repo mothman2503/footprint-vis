@@ -3,7 +3,7 @@ name: Deploy to Netlify
 on:
   push:
     branches:
-      - main  # Change this if your main branch has a different name
+      - main 
 
 jobs:
   deploy:
@@ -16,13 +16,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18  # Use the latest stable version
-
+          node-version: 18  
+          
       - name: Install Dependencies
         run: npm install
-
-      - name: Generate Translation Files
-        run: npm run generate-i18n  # This runs the JSON translation generation step
 
       - name: Build Project
         run: npm run build
@@ -30,7 +27,7 @@ jobs:
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v2
         with:
-          publish-dir: './build'  # Make sure this matches your build output directory
+          publish-dir: './build' 
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           netlify-auth-token: ${{ secrets.NETLIFY_AUTH_TOKEN }}
