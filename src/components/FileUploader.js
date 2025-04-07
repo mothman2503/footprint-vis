@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import FileViewer from "./FileViewer";
-import Papa from "papaparse"; // CSV parsing library
-import { openDB } from "idb"; // To use IndexedDB for cache storage
+import { openDB } from "idb";
 import { VscFile, VscArrowCircleUp } from "react-icons/vsc";
 
-
-// Open IndexedDB for caching
 const dbPromise = openDB("fileStorage", 1, {
   upgrade(db) {
     db.createObjectStore("files");
@@ -13,185 +10,140 @@ const dbPromise = openDB("fileStorage", 1, {
 });
 
 const FileUploader = () => {
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Save to IndexedDB
+  // Load existing file from IndexedDB
+  const loadCachedFile = async () => {
+    const db = await dbPromise;
+    const file = await db.get("files", "History.json");
+    if (file) setSelectedFile(file);
+  };
+
+  useEffect(() => {
+    loadCachedFile();
+  }, []);
+
   const saveToIndexedDB = async (key, value) => {
     const db = await dbPromise;
     await db.put("files", value, key);
   };
 
-  // Get all files from IndexedDB
-  const loadCachedFiles = async () => {
-    const db = await dbPromise;
-    const keys = await db.getAllKeys("files");
-    const files = await Promise.all(keys.map((key) => db.get("files", key)));
-    setUploadedFiles(files);
-  };
-
-  // Load cached files when the component mounts
-  useEffect(() => {
-    loadCachedFiles();
-  }, []);
-
-  // Handle file upload
-  const handleFileUpload = (event) => {
-    const files = Array.from(event.target.files);
-    if (!files.length) return;
-
-    setLoading(true);
-
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target.result;
-
-        // Process CSV file using PapaParse
-        if (file.type === "text/csv") {
-          Papa.parse(content, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (result) => {
-              const newFile = {
-                name: file.name,
-                type: file.type,
-                data: result.data,
-                fileData: content, // Store raw content for caching
-              };
-              setUploadedFiles((prevFiles) => [...prevFiles, newFile]);
-              saveToIndexedDB(file.name, newFile);
-              setLoading(false);
-            },
-          });
-        } else if (file.type === "application/json") {
-          const jsonData = JSON.parse(content);
-          const newFile = {
-            name: file.name,
-            type: file.type,
-            data: jsonData,
-            fileData: content, // Store raw content for caching
-          };
-          setUploadedFiles((prevFiles) => [...prevFiles, newFile]);
-          saveToIndexedDB(file.name, newFile);
-          setLoading(false);
-        }
-      };
-      reader.readAsText(file);
-    });
-  };
-
-  // Handle clicking on a file to display its contents
-  const handleFileClick = (file) => {
-    setSelectedFile(file); // Set the selected file to display in FileViewer
-  };
-
-  // Render FileViewer if a file is selected
-  const renderFileViewer = () => {
-    if (selectedFile) {
-      return (
-        <div className="mt-4">
-          <FileViewer fileName={selectedFile.name} data={selectedFile.data} />
-          <button
-            onClick={() => setSelectedFile(null)}
-            className="mt-2 p-2 bg-gray-300 rounded hover:bg-gray-400"
-          >
-            Close Viewer
-          </button>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Handle removing a file from the state and IndexedDB
-  const clearFile = (fileName) => {
-    if(fileName === selectedFile?.name){
-        setSelectedFile(null);
-    }
-    setUploadedFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));
-    deleteFileFromIndexedDB(fileName);
-    
-  };
-
-  // Remove file from IndexedDB cache
   const deleteFileFromIndexedDB = async (key) => {
     const db = await dbPromise;
     await db.delete("files", key);
   };
 
-  // Handle clearing the cache (IndexedDB)
-  const clearCache = () => {
-    uploadedFiles.forEach((file) => deleteFileFromIndexedDB(file.name));
-    setUploadedFiles([]); // Clear the files from the state
+  const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+    fileInputRef.current.value = null;
+
+    if (!files.length) return;
+
+    const file = files[0];
+    if (file.name !== "History.json") {
+      alert("Only a file named 'History.json' is allowed.");
+      return;
+    }
+
+    setLoading(true);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target.result;
+        const jsonData = JSON.parse(content);
+
+        if (
+          !jsonData.hasOwnProperty("Browser History") ||
+          !Array.isArray(jsonData["Browser History"])
+        ) {
+          throw new Error("Invalid structure: Missing 'Browser History' array.");
+        }
+
+        const requiredKeys = [
+          "favicon_url",
+          "page_transition_qualifier",
+          "title",
+          "url",
+          "time_usec",
+          "client_id",
+        ];
+
+        const isValidEntry = (entry) =>
+          requiredKeys.every((key) => entry.hasOwnProperty(key));
+
+        const allValid = jsonData["Browser History"].every(isValidEntry);
+
+        if (!allValid) {
+          throw new Error("Invalid structure: Some entries are missing required fields.");
+        }
+
+        const newFile = {
+          name: file.name,
+          type: file.type,
+          data: jsonData,
+          fileData: content,
+        };
+
+        setSelectedFile(newFile);
+        saveToIndexedDB("History.json", newFile);
+      } catch (err) {
+        console.error("Invalid JSON file:", err);
+        alert("Failed to parse History.json: " + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
+  const clearFile = async () => {
+    await deleteFileFromIndexedDB("History.json");
     setSelectedFile(null);
   };
 
   return (
-    <>
-      {/* File upload input */}
-      <div className="w-full h-36 bg-slate-50 flex flex-col items-center justify-center cursor-pointer border-dashed border-slate-300 border-2 box-border rounded hover:bg-slate-200 hover:border-slate-500" onClick={() => document.querySelector('input[type="file"]').click()}>
-      <input type="file" accept=".csv,.json" multiple onChange={handleFileUpload} className="max-w-screen-2xl opacity-0 hidden"/>
-
-<VscFile className="h-12 w-8"/>
-<div className="relative -top-6 left-3 rounded-full p-0 bg-indigo-300/90">
-<VscArrowCircleUp />
-</div>
-        <p className=" text-sm text-slate-800 ">
-            Drag and Drop file here or <span 
-              className="hover:underline hover:text-indigo-800 "
-              
-            >
-              Choose File
-            </span>
-        </p>
-      </div>
-
-      {loading && <p>Loading files...</p>}
-
-      <div className="mt-4">
-        {uploadedFiles.length > 0 && (
-          <>
-            <h3 className="font-bold mb-2">Uploaded Files:</h3>
-            <ul>
-              {uploadedFiles.map((file, index) => (
-                <li key={index} className="mb-2">
-                  <div className="flex justify-between items-end">
-
-                    
-                    <button
-                      onClick={() => handleFileClick(file)}
-                      className="text-blue-600 hover:underline flex items-center"
-                    >
-                        <VscFile className="mr-2 h-9 w-6"/>
-                      {file.name}
-                    </button>
-                    <button
-                      onClick={() => clearFile(file.name)}
-                      className="ml-2 text-red-600"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-
-        {/* Clear Cache Button */}
-        <button
-          onClick={clearCache}
-          className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-600"
+    <div>
+      {!selectedFile && (
+        <div
+          className="w-full h-36 bg-slate-50 flex flex-col items-center justify-center cursor-pointer border-dashed border-slate-300 border-2 box-border rounded hover:bg-slate-200 hover:border-slate-500"
+          onClick={() => fileInputRef.current.click()}
         >
-          Clear Cache
-        </button>
-      </div>
+          <input
+            type="file"
+            accept=".json"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+          <VscFile className="h-12 w-8" />
+          <div className="relative -top-6 left-3 rounded-full p-0 bg-indigo-300/90">
+            <VscArrowCircleUp />
+          </div>
+          <p className="text-sm text-slate-800">
+            Drag and drop your <strong>History.json</strong> file here or{" "}
+            <span className="hover:underline hover:text-indigo-800">Choose File</span>
+          </p>
+        </div>
+      )}
 
-      {/* Render FileViewer if a file is selected */}
-      {renderFileViewer()}
-    </>
+      {loading && <p className="mt-4">Loading file...</p>}
+
+      {selectedFile && (
+        <div className="mt-4">
+          <FileViewer fileName={selectedFile.name} data={selectedFile.data} />
+          <button
+            onClick={clearFile}
+            className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Remove File
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 
