@@ -134,7 +134,7 @@ const FileUploader = () => {
 
       {selectedFile && (
         <div className="mt-4">
-          <FileViewer fileName={selectedFile.name} data={selectedFile.data} />
+          <FileViewer fileName={selectedFile.name} rawJson={selectedFile.data} />
           <button
             onClick={clearFile}
             className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-red-600"
@@ -143,6 +143,7 @@ const FileUploader = () => {
           </button>
         </div>
       )}
+
     </div>
   );
 };
