@@ -63,13 +63,13 @@ const FileViewer = ({ fileName, rawJson }) => {
   }
 
   return (
-    <div className="p-4">
+    <div className="py-4">
       <h2 className="font-bold mb-4">Viewing: {fileName}</h2>
 
       <div className="overflow-x-auto h-[500px] border">
         <div className="w-full border border-gray-300">
           {/* Column Headers (Using divs instead of table headers) */}
-          <div className="flex bg-gray-200 sticky top-[-3px] z-10">
+          <div className="flex bg-gray-200/85 backdrop-blur-sm sticky top-[-3px] z-10">
             <div className="border px-4 py-2 w-3/4">URL</div>
             <div className="border px-4 py-2 w-1/4">Time</div>
           </div>
