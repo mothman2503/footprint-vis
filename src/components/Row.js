@@ -9,10 +9,10 @@ const Row = ({ row }) => {
         )}
         <div className="overflow-hidden truncate">
           <p>{row.title}</p>
-          <a href={row.url} className="text-blue-600 hover:underline cursor-pointer">{row.url}</a>
+          <a href={row.url} className="text-blue-600 hover:underline cursor-pointer text-sm">{row.url}</a>
         </div>
       </div>
-      <div className="border px-4 py-2 whitespace-pre-line w-1/4">{row.time}</div>
+      <div className="border px-2 py-2 whitespace-pre-line w-1/4 text-xs flex items-center">{row.time}</div>
     </div>
   );
 };
