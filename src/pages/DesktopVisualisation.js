@@ -1,22 +1,20 @@
+// DesktopVisualisation.js
+import React, { useState } from "react";
+import TimeWeekGrid from "../components/TimeWeekGrid";
+import UsageTimelineChart from "../components/UsageTimelineChart";
 
 function DesktopVisualisation() {
-    return (
-        <>
-            <div className="flex flex-col space-y-2 h-dvh">
-               <div className="w-full h-4/6 bg-indigo-300">
-               <p className="font-mono font-semibold my-4">Show visualisation for one week (Allow swipe left and right to go to next and previous weeks)</p>
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-               </div>
-
-               <div className="w-full h-1/6 bg-indigo-500">
-               <p className="font-mono font-semibold my-4">Show visualisation overview/scroll throught time(one year) to control time period of main vis.... show frequency of internet usage </p>
-
-               </div>
-
-            </div>
-
-        </>
-    );
+  return (
+    <div className="p-6">
+      <TimeWeekGrid selectedDate={selectedDate} />
+      <div className="mb-4">
+        <h2 className="font-medium mb-2">Usage Timeline (Click to Select Week)</h2>
+        <UsageTimelineChart onDateSelect={setSelectedDate} />
+      </div>
+    </div>
+  );
 }
 
 export default DesktopVisualisation;

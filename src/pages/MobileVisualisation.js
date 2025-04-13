@@ -1,23 +1,25 @@
+import React, { useState } from "react";
+import UsageTimelineChart from "../components/UsageTimelineChart";
+import TimeDayGrid from "../components/TimeDayGrid";
+import { format } from "date-fns";
 
-function MobileVisualisation() {
-    return (
-        <>
+const MobileVisualisation = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-            <div className="flex flex-col space-y-2 h-dvh">
-                <div className="w-full h-4/6 bg-indigo-300">
-                    <p className="font-mono font-semibold my-4">Show visualisation for one day (Allow swipe left and right to go to next and previous days)</p>
+  return (
+    <div className="p-4">
+      <h2 className="text-lg font-bold mb-4">Mobile View – Day Grid with Timeline</h2>
 
-                </div>
+      <div className="mb-6">
+        <p className="mb-1 font-medium">
+          Selected Day: {format(selectedDate, "EEEE, dd MMM yyyy")}
+        </p>
+        <UsageTimelineChart onDateSelect={setSelectedDate} />
+      </div>
 
-                <div className="w-full h-1/6 bg-indigo-500">
-                    <p className="font-mono font-semibold my-4">Show visualisation overview/scroll throught time(6 months)  to control time period of main vis..... show frequency of internet usage</p>
-
-                </div>
-
-            </div>
-
-        </>
-    );
-}
+      <TimeDayGrid date={selectedDate} />
+    </div>
+  );
+};
 
 export default MobileVisualisation;
