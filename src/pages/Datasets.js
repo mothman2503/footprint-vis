@@ -2,7 +2,7 @@ import FileUploader from "../components/FileUploader";
 
 function Datasets() {
     return (
-        <>
+        <div className="max-w-screen-xl py-2 px-6 mx-auto">
         
 
         <div className="flex flex-col space-y-2">
@@ -22,7 +22,7 @@ function Datasets() {
         <FileUploader />
         </div>
 
-        </>
+        </div>
     );
 
 }

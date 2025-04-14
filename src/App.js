@@ -13,7 +13,7 @@ function App() {
     <Router>
       <div className="bg-slate-50 flex flex-col min-h-dvh items-center w-full">
         <Navbar />
-        <main className="max-w-screen-xl p-4 w-full grow">
+        <main className="w-full grow">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
