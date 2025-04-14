@@ -21,11 +21,7 @@ const TimeDayGrid = ({ date }) => {
 
         {/* Grid */}
         <div className="flex-1 border-l">
-          {/* Header */}
-          <div className="text-center font-semibold border-b bg-gray-100 py-1">
-            {dayName}, {dayLabel}
-          </div>
-
+          
           {/* Grid cells */}
           <div>
             {hours.map((h) => (
@@ -35,6 +31,12 @@ const TimeDayGrid = ({ date }) => {
               />
             ))}
           </div>
+
+          {/* Header */}
+          <div className="text-center font-semibold border-b bg-gray-100 py-1">
+            {dayName}, {dayLabel}
+          </div>
+
         </div>
       </div>
     </div>

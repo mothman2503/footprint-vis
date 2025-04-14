@@ -9,8 +9,7 @@ function DesktopVisualisation() {
   return (
     <div className="p-6">
       <TimeWeekGrid selectedDate={selectedDate} />
-      <div className="mb-4">
-        <h2 className="font-medium mb-2">Usage Timeline (Click to Select Week)</h2>
+      <div className="mb-4 sticky bottom-0 bg-slate-100">
         <UsageTimelineChart onDateSelect={setSelectedDate} />
       </div>
     </div>

@@ -11,17 +11,13 @@ const TimeWeekGrid = ({ selectedDate }) => {
 
   return (
     <div className="border p-4">
-      <h3 className="font-bold mb-2">Weekly Grid</h3>
       <div className="grid grid-cols-8 gap-2">
-        <div></div>
-        {daysOfWeek.map((day) => (
-          <div key={day.toISOString()} className="text-center font-medium">
-            {format(day, "EEE dd.MM")}
-          </div>
-        ))}
+        {/* Time rows */}
         {Array.from({ length: 24 }).map((_, hour) => (
           <React.Fragment key={hour}>
-            <div className="text-right pr-2">{`${hour.toString().padStart(2, "0")}:00`}</div>
+            <div className="text-right pr-2">{`${hour
+              .toString()
+              .padStart(2, "0")}:00`}</div>
             {daysOfWeek.map((_, i) => (
               <div
                 key={`${hour}-${i}`}
@@ -29,6 +25,14 @@ const TimeWeekGrid = ({ selectedDate }) => {
               ></div>
             ))}
           </React.Fragment>
+        ))}
+
+        {/* Bottom labels */}
+        <div></div>
+        {daysOfWeek.map((day) => (
+          <div key={day.toISOString()} className="text-center font-medium">
+            {format(day, "EEE dd.MM")}
+          </div>
         ))}
       </div>
     </div>
