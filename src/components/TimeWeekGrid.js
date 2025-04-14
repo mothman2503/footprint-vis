@@ -1,42 +1,68 @@
-// components/TimeWeekGrid.js
 import React from "react";
 import { format, startOfWeek, addDays } from "date-fns";
 
 const TimeWeekGrid = ({ selectedDate }) => {
-  const startDate = startOfWeek(selectedDate, { weekStartsOn: 1 });
+    const startDate = startOfWeek(selectedDate, { weekStartsOn: 1 });
 
-  const daysOfWeek = Array.from({ length: 7 }, (_, i) =>
-    addDays(startDate, i)
-  );
+    const daysOfWeek = Array.from({ length: 7 }, (_, i) =>
+        addDays(startDate, i)
+    );
 
-  return (
-    <div className="border p-4">
-      <div className="grid grid-cols-8 gap-2">
-        {/* Time rows */}
-        {Array.from({ length: 24 }).map((_, hour) => (
-          <React.Fragment key={hour}>
-            <div className="text-right pr-2">{`${hour
-              .toString()
-              .padStart(2, "0")}:00`}</div>
-            {daysOfWeek.map((_, i) => (
-              <div
-                key={`${hour}-${i}`}
-                className="h-4 border bg-gray-100"
-              ></div>
-            ))}
-          </React.Fragment>
-        ))}
+    return (
+        <div className="h-full w-full border flex-1 overflow-y-auto">
+            {/* Scrollable wrapper */}
+            <div
+                className="relative overflow-y-auto h-full"
+            >
+                <div
+                    className="grid gap-0"
+                    style={{
+                        gridTemplateColumns: "80px repeat(7, 1fr)",
+                    }}
+                >
+                    {/* Time rows - 48 intervals (30 min) */}
+                    {Array.from({ length: 48 }).map((_, index) => {
+                        const hour = Math.floor(index / 2);
+                        const isFullHour = index % 2 === 0;
+                        return (
+                            <React.Fragment key={index}>
+                                <div
+                                    className="text-center pr-2 text-sm font-medium border-r"
+                                    style={{
+                                        height: "40px",
+                                        lineHeight: "40px",
+                                    }}
+                                >
+                                    {isFullHour ? `${hour.toString().padStart(2, "0")}:00` : ""}
+                                </div>
+                                {daysOfWeek.map((_, i) => (
+                                    <div
+                                        key={`${index}-${i}`}
+                                        className="border-r bg-gray-100 flex flex-col justify-center"
+                                        style={{ height: "40px" }}
+                                    >
+                                        <div className="h-px w-full bg-gray-300" />
 
-        {/* Bottom labels */}
-        <div></div>
-        {daysOfWeek.map((day) => (
-          <div key={day.toISOString()} className="text-center font-medium">
-            {format(day, "EEE dd.MM")}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+                                    </div>
+                                ))}
+                            </React.Fragment>
+                        );
+                    })}
+
+                    {/* Sticky Bottom Labels */}
+                    <div className="border-r" />
+                    {daysOfWeek.map((day) => (
+                        <div
+                            key={day.toISOString()}
+                            className="text-center font-medium bg-white sticky bottom-0 z-10 border-t border-gray-300 py-2"
+                        >
+                            {format(day, "EEE dd.MM")}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default TimeWeekGrid;
