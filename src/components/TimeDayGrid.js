@@ -30,7 +30,7 @@ const TimeDayGrid = ({ date, markers = [] }) => {
         <div
           className="grid gap-0"
           style={{
-            gridTemplateColumns: "80px 20px repeat(1, 1fr) 20px",
+            gridTemplateColumns: "80px 20px minmax(0, 1fr) 20px",
           }}
         >
           {/* Time rows - 48 intervals (30 min) */}
@@ -61,16 +61,17 @@ const TimeDayGrid = ({ date, markers = [] }) => {
 
                     return (
                       <div
-                        className="border-r px-2 bg-gray-100 flex justify-center items-center overflow-hidden h-full"
+                        className="border-r bg-gray-100 flex justify-center items-center overflow-hidden h-full"
+                        
                       >
-                        <div className="flex overflow-y-hidden justify-start box-content overflow-x-scroll scrollbar-hide h-full w-full items-center space-x-1">
+                        <div className="flex overflow-y-hidden justify-start box-content overflow-x-scroll scrollbar-hide h-full w-full items-center space-x-1" >
                           {hits.map((hit, idx) =>
                             <img
                               key={`${dateKey}-${index}-${idx}`}
                               src={hit.favicon}
                               title={hit.title}
                               alt=""
-                              className="w-3 h-3 bg-indigo-500"
+                              className="h-4 bg-indigo-500"
                             />
                           )}
                         </div>
