@@ -8,7 +8,7 @@ const Footer = () => {
     const { t } = useTranslation(); 
 
     return (
-        <footer className="bg-slate-800 h-52 w-full text-white flex justify-around items-end p-6 space-x-8">
+        <footer className="bg-slate-800 h-52 w-full text-white flex justify-around items-end p-6 space-x-8 z-10">
             <div className='h-full flex flex-col justify-between'>
             <p className='font-mono text-sm'>
                             <Link className='text-sky-300 hover:underline hover:text-indigo-300' to={"/about"}>
