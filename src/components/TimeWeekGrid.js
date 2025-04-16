@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
-import { format, startOfWeek, addDays } from "date-fns";
+import { format, addDays } from "date-fns";
+import Datapoint from "./Datapoint";
 
 const TimeWeekGrid = ({ selectedDate, markers = [] }) => {
-    const startDate = startOfWeek(selectedDate, { weekStartsOn: 1 });
+    const startDate = selectedDate;
 
     const daysOfWeek = Array.from({ length: 7 }, (_, i) =>
         addDays(startDate, i)
@@ -40,9 +41,9 @@ const TimeWeekGrid = ({ selectedDate, markers = [] }) => {
                         return (
                             <React.Fragment key={index}>
                                 <div
-                                    className="text-center pr-2 text-sm font-medium border-r h-6"
+                                    className="text-center bg-white pr-2 text-sm font-medium border-r h-6 z-10"
                                     style={{
-                                        lineHeight: "40px",
+                                        lineHeight: "20px",
                                     }}
                                 >
                                     {isFullHour ? `${hour.toString().padStart(2, "0")}:00` : ""}
@@ -57,7 +58,7 @@ const TimeWeekGrid = ({ selectedDate, markers = [] }) => {
                                             key={key}
                                             className="border-r px-2 bg-gray-100 flex justify-center items-center overflow-hidden h-6"
                                         >
-                                            <div className="flex overflow-y-hidden justify-start box-content overflow-x-scroll scrollbar-hide h-full w-full items-center space-x-1">
+                                            <div className="flex overflow-y-hidden justify-start box-content overflow-x-scroll scrollbar-hide h-full w-full items-center">
                                                 {(() => {
                                                     const dateKey = daysOfWeek[colIndex].toISOString().split("T")[0];
                                                     console.log("Cell dateKey:", dateKey, "row index:", index);
@@ -65,19 +66,7 @@ const TimeWeekGrid = ({ selectedDate, markers = [] }) => {
                                                     const hits = groupedByDateAndRow[dateKey]?.[index] || [];
 
                                                     return hits.map((hit, idx) => (
-                                                        (hit.favicon) ? (<img
-                                                            key={`${dateKey}-${index}-${idx}`}
-                                                            src={hit.favicon}
-                                                            title={hit.title}
-                                                            alt=""
-                                                            className="w-3 h-3" />
-                                                        )
-                                                            :
-
-                                                            (<div
-                                                                key={`${dateKey}-${index}-${idx}`}
-                                                                className="w-2 h-2 bg-indigo-500 rounded-full" />
-                                                            )
+                                                        <Datapoint key={`${dateKey}-${index}-${idx}`} favicon={hit.favicon} title={hit.title} time={hit.date} />
                                                     ));
                                                 })()}
                                             </div>

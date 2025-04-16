@@ -40,7 +40,7 @@ const DesktopVisualisation = ({ rawJson }) => {
       </div>
 
       {/* Fixed height chart at bottom */}
-      <div className="h-[100px] bg-slate-100">
+      <div className="h-[100px] bg-slate-100 z-10">
         <UsageTimelineChart
           onDateSelect={setSelectedDate}
           selectedDate={selectedDate}

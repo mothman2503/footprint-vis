@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import Datapoint from "./Datapoint";
 import { format, addDays } from "date-fns";
 
 const TimeDayGrid = ({ date, markers = [] }) => {
@@ -40,7 +41,7 @@ const TimeDayGrid = ({ date, markers = [] }) => {
             return (
               <React.Fragment key={index}>
                 <div
-                  className="text-center pr-2 text-sm font-medium border-r"
+                  className="text-center pr-2 text-sm font-medium border-r z-10"
                   style={{
                     height: "40px",
                     lineHeight: "40px",
@@ -55,29 +56,28 @@ const TimeDayGrid = ({ date, markers = [] }) => {
                   className="bg-gray-100 flex flex-col justify-center"
                   style={{ height: "40px" }}
                 >
+                  <div
+                        className="border-r bg-gray-100 flex justify-center items-center overflow-hidden h-full"
+
+                      >
                   {(() => {
-                    const dateKey = daysOfWeek[0].toISOString().split("T")[0];
-                    const hits = groupedByDateAndRow[dateKey]?.[index] || [];
+                    
 
                     return (
-                      <div
-                        className="border-r bg-gray-100 flex justify-center items-center overflow-hidden h-full"
-                        
-                      >
+                      
                         <div className="flex overflow-y-hidden justify-start box-content overflow-x-scroll scrollbar-hide h-full w-full items-center space-x-1" >
-                          {hits.map((hit, idx) =>
-                            <img
-                              key={`${dateKey}-${index}-${idx}`}
-                              src={hit.favicon}
-                              title={hit.title}
-                              alt=""
-                              className="h-4 bg-indigo-500"
-                            />
-                          )}
+                          {(() => {
+                            const dateKey = daysOfWeek[0].toISOString().split("T")[0];
+                            const hits = groupedByDateAndRow[dateKey]?.[index] || [];
+                            return hits.map((hit, idx) => (
+                              <Datapoint key={`${dateKey}-${index}-${idx}`} favicon={hit.favicon} title={hit.title} time={hit.date} />));
+                            
+                          })()}
                         </div>
-                      </div>
+                      
                     );
                   })()}
+                  </div>
                 </div>
                 <div className="bg-gray-100" />
 
