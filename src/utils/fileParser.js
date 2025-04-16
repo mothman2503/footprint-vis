@@ -24,6 +24,27 @@ export const parseBrowserHistory = (rawJson) => {
       return '';
     }
   };
+
+
+export const extractGridPointsFromBrowserHistory = (historyEntries) => {
+  return historyEntries.map((entry) => {
+    const timestampMs = entry.time_usec / 1000;
+    const date = new Date(timestampMs);
+
+    const dayIndex = (date.getDay() + 6) % 7; // Make Monday=0
+    const minutesSinceMidnight = date.getHours() * 60 + date.getMinutes();
+    const row = Math.floor(minutesSinceMidnight / 30); // 0–47
+
+    return {
+      row, // 30-minute slot index
+      dayIndex,
+      title: entry.title,
+      url: entry.url,
+      favicon: entry.favicon_url,
+    };
+  });
+};
+
   
 
   
