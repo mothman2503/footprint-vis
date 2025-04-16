@@ -34,9 +34,9 @@ const MobileVisualisation = ({ rawJson }) => {
     }, [rawJson, selectedDate]);
 
   return (
-    <div className="h-[calc(100svh-80px)] w-full flex flex-col">
+    <div className="h-[calc(100svh-80px)] w-dvw flex flex-col">
       {/* Main content: grows and scrolls */}
-      <div className="flex-1 min-h-0 overflow-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto">
       <TimeDayGrid date={selectedDate} markers={markers}/>
       </div>
 
