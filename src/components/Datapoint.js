@@ -12,7 +12,7 @@ const Datapoint = ({ favicon, title, time }) => {
 
     return (
         <>
-            <div className={`${iconClass} flex-shrink-0`}>
+            <div className={`${iconClass} flex-shrink-0 cursor-pointer`}>
             {favicon ? (
                 <img
                     src={favicon}
@@ -33,7 +33,7 @@ const Datapoint = ({ favicon, title, time }) => {
 
 {showTooltip && (
                 <div className="absolute h-0 w-0">
-                    <div className="absolute -left-1/2 font-bold text-sm mt-5 px-2 py-1 bg-slate-100 rounded shadow z-50 whitespace-nowrap  flex flex-col ">
+                    <div className="absolute -left-1/2 font-bold text-sm mt-3 px-2 py-1 bg-slate-100 rounded shadow z-50 whitespace-nowrap  flex flex-col ">
                         "{title}" 
                     </div>
                 </div>

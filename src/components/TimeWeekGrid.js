@@ -26,14 +26,35 @@ const TimeWeekGrid = ({ selectedDate, markers = [] }) => {
 
 
     return (
-        <div className="h-full w-full border flex-1 overflow-y-auto">
-            <div className="relative overflow-y-auto h-full">
+        <div className="h-full w-full border flex-1 overflow-y-auto overflow-x-hidden">
+            <div className="relative overflow-y-auto overflow-x-hidden h-full">
                 <div
                     className="grid gap-0"
                     style={{
                         gridTemplateColumns: "80px 30px repeat(7, 1fr) 30px",
                     }}
                 >
+
+<div
+                        className="text-center font-medium bg-gray-100 sticky bottom-0 z-10 border-r  h-7 py-2"
+                    >
+                    </div>
+                    <div
+                        className="text-center font-medium bg-gray-100 sticky bottom-0 z-10-300 py-2"
+                    >
+                    </div>
+                    {Array.from({ length: 7 }).map((i) => (
+                        <div
+                            key={i}
+                            className="text-center font-medium bg-gray-100 sticky bottom-0 z-10 border-r  py-2"
+                        >
+                        </div>
+                    ))}
+
+                    <div
+                        className="text-center font-medium bg-gray-100 sticky bottom-0 z-10  py-2"
+                    >
+                    </div>
                     {/* Time rows - 48 intervals (30 min) */}
                     {Array.from({ length: 48 }).map((_, index) => {
                         const hour = Math.floor(index / 2);
@@ -58,7 +79,7 @@ const TimeWeekGrid = ({ selectedDate, markers = [] }) => {
                                             key={key}
                                             className="border-r px-2 bg-gray-100 flex justify-center items-center overflow-hidden h-6"
                                         >
-                                            <div className="flex overflow-y-hidden justify-start box-content overflow-x-scroll scrollbar-hide h-full w-full items-center">
+                                            <div className="flex overflow-y-hidden justify-start box-content overflow-x-scroll scrollbar-hide h-full items-center">
                                                 {(() => {
                                                     const dateKey = daysOfWeek[colIndex].toISOString().split("T")[0];
                                                     console.log("Cell dateKey:", dateKey, "row index:", index);
@@ -81,9 +102,36 @@ const TimeWeekGrid = ({ selectedDate, markers = [] }) => {
                         );
                     })}
 
+
+                    <div
+                        className="text-center font-medium bg-gray-100 sticky bottom-0 z-10 border-r   py-2"
+                    >
+                    </div>
+                    <div
+                        className="text-center font-medium bg-gray-100 sticky bottom-0 z-10-300 py-2"
+                    >
+                    </div>
+                    {Array.from({ length: 7 }).map((i) => (
+                        <div
+                            key={i}
+                            className="text-center font-medium bg-gray-100 sticky bottom-0 z-10 border-r  py-2"
+                        >
+                        </div>
+                    ))}
+
+                    <div
+                        className="text-center font-medium bg-gray-100 sticky bottom-0 z-10  py-2"
+                    >
+                    </div>
+
+
+
                     {/* Sticky Bottom Labels */}
                     <div className="border-r" />
+
+
                     <div className="text-center font-medium bg-white sticky bottom-0 z-10 border-t border-gray-300 py-2"> ◀ </div>
+
 
                     {daysOfWeek.map((day) => (
                         <div
