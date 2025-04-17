@@ -26,7 +26,7 @@ const TimeDayGrid = ({ date, markers = [] }) => {
     <div className="h-full w-full border flex-1 overflow-y-auto">
       {/* Scrollable wrapper */}
       <div
-        className="relative overflow-y-auto h-full"
+        className="relative overflow-y-auto h-full overflow-x-hidden"
       >
         <div
           className="grid gap-0"
@@ -65,7 +65,7 @@ const TimeDayGrid = ({ date, markers = [] }) => {
 
                     return (
                       
-                        <div className="flex overflow-y-hidden justify-start box-content overflow-x-scroll scrollbar-hide h-full w-full items-center space-x-1" >
+                        <div className="flex overflow-y-hidden justify-start box-content overflow-x-scroll scrollbar-hide h-full items-center space-x-1" >
                           {(() => {
                             const dateKey = daysOfWeek[0].toISOString().split("T")[0];
                             const hits = groupedByDateAndRow[dateKey]?.[index] || [];
