@@ -5,7 +5,7 @@ const SearchEntryCard = ({ entry }) => {
 
   return (
     <li className="p-4 bg-gray-100 rounded shadow-sm">
-      <p><strong>Query:</strong> {query}</p>
+      <h1 className='text-2xl'>Searched for <strong>"{query}"</strong></h1>
       <p><strong>Timestamp:</strong> {timestamp}</p>
       {coords?.lat && (
         <p><strong>Location:</strong> {coords.lat}, {coords.lon}</p>
