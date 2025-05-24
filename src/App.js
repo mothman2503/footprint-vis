@@ -11,7 +11,7 @@ import "./i18n";
 function App() {
   return (
     <Router>
-      <div className="bg-slate-50 flex flex-col min-h-dvh items-center w-full">
+      <div className="bg-[#131818] flex flex-col min-h-dvh items-center w-full">
         <Navbar />
         <main className="w-full grow">
           <Routes>
