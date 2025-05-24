@@ -4,8 +4,8 @@ import SearchEntryCard from './SearchEntryCard';
 
 const ActivityViewer = () => {
   const [entries, setEntries] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(20);
-  const CHUNK = 20;
+  const [currentPage, setCurrentPage] = useState(1);
+  const PER_PAGE = 20;
 
   useEffect(() => {
     const fetchEntries = async () => {
@@ -16,6 +16,17 @@ const ActivityViewer = () => {
     fetchEntries();
   }, []);
 
+  const totalPages = Math.ceil(entries.length / PER_PAGE);
+  const paginatedEntries = entries.slice(
+    (currentPage - 1) * PER_PAGE,
+    currentPage * PER_PAGE
+  );
+
+  const goToPage = (pageNum) => {
+    if (pageNum < 1 || pageNum > totalPages) return;
+    setCurrentPage(pageNum);
+  };
+
   if (!entries.length) {
     return <p className="mt-4 text-gray-500">No search entries loaded.</p>;
   }
@@ -23,19 +34,35 @@ const ActivityViewer = () => {
   return (
     <div className="mt-6 max-w-2xl">
       <h2 className="text-xl font-semibold mb-4">Your Search History</h2>
-      <ul className="space-y-4">
-        {entries.slice(0, visibleCount).map(entry => (
+
+      <ul className="space-y-4 h-[600px] overflow-y-auto">
+        {paginatedEntries.map(entry => (
           <SearchEntryCard key={entry.id} entry={entry} />
         ))}
       </ul>
-      {visibleCount < entries.length && (
+
+      {/* Pagination Controls */}
+      <div className="mt-6 flex items-center justify-between">
         <button
-          onClick={() => setVisibleCount(v => v + CHUNK)}
-          className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
         >
-          Load More ({visibleCount}/{entries.length})
+          Previous
         </button>
-      )}
+
+        <span className="text-sm text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

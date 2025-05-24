@@ -1,4 +1,4 @@
-// utils/parser.js
+import { DateTime } from 'luxon';
 
 export function parseActivityHtml(htmlText) {
   const doc = new DOMParser().parseFromString(htmlText, 'text/html');
@@ -17,8 +17,8 @@ export function parseActivityHtml(htmlText) {
     const a = div.querySelector('a');
     const query = a?.textContent.trim() || '';
 
-    // Extract timestamp from following text
-    let timestamp = '';
+    // Extract timestamp from text nodes after the <a> tag
+    let timestampRaw = '';
     let seenLink = false;
     for (let node of div.childNodes) {
       if (!seenLink && node === a) {
@@ -28,11 +28,27 @@ export function parseActivityHtml(htmlText) {
       if (seenLink && node.nodeType === Node.TEXT_NODE) {
         const t = node.nodeValue.trim();
         if (t) {
-          timestamp = t;
+          timestampRaw = t;
           break;
         }
       }
     }
+
+    // Parse and normalize timestamp by stripping TZ abbrev
+    let timestamp = null;
+    if (timestampRaw) {
+  const cleaned = timestampRaw
+  .replace(/\s+/g, ' ')            // collapse all whitespace to normal space
+  .replace(/\s[A-Z]{2,4}$/, '');   // remove trailing TZ abbreviation
+
+  const dt = DateTime.fromFormat(cleaned, "LLL d, yyyy, h:mm:ss a");
+  if (dt.isValid) timestamp = dt.toISO();
+  else {
+    console.warn('Failed to parse timestamp:', timestampRaw);
+    timestamp = null;
+  }
+}
+
 
     // Extract map coordinates if available
     const caption = captionDivs[i];
