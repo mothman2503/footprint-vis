@@ -10,7 +10,7 @@ const Datapoint = ({
   selectedQuery,
   selectedFullDate,
   obscure,
-  onHover,
+  onSelect,
 }) => {
   const isSamePoint =
     selectedQuery === query &&
@@ -20,6 +20,8 @@ const Datapoint = ({
   const [tooltipHeight, setTooltipHeight] = useState(80);
   const [visible, setVisible] = useState(false);
   const [animatingOut, setAnimatingOut] = useState(false);
+  // const isTouch = window.matchMedia("(pointer: coarse)").matches;
+  const isTouch = true;
   const isBeforeNoon = fullDate.getHours() < 12;
 
   // Track visibility state
@@ -44,11 +46,11 @@ const Datapoint = ({
   }, [visible]);
 
   const handleMouseEnter = () => {
-    onHover({ query, fullDate, x, y });
+    if (!isTouch) onSelect({ query, fullDate, x, y });
   };
 
   const handleMouseLeave = () => {
-    if (isSamePoint) onHover(null);
+    if (isSamePoint && !isTouch) onSelect(null);
   };
 
   const tooltipY = isBeforeNoon
@@ -57,12 +59,20 @@ const Datapoint = ({
 
   return (
     <>
-      <g onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <g
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={() => {
+          if (isTouch) {
+            onSelect({ query, fullDate, x, y });
+          }
+        }}
+      >
         {isSamePoint && (
           <circle
             cx={x}
             cy={y}
-            r={radius * 2.5}
+            r={radius * 3.5}
             fill="none"
             stroke={color}
             strokeWidth={2}
@@ -84,41 +94,46 @@ const Datapoint = ({
           }}
           className="cursor-pointer transition-all duration-200"
         />
-
-        
       </g>
 
       {visible && (
-          <foreignObject
-            x={x - 125}
-            y={tooltipY - 10*(isBeforeNoon?-1:1)} 
-            width={250}
-            height={tooltipHeight + 20}
-        className="z-90"
+        <foreignObject
+          x={x - 125}
+          y={tooltipY - 10 * (isBeforeNoon ? -1 : 1)}
+          width={250}
+          height={tooltipHeight + 20}
+          className="z-90"
+        >
+          <div
+            ref={tooltipRef}
+            className={`rounded-md text-xs leading-tight shadow-md z-90 ${
+              animatingOut ? "animate-tooltipFadeOut" : "animate-tooltipFadeIn"
+            }`}
+            style={{
+              backgroundColor: color,
+              transformOrigin: isBeforeNoon ? "top center" : "bottom center",
+            }}
           >
-            <div
-              ref={tooltipRef}
-              className={`rounded-md text-xs leading-tight shadow-md z-90 ${
-                animatingOut ? "animate-tooltipFadeOut" : "animate-tooltipFadeIn"
-              }`}
-              style={{
-                backgroundColor: color,
-                transformOrigin: isBeforeNoon ? "top center" : "bottom center",
-              }}
-            >
-              <div className="py-2 px-5">
-                <p className="text-xs ">
-                  SEARCHED AT {fullDate.toLocaleTimeString()}
+            {isTouch && (
+              <div className="relative top-2 right-[-222px] cursor-pointer" onClick={() => {onSelect(null);}}>
+                <p className="absolute bg-red-500/90 border-black/50 p-auto text-center border rounded-full  w-[20px] h-[20px]">
+                  x
                 </p>
-                <p className="text-lg font-medium my-2">"{query}"</p>
               </div>
-              <div className="h-[0.3px] w-full bg-[#444]" />
-              <div className="py-2 px-5">
-                <p className="text-sm">category</p>
-              </div>
+            )}
+            <div className="py-2 px-5">
+              <p className="text-xs ">
+                SEARCHED AT {fullDate.toLocaleTimeString()}
+              </p>
+              <p className="text-lg font-medium my-2">"{query}"</p>
             </div>
-          </foreignObject>
-        )}
+            <div className="h-[0.3px] w-full bg-[#444]" />
+            <div className="py-2 px-5">
+              <p className="text-sm">category</p>
+            </div>
+          </div>
+        </foreignObject>
+      )}
     </>
   );
 };

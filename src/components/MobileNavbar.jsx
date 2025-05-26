@@ -13,17 +13,7 @@ const MobileNavbar = () => {
   const [isVisible, setIsVisible] = useState(false); // State for animation visibility
 
   // Disable scrolling when menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden"; // Prevent scrolling
-    } else {
-      document.body.style.overflow = "auto"; // Restore scrolling
-    }
-
-    return () => {
-      document.body.style.overflow = "auto"; // Cleanup when component unmounts
-    };
-  }, [isOpen]);
+  
 
   // Trigger navbar visibility when the component mounts
   useEffect(() => {
@@ -54,7 +44,7 @@ const MobileNavbar = () => {
     <>
       {/* Sticky Navbar */}
       <div
-        className={`bg-slate-50/85 backdrop-blur-sm w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center justify-between z-40 
+        className={`bg-slate-50/85 backdrop-blur-sm w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center justify-between z-50 
         transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`}
       >
         {/* Hamburger Icon */}

@@ -7,15 +7,15 @@ const UsageStripeChartScrollable = ({ entries, onSelectWeek }) => {
   const [highlightX, setHighlightX] = useState(0);
   const [dragging, setDragging] = useState(false);
 
-  const margin = { left: 40, right: 20, top: 10, bottom: 30 };
-  const chartHeight = window.innerHeight * 0.1; // 20dvh
+  const margin = { left: 40, right: 40, top: 0, bottom: 10 };
+  const chartHeight =(window.innerHeight - 80) * 0.11; // 20dvh
 
   const now = new Date();
   const fiveYearsAgo = d3.timeYear.offset(now, -5);
 
   const pixelsPerYear = 1000;
   const totalChartWidth = pixelsPerYear * 5;
-  const viewportWidth = window.innerWidth; // 90dvw
+  const viewportWidth = window.innerWidth * 0.98;
   const weekWidth = (pixelsPerYear / 365) * 7;
 
   const filteredEntries = entries.filter((d) => {
@@ -66,15 +66,14 @@ const UsageStripeChartScrollable = ({ entries, onSelectWeek }) => {
     const xPos = e.clientX - rect.left + containerRef.current.scrollLeft;
     setHighlightX(xPos);
   };
-const dayWidth = (pixelsPerYear / 365);
 
-const handleMouseUp = () => {
-  if (!dragging) return;
-  setDragging(false);
-  const selectedDate = d3.timeDay.floor(posToDate(highlightX));
-  onSelectWeek({ startDate: selectedDate, endDate: selectedDate });
-};
-
+  const handleMouseUp = () => {
+    if (!dragging) return;
+    setDragging(false);
+    const selectedStartDate = d3.timeDay.floor(posToDate(highlightX));
+    const selectedEndDate = d3.timeDay.offset(selectedStartDate, 6);
+    onSelectWeek({ startDate: selectedStartDate, endDate: selectedEndDate });
+  };
 
   const startScroll = (direction) => {
     if (!containerRef.current) return;
@@ -93,7 +92,7 @@ const handleMouseUp = () => {
     <div
       className="relative"
       style={{
-        width: viewportWidth,
+        width: "100dvw",
         height: chartHeight,
         userSelect: "none",
       }}
@@ -174,21 +173,21 @@ const handleMouseUp = () => {
 
         {/* Highlight overlay */}
         <div
-  style={{
-    position: "absolute",
-    top: 0,
-    transform: `translateX(${highlightX}px)`,
-    width: dayWidth,
-    height: "100%",
-    backgroundColor: "rgba(100, 50, 50, 0.3)",
-    borderLeft: "1px solid red",
-    borderRight: "1px solid red",
-    pointerEvents: "none",
-    transition: dragging ? "none" : "transform 0.2s",
-    boxSizing: "border-box",
-    zIndex: 10,
-  }}
-/>
+          style={{
+            position: "absolute",
+            top: 0,
+            transform: `translateX(${highlightX}px)`,
+            width: weekWidth,
+            height: "100%",
+            backgroundColor: "rgba(100, 50, 50, 0.3)",
+            borderLeft: "1px solid red",
+            borderRight: "1px solid red",
+            pointerEvents: "none",
+            transition: dragging ? "none" : "transform 0.2s",
+            boxSizing: "border-box",
+            zIndex: 10,
+          }}
+        />
       </div>
     </div>
   );

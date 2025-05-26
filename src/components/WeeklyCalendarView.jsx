@@ -14,6 +14,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     "#f781bf",
   ];
 
+
   function getColorFromFirstLetter(str) {
     if (!str || str.length === 0) return colors[0]; // default fallback
     const firstChar = str[0].toUpperCase();
@@ -38,8 +39,8 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
   useEffect(() => {
     const updateDimensions = () => {
       setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight * 0.8 - 80,
+        width: window.innerWidth * 0.99,
+        height: (window.innerHeight - 80) * 0.8,
       });
     };
     updateDimensions();
@@ -162,7 +163,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
 
   const hoverTimeoutRef = useRef(null);
 
-  const handleHover = (point) => {
+  const handleSelection = (point) => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
       hoverTimeoutRef.current = null;
@@ -182,7 +183,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
       className="relative"
       style={{ width: dimensions.width, height: dimensions.height }}
     >
-      <h3 className="text-md font-semibold mb-2">
+      <h3 className="text-md text-white font-semibold mx-5 mb-2">
         Search Activity : {weekTitle}
       </h3>
       <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
@@ -205,22 +206,24 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
         </g>
 
         {/* Horizontal gridlines every 6 hours */}
-        <g>
-          {sixHourIntervals.map((time, i) => {
-            const yPos = y(time);
-            return (
-              <line
-                key={`six-hour-grid-${i}`}
-                x1={margin.left}
-                y1={yPos}
-                x2={dimensions.width - margin.right}
-                y2={yPos}
-                stroke="#fff"
-                strokeWidth={0.2}
-              />
-            );
-          })}
-        </g>
+<g>
+  {sixHourIntervals.map((time, i) => {
+    const yPos = y(time);
+    return (
+      <line
+        key={`six-hour-grid-${i}`}
+        x1={margin.left}
+        y1={yPos}
+        x2={dimensions.width - margin.right}
+        y2={yPos}
+        stroke="#9db"
+        strokeWidth={0.3}
+        strokeDasharray="4 4" // Makes the line dotted
+      />
+    );
+  })}
+</g>
+
 
         {/* X Axis */}
         <g transform={`translate(0,${dimensions.height - margin.bottom})`}>
@@ -279,7 +282,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
             radius={radius}
             selectedQuery={selectedPoint?.query}
             selectedFullDate={selectedPoint?.fullDate}
-            onHover={handleHover}
+            onSelect={handleSelection}
           />
         ))}
       </svg>

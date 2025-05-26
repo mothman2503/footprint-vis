@@ -1,10 +1,10 @@
-import SearchActivityDashboardMobile from "../components/SearchActivityDashboardMobile";
+import DailyCalendarView from "../components/DailyCalendarView";
 
 const MobileVisualisation = () => {
 
     return (
         <div>
-<SearchActivityDashboardMobile />
+             <DailyCalendarView  />
         </div>
     );
 };
