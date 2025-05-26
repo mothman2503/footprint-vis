@@ -1,9 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-import DatapointMobile from "./DatapointMobile";
+import { openDB } from "idb";
+import DatePicker from "./DatePicker";
+import Datapoint from "./Datapoint";
+import { BsChevronDown } from "react-icons/bs";
 
-const DailyCalendarView = ({ entries, date }) => {
-  const colors = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"];
+const DailyCalendarView = () => {
+  const colors = [
+    "#e41a1c", "#377eb8", "#4daf4a", "#984ea3",
+    "#ff7f00", "#ffff33", "#a65628", "#f781bf"
+  ];
 
   const getColorFromFirstLetter = (str) => {
     if (!str || str.length === 0) return colors[0];
@@ -15,28 +21,50 @@ const DailyCalendarView = ({ entries, date }) => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [clusteredData, setClusteredData] = useState([]);
   const [selectedPoint, setSelectedPoint] = useState(null);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+  const [entries, setEntries] = useState([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const db = await openDB("GoogleActivityApp", 1);
+      const all = await db.getAll("searchResults");
+      const sorted = all.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      setEntries(sorted);
+      if (sorted.length) {
+        setCurrentDate(new Date(sorted[sorted.length - 1].timestamp));
+      }
+    };
+    loadData();
+  }, []);
+
   const radius = 7;
+  const margin = { top: 20, bottom: 100 };
+  const labelMarginBottom = 20; // space for axis labels
 
   useEffect(() => {
     const updateDimensions = () => {
-      const usableHeight = window.innerHeight - 80;
-      setDimensions({ width: window.innerWidth, height: usableHeight * 0.6 }); // 60% of usable height
+      const usableHeight = window.innerHeight - 80; // 80 for navbar
+      setDimensions({ width: window.innerWidth, height: usableHeight });
     };
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
-  useEffect(() => {
-    if (!date || dimensions.width === 0) return;
+  // Create y scale once per render, used both for clustering and axis
+  const y = d3.scaleTime()
+    .domain([new Date(1970, 0, 1, 0, 0), new Date(1970, 0, 2, 0, 0)]) // full day + last tick at next day 00:00
+    .range([margin.top, dimensions.height - margin.bottom - labelMarginBottom]);
 
-    const margin = { top: 20, bottom: 40 };
-    const height = dimensions.height;
+  useEffect(() => {
+    if (!currentDate || dimensions.width === 0) return;
+
     const baseX = dimensions.width / 2;
 
-    const startOfDay = new Date(date);
+    const startOfDay = new Date(currentDate);
     startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(date);
+    const endOfDay = new Date(currentDate);
     endOfDay.setHours(23, 59, 59, 999);
 
     const filtered = entries.filter((d) => {
@@ -46,13 +74,10 @@ const DailyCalendarView = ({ entries, date }) => {
 
     const parsed = filtered.map((d) => {
       const fullDate = new Date(d.timestamp);
+      // Use fixed date 1970-01-01 to create times only for scale
       const timeOnly = new Date(1970, 0, 1, fullDate.getHours(), fullDate.getMinutes(), fullDate.getSeconds());
       return { ...d, fullDate, timeOnly };
     });
-
-    const y = d3.scaleTime()
-      .domain([new Date(1970, 0, 1, 0, 0), new Date(1970, 0, 1, 23, 59)])
-      .range([margin.top, height - margin.bottom]);
 
     const clusterHeight = radius * 3;
     const maxPerCluster = 6;
@@ -82,50 +107,52 @@ const DailyCalendarView = ({ entries, date }) => {
     });
 
     setClusteredData(clustered);
-  }, [entries, date, dimensions]);
-
-  const y = d3.scaleTime()
-    .domain([new Date(1970, 0, 1, 0, 0), new Date(1970, 0, 1, 23, 59)])
-    .range([20, dimensions.height - 40]);
-
-  const sixHourIntervals = d3.timeHour.range(new Date(1970, 0, 1, 0), new Date(1970, 0, 2), 6);
+  }, [entries, currentDate, dimensions, y]);
 
   const handleSelect = (point) => {
-    setSelectedPoint((prev) =>
-      prev?.fullDate.getTime() === point?.fullDate.getTime() ? null : point
-    );
+    setSelectedPoint(point);
   };
 
   return (
-    <div className="relative w-full" style={{ height: `${dimensions.height}px` }}>
-      <h3 className="text-sm font-semibold mb-2 text-center text-white">
-        {d3.timeFormat("%A, %B %d, %Y")(date)}
-      </h3>
-      <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
-        <g>
-          {sixHourIntervals.map((time, i) => {
-            const yPos = y(time);
-            return (
-              <line
-                key={`grid-${i}`}
-                x1={0}
-                y1={yPos}
-                x2={dimensions.width}
-                y2={yPos}
-                stroke="#fff"
-                strokeWidth={0.2}
-              />
-            );
-          })}
-        </g>
+    <div className="relative w-full overflow-hidden" style={{ height: `${dimensions.height}px` }}>
+      <div>
+        {/* Date Picker Header */}
+        <div className="absolute flex justify-center items-center mb-2 w-full">
+          <button
+            onClick={() => setShowPicker((prev) => !prev)}
+            className="text-white text-lg font-semibold flex items-center gap-1"
+          >
+            {d3.timeFormat("%A, %B %d, %Y")(currentDate)}
+            <BsChevronDown />
+          </button>
 
-        <g transform="translate(40,0)">
+          {showPicker && (
+            <div className="absolute top-full mt-2 z-50">
+              <DatePicker
+                selectedDate={currentDate}
+                annotations={{}}
+                onSelectDate={(newDate) => {
+                  setCurrentDate(newDate);
+                  setShowPicker(false);
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Chart */}
+      <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
+        {/* Y Axis */}
+        <g transform="translate(40, 0)">
           <g
             ref={(node) => {
               if (node) {
                 d3.select(node)
                   .call(
-                    d3.axisLeft(y).ticks(d3.timeHour.every(6)).tickFormat(d3.timeFormat("%H:%M"))
+                    d3.axisLeft(y)
+                      .ticks(d3.timeHour.every(6))
+                      .tickFormat(d3.timeFormat("%H:%M"))
                   )
                   .selectAll("text")
                   .style("fill", "white")
@@ -137,12 +164,14 @@ const DailyCalendarView = ({ entries, date }) => {
           />
         </g>
 
+        {/* Data points */}
         {clusteredData.map((d, i) => (
-          <DatapointMobile
+          <Datapoint
             key={i}
             x={d.clusteredX}
             y={d.clusteredY}
             query={d.query}
+            obscure={selectedPoint?.query}
             color={getColorFromFirstLetter(d.query)}
             fullDate={d.fullDate}
             radius={radius}
