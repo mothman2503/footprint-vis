@@ -6,9 +6,16 @@ import Datapoint from "./Datapoint";
 import { BsChevronDown } from "react-icons/bs";
 
 const DailyCalendarView = () => {
+
   const colors = [
-    "#e41a1c", "#377eb8", "#4daf4a", "#984ea3",
-    "#ff7f00", "#ffff33", "#a65628", "#f781bf"
+    "#e41a1c",
+    "#377eb8",
+    "#4daf4a",
+    "#984ea3",
+    "#ff7f00",
+    "#ffff33",
+    "#a65628",
+    "#f781bf",
   ];
 
   const getColorFromFirstLetter = (str) => {
@@ -25,11 +32,17 @@ const DailyCalendarView = () => {
   const [showPicker, setShowPicker] = useState(false);
   const [entries, setEntries] = useState([]);
 
+  const radius = 7;
+  const margin = { top: 20, bottom: 100, left: 50, right:10 };
+  const labelMarginBottom = 20;
+
   useEffect(() => {
     const loadData = async () => {
       const db = await openDB("GoogleActivityApp", 1);
       const all = await db.getAll("searchResults");
-      const sorted = all.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      const sorted = all.sort(
+        (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+      );
       setEntries(sorted);
       if (sorted.length) {
         setCurrentDate(new Date(sorted[sorted.length - 1].timestamp));
@@ -38,13 +51,9 @@ const DailyCalendarView = () => {
     loadData();
   }, []);
 
-  const radius = 7;
-  const margin = { top: 20, bottom: 100 };
-  const labelMarginBottom = 20; // space for axis labels
-
   useEffect(() => {
     const updateDimensions = () => {
-      const usableHeight = window.innerHeight - 80; // 80 for navbar
+      const usableHeight = window.outerHeight - 80;
       setDimensions({ width: window.innerWidth, height: usableHeight });
     };
     updateDimensions();
@@ -52,15 +61,18 @@ const DailyCalendarView = () => {
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
-  // Create y scale once per render, used both for clustering and axis
-  const y = d3.scaleTime()
-    .domain([new Date(1970, 0, 1, 0, 0), new Date(1970, 0, 2, 0, 0)]) // full day + last tick at next day 00:00
-    .range([margin.top, dimensions.height - margin.bottom - labelMarginBottom]);
-
   useEffect(() => {
     if (!currentDate || dimensions.width === 0) return;
 
     const baseX = dimensions.width / 2;
+
+    const y = d3
+      .scaleTime()
+      .domain([new Date(1970, 0, 1, 0, 0), new Date(1970, 0, 2, 0, 0)])
+      .range([
+        margin.top,
+        dimensions.height - margin.bottom - labelMarginBottom,
+      ]);
 
     const startOfDay = new Date(currentDate);
     startOfDay.setHours(0, 0, 0, 0);
@@ -74,8 +86,14 @@ const DailyCalendarView = () => {
 
     const parsed = filtered.map((d) => {
       const fullDate = new Date(d.timestamp);
-      // Use fixed date 1970-01-01 to create times only for scale
-      const timeOnly = new Date(1970, 0, 1, fullDate.getHours(), fullDate.getMinutes(), fullDate.getSeconds());
+      const timeOnly = new Date(
+        1970,
+        0,
+        1,
+        fullDate.getHours(),
+        fullDate.getMinutes(),
+        fullDate.getSeconds()
+      );
       return { ...d, fullDate, timeOnly };
     });
 
@@ -96,7 +114,8 @@ const DailyCalendarView = () => {
         const clusterOffset = Math.floor(i / maxPerCluster);
         const newClusterY = point.clusterY + clusterOffset * clusterHeight;
         const colIndex = i % maxPerCluster;
-        const offsetX = (colIndex - Math.floor(maxPerCluster / 2)) * horizontalSpacing;
+        const offsetX =
+          (colIndex - Math.floor(maxPerCluster / 2)) * horizontalSpacing;
 
         clustered.push({
           ...point,
@@ -107,50 +126,57 @@ const DailyCalendarView = () => {
     });
 
     setClusteredData(clustered);
-  }, [entries, currentDate, dimensions, y]);
+  }, [entries, currentDate, dimensions]);
 
   const handleSelect = (point) => {
     setSelectedPoint(point);
   };
 
+  const y = d3
+    .scaleTime()
+    .domain([
+      new Date(new Date(1970, 0, 1, 0, 0).getTime() - 30 * 60 * 1000),
+      new Date(new Date(1970, 0, 1, 23, 59).getTime() + 30 * 60 * 1000),
+    ])
+    .range([margin.top, dimensions.height - margin.bottom]);
+
+  // Horizontal gridlines every 6 hours
+  const sixHourIntervals = d3.timeHour.range(
+    new Date(1970, 0, 1, 0, 0),
+    new Date(1970, 0, 1, 24, 0),
+    6
+  );
   return (
-    <div className="relative w-full overflow-hidden" style={{ height: `${dimensions.height}px` }}>
-      <div>
-        {/* Date Picker Header */}
-        <div className="absolute flex justify-center items-center mb-2 w-full">
-          <button
-            onClick={() => setShowPicker((prev) => !prev)}
-            className="text-white text-lg font-semibold flex items-center gap-1"
-          >
-            {d3.timeFormat("%A, %B %d, %Y")(currentDate)}
-            <BsChevronDown />
-          </button>
+    <div
+      className="relative w-full overflow-hidden px-2"
+      style={{ height: `${dimensions.height}px` }}
+    >
+      <svg
+        ref={svgRef}
+        width={dimensions.width * 0.9}
+        height={Math.max(0, dimensions.height - 70)}
+      >
 
-          {showPicker && (
-            <div className="absolute top-full mt-2 z-50">
-              <DatePicker
-                selectedDate={currentDate}
-                annotations={{}}
-                onSelectDate={(newDate) => {
-                  setCurrentDate(newDate);
-                  setShowPicker(false);
-                }}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Chart */}
-      <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
         {/* Y Axis */}
         <g transform="translate(40, 0)">
           <g
             ref={(node) => {
               if (node) {
+                const y = d3
+                  .scaleTime()
+                  .domain([
+                    new Date(1970, 0, 1, 0, 0),
+                    new Date(1970, 0, 2, 0, 0),
+                  ])
+                  .range([
+                    margin.top,
+                    dimensions.height - margin.bottom - labelMarginBottom,
+                  ]);
+
                 d3.select(node)
                   .call(
-                    d3.axisLeft(y)
+                    d3
+                      .axisLeft(y)
                       .ticks(d3.timeHour.every(6))
                       .tickFormat(d3.timeFormat("%H:%M"))
                   )
@@ -164,7 +190,25 @@ const DailyCalendarView = () => {
           />
         </g>
 
-        {/* Data points */}
+        {/* Horizontal gridlines every 6 hours */}
+        <g>
+          {sixHourIntervals.map((time, i) => {
+            const yPos = y(time);
+            return (
+              <line
+                key={`six-hour-grid-${i}`}
+                x1={margin.left}
+                y1={yPos - 10}
+                x2={dimensions.width - margin.right}
+                y2={yPos - 10}
+                stroke="#9db"
+                strokeWidth={0.3}
+                strokeDasharray="4 4" // Makes the line dotted
+              />
+            );
+          })}
+        </g>
+
         {clusteredData.map((d, i) => (
           <Datapoint
             key={i}
@@ -181,6 +225,34 @@ const DailyCalendarView = () => {
           />
         ))}
       </svg>
+
+      <div>
+        <div className="h-[50px] flex justify-center items-center mb-2 w-full border-t-[0.5px] border-[#fff]">
+          <button
+            onClick={() => {
+              setShowPicker((prev) => !prev);
+              console.log(showPicker);
+            }}
+            className="text-white text-lg font-semibold flex items-center gap-1"
+          >
+            {d3.timeFormat("%A, %B %d, %Y")(currentDate)}
+            <BsChevronDown />
+          </button>
+
+          {showPicker && (
+            <div className="absolute mt-2 z-80">
+              <DatePicker
+                selectedDate={currentDate}
+                annotations={{}}
+                onSelectDate={(newDate) => {
+                  setCurrentDate(newDate);
+                  setShowPicker(false);
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
