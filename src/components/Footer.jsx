@@ -8,7 +8,7 @@ const Footer = () => {
     const { t } = useTranslation(); 
 
     return (
-        <footer className="h-52 w-full text-white flex justify-around items-end p-6 space-x-8 z-10" style={{background: "##044223",
+        <footer className="h-52 w-full text-white flex justify-around items-end p-6 space-x-8 z-10" style={{
 background: "linear-gradient(244deg,rgba(4, 66, 35, 1) 0%, rgba(15, 92, 110, 1) 100%)"}}>
             <div className='h-full flex flex-col justify-between'>
             <p className='font-mono text-sm'>
