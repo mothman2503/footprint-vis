@@ -14,7 +14,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     "#f781bf",
   ];
 
-
   function getColorFromFirstLetter(str) {
     if (!str || str.length === 0) return colors[0]; // default fallback
     const firstChar = str[0].toUpperCase();
@@ -151,8 +150,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     ])
     .range([margin.top, dimensions.height - margin.bottom]);
 
-  // Vertical gridlines for days
-  const days = d3.timeDay.range(startDate, new Date(endDate.getTime() + 24 * 60 * 60 * 1000));
 
   // Horizontal gridlines every 6 hours
   const sixHourIntervals = d3.timeHour.range(
@@ -187,64 +184,48 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
         Search Activity : {weekTitle}
       </h3>
       <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
-        {/* Vertical gridlines for days */}
-        <g>
-          {days.map((day, i) => {
-            const xPos = x(day);
-            return (
-              <line
-                key={`day-grid-${i}`}
-                x1={xPos}
-                y1={margin.top}
-                x2={xPos}
-                y2={dimensions.height - margin.bottom}
-                stroke="#131818"
-                strokeWidth={1}
-              />
-            );
-          })}
-        </g>
-
-        {/* Horizontal gridlines every 6 hours */}
-<g>
-  {sixHourIntervals.map((time, i) => {
-    const yPos = y(time);
-    return (
-      <line
-        key={`six-hour-grid-${i}`}
-        x1={margin.left}
-        y1={yPos}
-        x2={dimensions.width - margin.right}
-        y2={yPos}
-        stroke="#9db"
-        strokeWidth={0.3}
-        strokeDasharray="4 4" // Makes the line dotted
-      />
-    );
-  })}
-</g>
-
-
+        
         {/* X Axis */}
         <g transform={`translate(0,${dimensions.height - margin.bottom})`}>
           <g
             ref={(node) => {
               if (node) {
-                d3.select(node).call(
-                  d3
-                    .axisBottom(x)
-                    .ticks(d3.timeDay.every(1))
-                    .tickFormat(d3.timeFormat("%b %d, %Y"))
-                ).selectAll("text")
-          .style("font-size", "13px").style("color", "white");
-      
-        d3.select(node)
-          .selectAll("path, line") // Axis line and ticks
-          .style("stroke", "#131818");
+                d3.select(node)
+                  .call(
+                    d3
+                      .axisBottom(x)
+                      .ticks(d3.timeDay.every(1))
+                      .tickFormat(d3.timeFormat("%b %d, %Y"))
+                  )
+                  .selectAll("text")
+                  .style("font-size", "13px")
+                  .style("color", "white");
+
+                d3.select(node)
+                  .selectAll("path, line") // Axis line and ticks
+                  .style("stroke", "#131818");
               }
             }}
-
           />
+        </g>
+
+        {/* Horizontal gridlines every 6 hours */}
+        <g>
+          {sixHourIntervals.map((time, i) => {
+            const yPos = y(time);
+            return (
+              <line
+                key={`six-hour-grid-${i}`}
+                x1={margin.left}
+                y1={yPos}
+                x2={dimensions.width - margin.right}
+                y2={yPos}
+                stroke="#9db"
+                strokeWidth={0.3}
+                strokeDasharray="4 4" // Makes the line dotted
+              />
+            );
+          })}
         </g>
 
         {/* Y Axis */}
@@ -252,18 +233,20 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
           <g
             ref={(node) => {
               if (node) {
-                d3.select(node).call(
-                  d3
-                    .axisLeft(y)
-                    .ticks(d3.timeHour.every(6))
-                    .tickFormat(d3.timeFormat("%H:%M"))
-                ).selectAll("text")
-          .style("font-size", "12px").style("color", "white");
+                d3.select(node)
+                  .call(
+                    d3
+                      .axisLeft(y)
+                      .ticks(d3.timeHour.every(6))
+                      .tickFormat(d3.timeFormat("%H:%M"))
+                  )
+                  .selectAll("text")
+                  .style("font-size", "12px")
+                  .style("color", "white");
 
-
-        d3.select(node)
-          .selectAll("path, line") // Axis line and ticks
-          .style("stroke", "white");
+                d3.select(node)
+                  .selectAll("path, line") // Axis line and ticks
+                  .style("stroke", "white");
               }
             }}
           />

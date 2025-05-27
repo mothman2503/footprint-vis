@@ -20,8 +20,7 @@ const Datapoint = ({
   const [tooltipHeight, setTooltipHeight] = useState(80);
   const [visible, setVisible] = useState(false);
   const [animatingOut, setAnimatingOut] = useState(false);
-  // const isTouch = window.matchMedia("(pointer: coarse)").matches;
-  const isTouch = true;
+  const isTouch = window.matchMedia("(pointer: coarse)").matches;
   const isBeforeNoon = fullDate.getHours() < 12;
 
   // Track visibility state

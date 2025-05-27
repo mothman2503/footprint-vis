@@ -71,15 +71,7 @@ const DatePicker = ({ annotations = {}, onSelectDate }) => {
 
   return (
     <div className="relative w-64" ref={ref}>
-      <button
-        className="w-full p-2 border rounded bg-white shadow text-left"
-        onClick={() => setOpen(!open)}
-      >
-        {selectedDate.toDateString()}
-      </button>
-
-      {open && (
-        <div className="absolute top-full mt-2 w-full bg-white border shadow-lg rounded z-50 p-4">
+       <div className="absolute bottom-full mb-[30px] w-full bg-white border shadow-lg rounded z-50 p-4">
           {/* Month & Year Controls */}
           <div className="flex justify-between items-center mb-4">
             <button onClick={() => changeMonth(-1)}>
@@ -119,7 +111,6 @@ const DatePicker = ({ annotations = {}, onSelectDate }) => {
             })}
           </div>
         </div>
-      )}
     </div>
   );
 };
