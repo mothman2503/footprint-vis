@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import DayCell from "./DayCell";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const DatePicker = ({ annotations = {}, onSelectDate }) => {
-  const [open, setOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const ref = useRef();
@@ -12,19 +10,6 @@ const DatePicker = ({ annotations = {}, onSelectDate }) => {
 
   const getStartOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1);
   const getEndOfMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0);
-
-  const handleDocumentClick = (e) => {
-    if (ref.current && !ref.current.contains(e.target)) {
-      setOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleDocumentClick);
-    return () => {
-      document.removeEventListener("mousedown", handleDocumentClick);
-    };
-  }, []);
 
   const generateCalendarGrid = () => {
     const start = getStartOfMonth(currentMonth);
@@ -58,9 +43,7 @@ const DatePicker = ({ annotations = {}, onSelectDate }) => {
   };
 
   const handleSelect = (date) => {
-    setSelectedDate(date);
     onSelectDate?.(date);
-    setOpen(false);
   };
 
   const changeMonth = (direction) => {

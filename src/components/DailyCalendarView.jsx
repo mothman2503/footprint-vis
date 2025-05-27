@@ -126,7 +126,7 @@ const DailyCalendarView = () => {
     });
 
     setClusteredData(clustered);
-  }, [entries, currentDate, dimensions]);
+  }, [entries, currentDate, dimensions, margin.top, margin.bottom]);
 
   const handleSelect = (point) => {
     setSelectedPoint(point);
