@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { openDB } from 'idb';
+import {getDB, DB_CONSTANTS } from '../utils/db';
 import SearchEntryCard from './SearchEntryCard';
 
 const ActivityViewer = () => {
@@ -9,8 +9,9 @@ const ActivityViewer = () => {
 
   useEffect(() => {
     const fetchEntries = async () => {
-      const db = await openDB('GoogleActivityApp', 1);
-      const all = await db.getAll('searchResults');
+      const db = await getDB();
+const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
+
       setEntries(all);
     };
     fetchEntries();

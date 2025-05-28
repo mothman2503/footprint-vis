@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { openDB } from "idb";
+import {getDB, DB_CONSTANTS } from '../utils/db';
 import UsageStripeChart from "./UsageStripeChart";
 import WeeklyCalendarView from "./WeeklyCalendarView";
 import * as d3 from "d3";
@@ -13,8 +13,9 @@ const SearchActivityDashboard = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const db = await openDB("GoogleActivityApp", 1);
-      const all = await db.getAll("searchResults");
+      const db = await getDB();
+const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
+
       const sorted = all.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       setEntries(sorted);
 
