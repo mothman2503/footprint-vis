@@ -1,32 +1,29 @@
 import React, { useState } from 'react';
-import { openDB } from 'idb';
+import { getDB, DB_CONSTANTS } from '../utils/db';
 import { parseActivityHtml } from '../utils/parser';
 
-/**
- * InsertDataButton allows uploading and parsing Google Takeout 'MyActivity.html'.
- * Works on both desktop and mobile browsers.
- */
 export default function InsertDataButton() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   const storeRecords = async (records) => {
-    const db = await openDB('GoogleActivityApp', 1, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains('searchResults')) {
-          db.createObjectStore('searchResults', { keyPath: 'id', autoIncrement: true });
-        }
-      },
-    });
+    try {
+      const db = await getDB();
+      await db.clear(DB_CONSTANTS.STORE_NAME);
 
-    await db.clear('searchResults');
-    const tx = db.transaction('searchResults', 'readwrite');
-    const store = tx.objectStore('searchResults');
-    for (let rec of records) {
-      await store.add(rec);
+      const tx = db.transaction(DB_CONSTANTS.STORE_NAME, 'readwrite');
+      const store = tx.objectStore(DB_CONSTANTS.STORE_NAME);
+
+      for (let rec of records) {
+        await store.add(rec);
+      }
+
+      await tx.done;
+      setSuccess(`✅ Stored ${records.length} search entries.`);
+    } catch (err) {
+      console.error('DB Error:', err);
+      setError('⚠️ Failed to store data in IndexedDB.');
     }
-    await tx.done;
-    setSuccess(`✅ Stored ${records.length} search entries.`);
   };
 
   const handleFileInput = async (e) => {
