@@ -37,17 +37,19 @@ export function parseActivityHtml(htmlText) {
     // Parse and normalize timestamp by stripping TZ abbrev
     let timestamp = null;
     if (timestampRaw) {
-  const cleaned = timestampRaw
-  .replace(/\s+/g, ' ')            // collapse all whitespace to normal space
-  .replace(/\s[A-Z]{2,4}$/, '');   // remove trailing TZ abbreviation
+      const cleaned = timestampRaw
+        .replace(/\s+/g, ' ')            // collapse all whitespace to normal space
+        .replace(/\s[A-Z]{2,4}$/, '');   // remove trailing TZ abbreviation
 
-  const dt = DateTime.fromFormat(cleaned, "LLL d, yyyy, h:mm:ss a");
-  if (dt.isValid) timestamp = dt.toISO();
-  else {
-    console.warn('Failed to parse timestamp:', timestampRaw);
-    timestamp = null;
-  }
-}
+      const dt = DateTime.fromFormat(cleaned, "LLL d, yyyy, h:mm:ss a");
+      if (dt.isValid) timestamp = dt.toISO();
+      else {
+        console.warn('Failed to parse timestamp:', timestampRaw);
+        timestamp = null;
+      }
+    }
+
+    const category = "Miscellaneous";
 
 
     // Extract map coordinates if available
@@ -65,6 +67,7 @@ export function parseActivityHtml(htmlText) {
     }
 
     records.push({
+      category,
       query,
       timestamp,
       coords: { lat, lon },

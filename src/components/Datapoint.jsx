@@ -10,6 +10,7 @@ const Datapoint = ({
   selectedQuery,
   selectedFullDate,
   obscure,
+  category,
   onSelect,
 }) => {
   const isSamePoint =
@@ -128,7 +129,7 @@ const Datapoint = ({
             </div>
             <div className="h-[0.3px] w-full bg-[#444]" />
             <div className="py-2 px-5">
-              <p className="text-sm">category</p>
+              <p className="text-sm">{category}</p>
             </div>
           </div>
         </foreignObject>
