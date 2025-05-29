@@ -39,7 +39,7 @@ const DailyCalendarView = () => {
   useEffect(() => {
     const loadData = async () => {
       const db = await getDB();
-const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
+      const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
 
       const sorted = all.sort(
         (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
@@ -223,6 +223,7 @@ const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
             selectedQuery={selectedPoint?.query}
             selectedFullDate={selectedPoint?.fullDate}
             onSelect={handleSelect}
+            category={d.category}
           />
         ))}
       </svg>

@@ -266,6 +266,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
             selectedQuery={selectedPoint?.query}
             selectedFullDate={selectedPoint?.fullDate}
             onSelect={handleSelection}
+            category={d.category}
           />
         ))}
       </svg>
