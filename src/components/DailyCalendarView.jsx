@@ -139,11 +139,11 @@ const DailyCalendarView = () => {
       new Date(new Date(1970, 0, 1, 0, 0).getTime() - 30 * 60 * 1000),
       new Date(new Date(1970, 0, 1, 23, 59).getTime() + 30 * 60 * 1000),
     ])
-    .range([margin.top, dimensions.height - margin.bottom]);
+    .range([margin.top, dimensions.height - margin.bottom - labelMarginBottom]);
 
   // Horizontal gridlines every 6 hours
   const sixHourIntervals = d3.timeHour.range(
-    new Date(1970, 0, 1, 0, 0),
+    new Date(1970, 0, 1, 6, 0),
     new Date(1970, 0, 1, 24, 0),
     6
   );
@@ -159,7 +159,7 @@ const DailyCalendarView = () => {
       >
 
         {/* Y Axis */}
-        <g transform="translate(40, 0)">
+        <g transform={`translate(${margin.left}, 0)`}>
           <g
             ref={(node) => {
               if (node) {
@@ -182,8 +182,9 @@ const DailyCalendarView = () => {
                       .tickFormat(d3.timeFormat("%H:%M"))
                   )
                   .selectAll("text")
-                  .style("fill", "white")
-                  .style("font-size", "12px");
+                  .style("font-size", "15px")
+                  .style("color", "white")
+                .style("font-family", "Noto Sans JP");
 
                 d3.select(node).selectAll("path,line").style("stroke", "white");
               }
@@ -199,9 +200,9 @@ const DailyCalendarView = () => {
               <line
                 key={`six-hour-grid-${i}`}
                 x1={margin.left}
-                y1={yPos - 10}
+                y1={yPos}
                 x2={dimensions.width - margin.right}
-                y2={yPos - 10}
+                y2={yPos}
                 stroke="#9db"
                 strokeWidth={0.3}
                 strokeDasharray="4 4" // Makes the line dotted
@@ -229,7 +230,7 @@ const DailyCalendarView = () => {
       </svg>
 
       <div>
-        <div className="h-[50px] flex justify-center items-center mb-2 w-full border-t-[0.5px] border-[#fff]">
+        <div className="h-[50px] flex justify-center items-center mb-2 w-full border-t-[0.5px] border-[#fff]" style={{fontFamily : "Noto Sans JP"}}>
           <button
             onClick={() => {
               setShowPicker((prev) => !prev);

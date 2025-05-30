@@ -187,7 +187,8 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
                   )
                   .selectAll("text")
                   .style("font-size", "15px")
-                  .style("color", "white");
+                  .style("color", "white")
+                  .style("font-family", "Noto Sans JP");
 
                 d3.select(node)
                   .selectAll("path, line") // Axis line and ticks
@@ -233,7 +234,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
                   .selectAll("text")
                   .style("font-size", "12px")
                   .style("color", "white")
-                  .classed("font-mono");
+                .style("font-family", "Noto Sans JP");
 
                 d3.select(node)
                   .selectAll("path, line") // Axis line and ticks
@@ -282,7 +283,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
         ))}
       </svg>
 
-      <h3 className="text-md text-white font-semibold mx-5 mb-2 text-center">
+      <h3 className="text-md text-white font-semibold mx-5 mb-2 text-center" style={{fontFamily : "Noto Sans JP"}}>
         Search Activity : {weekTitle}
       </h3>
     </div>
