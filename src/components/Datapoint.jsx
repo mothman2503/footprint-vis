@@ -122,7 +122,7 @@ const Datapoint = ({
                 }}
               >
                 <p
-                  className=" pt-[2px] bg-red-500/90 border-black/50 p-auto text-center rounded-full  w-[20px] h-[20px]"
+                  className="absolute pt-[2px] bg-red-500/90 border-black/50 p-auto text-center rounded-full  w-[20px] h-[20px]"
                   style={{ fontFamily: "Noto Sans JP" }}
                 >
                   ×
