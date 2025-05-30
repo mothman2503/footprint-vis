@@ -6,7 +6,7 @@ function Datasets() {
         <div className="max-w-screen-xl py-2 px-6 mx-auto">
 
 
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col space-y-2 text-white">
                 <h1 className="font-mono font-semibold my-4">Choose a Dataset:</h1>
 
                 <h1 className="font-mono font-semibold my-4">--List artificial datasets here--</h1>

@@ -214,7 +214,7 @@ const DailyCalendarView = () => {
           <Datapoint
             key={i}
             x={d.clusteredX}
-            y={d.clusteredY}
+            y={d.clusteredY + margin.top/2}
             query={d.query}
             obscure={selectedPoint?.query}
             color={getColorFromFirstLetter(d.query)}

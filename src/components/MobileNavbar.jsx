@@ -44,7 +44,7 @@ const MobileNavbar = () => {
     <>
       {/* Sticky Navbar */}
       <div
-        className={`bg-slate-50/85 backdrop-blur-sm w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center justify-between z-40 
+        className={`bg-slate-200/30 backdrop-blur-sm w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center justify-between z-40 
         transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`}
       >
         {/* Hamburger Icon */}
@@ -54,7 +54,7 @@ const MobileNavbar = () => {
       </div>
 
       {/* Sidebar Drawer */}
-      <div className={`fixed top-0 left-0 h-full w-4/6 max-w-80 bg-slate-50/85 backdrop-blur-sm transform 
+      <div className={`fixed top-0 left-0 h-full w-4/6 max-w-80 bg-slate-200/30 backdrop-blur-sm transform 
         ${isOpen ? "translate-x-0" : "-translate-x-full"} 
         transition-transform duration-300 ease-in-out z-40 shadow-lg`}>
 
@@ -68,7 +68,7 @@ const MobileNavbar = () => {
               <li key={index}>
                 <Link
                   to={link} // Assuming each link has a 'path' property
-                  className="block py-2 px-4 text-lg font-mono font-semibold no-underline hover:text-sky-950 hover:italic"
+                  className="block py-2 px-4 text-lg font-mono font-semibold text-white no-underline hover:text-sky-950 hover:italic"
                   onClick={() => setIsOpen(false)} // Close menu on link click
                 >
                   {getTranslation(link)}  {/* Use the translated label here */}
