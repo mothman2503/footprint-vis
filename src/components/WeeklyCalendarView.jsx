@@ -38,8 +38,8 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
   useEffect(() => {
     const updateDimensions = () => {
       setDimensions({
-        width: window.innerWidth * 0.99,
-        height: (window.innerHeight - 80) * 0.8,
+        width: window.innerWidth,
+        height: (window.innerHeight - 80) * 0.85,
       });
     };
     updateDimensions();
@@ -85,7 +85,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
         new Date(new Date(1970, 0, 1, 0, 0).getTime() - paddingY),
         new Date(new Date(1970, 0, 1, 23, 59).getTime() + paddingY),
       ])
-      .range([margin.top, height - margin.bottom]);
+      .range([margin.top * 2 + 15, height - margin.bottom]);
 
     const clusterHeight = radius * 2.5;
     const maxPerCluster = 9;
@@ -121,7 +121,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
           clustered.push({
             ...point,
             clusteredX: baseX + offsetX,
-            clusteredY: newClusterY,
+            clusteredY: newClusterY ,
           });
         });
       });
@@ -131,7 +131,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
   }, [entries, startDate, endDate, dimensions]);
 
   // Define margin here again for rendering
-  const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+  const margin = { top: 25, right: 20, bottom: 30, left: 50 };
 
   // Define scales again for rendering gridlines and axes
   const x = d3
@@ -149,14 +149,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
       new Date(new Date(1970, 0, 1, 23, 59).getTime() + 30 * 60 * 1000),
     ])
     .range([margin.top, dimensions.height - margin.bottom]);
-
-
-  // Horizontal gridlines every 6 hours
-  const sixHourIntervals = d3.timeHour.range(
-    new Date(1970, 0, 1, 0, 0),
-    new Date(1970, 0, 1, 24, 0),
-    6
-  );
 
   const hoverTimeoutRef = useRef(null);
 
@@ -177,16 +169,12 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
 
   return (
     <div
-      className="relative"
+      className="relative w-full"
       style={{ width: dimensions.width, height: dimensions.height }}
     >
-      <h3 className="text-md text-white font-semibold mx-5 mb-2">
-        Search Activity : {weekTitle}
-      </h3>
       <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
-        
         {/* X Axis */}
-        <g transform={`translate(0,${dimensions.height - margin.bottom})`}>
+        <g transform={`translate(0,${margin.top/3})`}>
           <g
             ref={(node) => {
               if (node) {
@@ -198,7 +186,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
                       .tickFormat(d3.timeFormat("%b %d, %Y"))
                   )
                   .selectAll("text")
-                  .style("font-size", "13px")
+                  .style("font-size", "15px")
                   .style("color", "white");
 
                 d3.select(node)
@@ -211,25 +199,27 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
 
         {/* Horizontal gridlines every 6 hours */}
         <g>
-          {sixHourIntervals.map((time, i) => {
-            const yPos = y(time);
-            return (
-              <line
-                key={`six-hour-grid-${i}`}
-                x1={margin.left}
-                y1={yPos}
-                x2={dimensions.width - margin.right}
-                y2={yPos}
-                stroke="#9db"
-                strokeWidth={0.3}
-                strokeDasharray="4 4" // Makes the line dotted
-              />
-            );
-          })}
+          {d3.timeHour
+            .range(new Date(1970, 0, 1, 6, 0), new Date(1970, 0, 1, 24, 0), 6)
+            .map((time, i) => {
+              const yPos = y(time) + margin.top;
+              return (
+                <line
+                  key={`six-hour-grid-${i}`}
+                  x1={margin.left * 1.2}
+                  y1={yPos}
+                  x2={dimensions.width - margin.right}
+                  y2={yPos}
+                  stroke="#9db"
+                  strokeWidth={0.3}
+                  strokeDasharray="4 4" // Makes the line dotted
+                />
+              );
+            })}
         </g>
 
         {/* Y Axis */}
-        <g transform={`translate(${margin.left},0)`}>
+        <g transform={`translate(${margin.left},${margin.top})`}>
           <g
             ref={(node) => {
               if (node) {
@@ -242,7 +232,8 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
                   )
                   .selectAll("text")
                   .style("font-size", "12px")
-                  .style("color", "white");
+                  .style("color", "white")
+                  .classed("font-mono");
 
                 d3.select(node)
                   .selectAll("path, line") // Axis line and ticks
@@ -250,6 +241,26 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
               }
             }}
           />
+        </g>
+
+        {/* Vertical gridlines between days */}
+        <g>
+          {d3.timeDay
+            .range(startDate, endDate, 1)
+            .map((date, i) => {
+              const xPos = (i + 1) * (dimensions.width - margin.left - margin.right) / 7 + margin.left;
+              return (
+                <line
+                  key={`six-hour-grid-${i}`}
+                  x1={xPos}
+                  y1={margin.top * 2}
+                  x2={xPos}
+                  y2={dimensions.height - margin.top}
+                  stroke="#cd5"
+                  strokeWidth={2} // Makes the line dotted
+                />
+              );
+            })}
         </g>
 
         {/* Data Points */}
@@ -270,6 +281,10 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
           />
         ))}
       </svg>
+
+      <h3 className="text-md text-white font-semibold mx-5 mb-2 text-center">
+        Search Activity : {weekTitle}
+      </h3>
     </div>
   );
 };

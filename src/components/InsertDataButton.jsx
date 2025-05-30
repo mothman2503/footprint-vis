@@ -50,7 +50,7 @@ export default function InsertDataButton() {
   };
 
   return (
-    <div className="space-y-4 p-4 max-w-md mx-auto">
+    <div className="space-y-4 p-4 w-full border">
       <label className="block text-sm font-medium text-gray-700">
         Upload <code>MyActivity.html</code> file:
       </label>

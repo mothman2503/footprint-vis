@@ -35,7 +35,7 @@ const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
   }
 
   return (
-    <div className="w-full py-6 mx-auto flex flex-col">
+    <div className="w-full mx-auto flex flex-col">
       <WeeklyCalendarView
         entries={entries}
         startDate={selectedWeek.startDate}

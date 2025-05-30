@@ -33,8 +33,8 @@ const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
   }
 
   return (
-    <div className="mt-6 max-w-2xl">
-      <h2 className="text-xl font-semibold mb-4">Your Search History</h2>
+    <div className="mt-6 max-w-2xl text-black">
+      <h2 className="text-xl font-semibold mb-4 text-white">Your Search History</h2>
 
       <ul className="space-y-4 h-[600px] overflow-y-auto">
         {paginatedEntries.map(entry => (

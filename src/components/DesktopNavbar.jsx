@@ -38,12 +38,12 @@ const DesktopNavbar = () => {
     }, []);
   
   return (
-    <div className={`bg-slate-50/85 backdrop-blur-sm w-full h[80px] sticky top-0 flex flex-wrap space-x-8 items-center z-40 px-3 transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`}>
+    <div className={`bg-slate-200/30 backdrop-blur-sm w-full h[80px] sticky top-0 flex flex-wrap space-x-8 items-center z-40 px-3 transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`}>
       <img src={logo} className="max-w-20" alt="logo" />
 
       {navLinks.map((link, index) => (
         <p key={index}>
-          <Link className="font-mono font-semibold text-xl no-underline hover:text-sky-950 hover:italic" to={link}>
+          <Link className="font-mono font-semibold text-xl text-white no-underline hover:text-sky-950 hover:italic" to={link}>
             {getTranslation(link)}
           </Link>
         </p>
