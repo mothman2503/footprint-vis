@@ -99,7 +99,7 @@ const Datapoint = ({
       {visible && (
         <foreignObject
           x={x - 125}
-          y={tooltipY - 10 * (isBeforeNoon ? -1 : 1)}
+          y={tooltipY - 20 * (isBeforeNoon ? -1 : 1)}
           width={250}
           height={tooltipHeight + 20}
           className="z-90"
@@ -115,13 +115,21 @@ const Datapoint = ({
             }}
           >
             {isTouch && (
-              <div className="relative top-2 right-[-222px] cursor-pointer" onClick={() => {onSelect(null);}}>
-                <p className="absolute bg-red-500/90 border-black/50 p-auto text-center border rounded-full  w-[20px] h-[20px]">
-                  x
+              <div
+                className="relative top-2 right-[-222px] cursor-pointer"
+                onClick={() => {
+                  onSelect(null);
+                }}
+              >
+                <p
+                  className=" pt-[2px] bg-red-500/90 border-black/50 p-auto text-center rounded-full  w-[20px] h-[20px]"
+                  style={{ fontFamily: "Noto Sans JP" }}
+                >
+                  ×
                 </p>
               </div>
             )}
-            <div className="py-2 px-5">
+            <div className="py-2 px-5" style={{ fontFamily: "Noto Sans JP" }}>
               <p className="text-xs ">
                 SEARCHED AT {fullDate.toLocaleTimeString()}
               </p>
@@ -129,7 +137,9 @@ const Datapoint = ({
             </div>
             <div className="h-[0.3px] w-full bg-[#444]" />
             <div className="py-2 px-5">
-              <p className="text-sm">{category}</p>
+              <p className="text-sm" style={{ fontFamily: "Noto Sans JP" }}>
+                {category}
+              </p>
             </div>
           </div>
         </foreignObject>
