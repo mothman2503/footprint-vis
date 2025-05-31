@@ -45,7 +45,7 @@ const MobileNavbar = () => {
       {/* Sticky Navbar */}
       <div
         className={`bg-slate-200/30 backdrop-blur-sm w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center justify-between z-40 
-        transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`}
+        transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`} style={{background: "linear-gradient(244deg,rgba(4, 66, 35, 0.7) 0%, rgba(15, 92, 110, 0.9) 100%)"}}
       >
         {/* Hamburger Icon */}
         <VscMenu size={30} onClick={() => setIsOpen(true)} />

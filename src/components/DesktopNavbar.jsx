@@ -38,7 +38,7 @@ const DesktopNavbar = () => {
     }, []);
   
   return (
-    <div className={`bg-slate-200/30 backdrop-blur-sm w-full h[80px] sticky top-0 flex flex-wrap space-x-8 items-center z-40 px-3 transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`}>
+    <div className={` backdrop-blur-sm w-full h[80px] sticky top-0 flex flex-wrap space-x-8 items-center z-40 px-3 transform transition-all duration-500 ease-in-out ${isVisible ? "translate-y-0" : "translate-y-[-100%]"}`} style={{background: "linear-gradient(244deg,rgba(4, 66, 35, 0.7) 0%, rgba(15, 92, 110, 0.9) 100%)"}}>
       <img src={logo} className="max-w-20" alt="logo" />
 
       {navLinks.map((link, index) => (

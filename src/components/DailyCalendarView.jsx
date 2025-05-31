@@ -99,7 +99,7 @@ const DailyCalendarView = () => {
     });
 
     const clusterHeight = radius * 3;
-    const maxPerCluster = 6;
+    const maxPerCluster = 10;
     const horizontalSpacing = radius * 3;
 
     parsed.forEach((d) => {

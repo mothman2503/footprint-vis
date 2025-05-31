@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import Datapoint from "./Datapoint";
 
+
 const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
   const colors = [
     "#e41a1c",
@@ -14,6 +15,14 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     "#f781bf",
   ];
 
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+  const [tooltipHeight, setTooltipHeight] = useState(80);
+    const [animatingOut, setAnimatingOut] = useState(false);
+      const tooltipRef = useRef(null);
+  
+
+
+      
   function getColorFromFirstLetter(str) {
     if (!str || str.length === 0) return colors[0]; // default fallback
     const firstChar = str[0].toUpperCase();
@@ -85,12 +94,13 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
         new Date(new Date(1970, 0, 1, 0, 0).getTime() - paddingY),
         new Date(new Date(1970, 0, 1, 23, 59).getTime() + paddingY),
       ])
-      .range([margin.top * 2 + 15, height - margin.bottom]);
+      .range([margin.top * 2, height - margin.bottom]);
 
     const clusterHeight = radius * 2.5;
-    const maxPerCluster = 9;
+    const maxPerCluster = (width - margin.left - margin.right) / radius / 21;
     const horizontalSpacing = radius * 2.5;
 
+    console.log(maxPerCluster);
     parsed.forEach((d) => {
       d.rawY = y(d.timeOnly);
     });
@@ -121,7 +131,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
           clustered.push({
             ...point,
             clusteredX: baseX + offsetX,
-            clusteredY: newClusterY ,
+            clusteredY: newClusterY,
           });
         });
       });
@@ -167,6 +177,39 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     }
   };
 
+  // Track visibility state
+  useEffect(() => {
+    if (selectedPoint!==null) {
+      setAnimatingOut(false);
+    } else {
+      setAnimatingOut(true);
+      const timer = setTimeout(() => {
+        setAnimatingOut(false);
+      }, 200); // match fade-out duration
+      return () => clearTimeout(timer);
+    }
+  }, [selectedPoint]);
+
+/*
+TODO : Compare only days and not times below so that you can tell if it is the first or last day of the selected 7 day period
+*/
+  const isBeforeNoon = selectedPoint?.fullDate.getHours() < 12;
+  const isFirstDay = selectedPoint?.fullDate === startDate;
+  const isLastDay = selectedPoint?.fullDate === endDate;
+
+  console.log(isFirstDay + "First Day" + selectedPoint?.fullDate + "  |   " + startDate);
+
+  useEffect(() => {
+    if (tooltipRef.current) {
+      setTooltipHeight(tooltipRef.current.offsetHeight);
+    }
+  }, [selectedPoint]);
+
+  const tooltipY = isBeforeNoon
+    ? selectedPoint?.y + radius + 8
+    : selectedPoint?.y - radius - tooltipHeight - 8;
+
+
   return (
     <div
       className="relative w-full"
@@ -174,7 +217,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     >
       <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
         {/* X Axis */}
-        <g transform={`translate(0,${margin.top/3})`}>
+        <g transform={`translate(0,${10})`}>
           <g
             ref={(node) => {
               if (node) {
@@ -203,7 +246,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
           {d3.timeHour
             .range(new Date(1970, 0, 1, 6, 0), new Date(1970, 0, 1, 24, 0), 6)
             .map((time, i) => {
-              const yPos = y(time) + margin.top;
+              const yPos = y(time);
               return (
                 <line
                   key={`six-hour-grid-${i}`}
@@ -211,8 +254,9 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
                   y1={yPos}
                   x2={dimensions.width - margin.right}
                   y2={yPos}
+                  opacity={0.5}
                   stroke="#9db"
-                  strokeWidth={0.3}
+                  strokeWidth={1}
                   strokeDasharray="4 4" // Makes the line dotted
                 />
               );
@@ -220,7 +264,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
         </g>
 
         {/* Y Axis */}
-        <g transform={`translate(${margin.left},${margin.top})`}>
+        <g transform={`translate(${margin.left},${0})`}>
           <g
             ref={(node) => {
               if (node) {
@@ -234,11 +278,12 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
                   .selectAll("text")
                   .style("font-size", "12px")
                   .style("color", "white")
-                .style("font-family", "Noto Sans JP");
+                  .style("font-family", "Noto Sans JP");
 
                 d3.select(node)
                   .selectAll("path, line") // Axis line and ticks
-                  .style("stroke", "white");
+                  .style("stroke", "#ded")
+                  .style("stroke-width", "2px");
               }
             }}
           />
@@ -246,24 +291,33 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
 
         {/* Vertical gridlines between days */}
         <g>
-          {d3.timeDay
-            .range(startDate, endDate, 1)
-            .map((date, i) => {
-              const xPos = (i + 1) * (dimensions.width - margin.left - margin.right) / 7 + margin.left;
-              return (
-                <line
-                  key={`six-hour-grid-${i}`}
-                  x1={xPos}
-                  y1={margin.top * 2}
-                  x2={xPos}
-                  y2={dimensions.height - margin.top}
-                  stroke="#cd5"
-                  strokeWidth={2} // Makes the line dotted
-                />
-              );
-            })}
-        </g>
+          {d3.timeDay.range(startDate, endDate, 1).map((date, i) => {
+            const xPos =
+              ((i + 1) * (dimensions.width - margin.left - margin.right)) / 7 +
+              margin.left;
+            return (
+              <line
+                key={`six-hour-grid-${i}`}
+                x1={xPos}
+                y1={margin.top}
+                x2={xPos}
+                y2={dimensions.height - margin.top}
+                stroke="#cd5"
+                strokeWidth={2} 
+              />
+            );
+          })}
 
+          <line
+                
+                x1={dimensions.width - margin.right}
+                y1={margin.top}
+                x2={dimensions.width - margin.right}
+                y2={dimensions.height - margin.top}
+                stroke="#cd5"
+                strokeWidth={2}
+              />
+        </g>
         {/* Data Points */}
         {clusteredData.map((d, i) => (
           <Datapoint
@@ -275,15 +329,67 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
             color={getColorFromFirstLetter(d.query)}
             fullDate={d.fullDate}
             radius={radius}
-            selectedQuery={selectedPoint?.query}
-            selectedFullDate={selectedPoint?.fullDate}
+            selectedPoint={selectedPoint}
             onSelect={handleSelection}
             category={d.category}
           />
         ))}
+
+        {selectedPoint && (
+        <foreignObject
+          x={selectedPoint.x - 125}
+          y={tooltipY - 20 * (isBeforeNoon ? -1 : 1)}
+          width={250}
+          height={tooltipHeight + 20}
+          className="z-90"
+        >
+          <div
+            ref={tooltipRef}
+            className={`rounded-md text-xs leading-tight shadow-md z-90 ${
+              animatingOut ? "animate-tooltipFadeOut" : "animate-tooltipFadeIn"
+            }`}
+            style={{
+              backgroundColor: getColorFromFirstLetter(selectedPoint.query),
+              transformOrigin: isBeforeNoon ? (isFirstDay? "top left" : (isLastDay? "top right" : "top center")) : (isFirstDay? "bottom left" : (isLastDay? "bottom right" :"bottom center")) ,
+            }}
+          >
+            {isTouch && (
+              <div
+                className="relative top-2 right-[-222px] cursor-pointer"
+                onClick={() => {
+                  handleSelection(null);
+                }}
+              >
+                <p
+                  className="absolute pt-[2px] bg-red-500/90 border-black/50 p-auto text-center rounded-full  w-[20px] h-[20px]"
+                  style={{ fontFamily: "Noto Sans JP" }}
+                >
+                  ×
+                </p>
+              </div>
+            )}
+            <div className="py-2 px-5" style={{ fontFamily: "Noto Sans JP" }}>
+              <p className="text-xs ">
+                SEARCHED AT {selectedPoint.fullDate.toLocaleTimeString()}
+              </p>
+              <p className="text-lg font-medium my-2">"{selectedPoint.query}"</p>
+            </div>
+            <div className="h-[0.3px] w-full bg-[#444]" />
+            <div className="py-2 px-5">
+              <p className="text-sm" style={{ fontFamily: "Noto Sans JP" }}>
+                {selectedPoint.category}
+              </p>
+            </div>
+          </div>
+        </foreignObject>
+      )}
       </svg>
 
-      <h3 className="text-md text-white font-semibold mx-5 mb-2 text-center" style={{fontFamily : "Noto Sans JP"}}>
+      <h3
+        className="text-md text-white font-semibold mx-5 mb-2 text-center"
+        style={{ fontFamily: "Noto Sans JP" }}
+      >
+        
         Search Activity : {weekTitle}
       </h3>
     </div>
