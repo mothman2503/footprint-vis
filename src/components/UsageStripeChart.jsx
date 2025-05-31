@@ -7,16 +7,16 @@ const UsageStripeChartScrollable = ({ entries, onSelectWeek }) => {
   const [highlightX, setHighlightX] = useState(0);
   const [dragging, setDragging] = useState(false);
 
-  const margin = { left: 40, right: 40, top: 0, bottom: 10 };
+  const margin = { left: 40, right: 40, top: 0, bottom: 20 };
   const chartHeight =(window.innerHeight - 80) * 0.11; // 20dvh
 
   const now = new Date();
-  const fiveYearsAgo = d3.timeYear.offset(now, -5);
+  const fiveYearsAgo = d3.timeYear.offset(now, - 5);
 
   const pixelsPerYear = 1000;
-  const totalChartWidth = pixelsPerYear * 5;
-  const viewportWidth = window.innerWidth * 0.98;
-  const weekWidth = (pixelsPerYear / 365) * 7;
+  const totalChartWidth = pixelsPerYear * 10;
+  const viewportWidth = window.innerWidth ;
+  const weekWidth = (pixelsPerYear / 365) * 14;
 
   const filteredEntries = entries.filter((d) => {
     const date = new Date(d.timestamp);
@@ -99,7 +99,7 @@ const UsageStripeChartScrollable = ({ entries, onSelectWeek }) => {
     >
       {/* Left Scroll Button */}
       <div
-        className="absolute left-0 top-0 w-8 text-white bg-slate-900 bg-opacity-85 flex items-center justify-center z-20 cursor-pointer hover:bg-opacity-90"
+        className="absolute left-0 top-0 w-8 text-white bg-slate-900  flex items-center justify-center z-20 cursor-pointer"
         style={{ height: chartHeight }}
         onMouseDown={() => startScroll(-1)}
         onMouseUp={stopScroll}
@@ -110,7 +110,7 @@ const UsageStripeChartScrollable = ({ entries, onSelectWeek }) => {
 
       {/* Right Scroll Button */}
       <div
-        className="absolute right-0 top-0 w-8 bg-slate-900 text-white bg-opacity-85 flex items-center justify-center z-20 cursor-pointer hover:bg-opacity-90"
+        className="absolute right-0 top-0 w-8 bg-slate-900 text-white  flex items-center justify-center z-20 cursor-pointer"
         style={{ height: chartHeight }}
         onMouseDown={() => startScroll(1)}
         onMouseUp={stopScroll}
@@ -130,7 +130,7 @@ const UsageStripeChartScrollable = ({ entries, onSelectWeek }) => {
         style={{
           width: viewportWidth,
           height: chartHeight,
-          backgroundColor: "#333",
+          backgroundColor: "#222",
         }}
       >
         <svg
@@ -143,9 +143,9 @@ const UsageStripeChartScrollable = ({ entries, onSelectWeek }) => {
               key={i}
               x={x(d.date) - 1}
               y={y(d.count)}
-              width={2}
+              width={3}
               height={y(0) - y(d.count)}
-              fill="#efef66"
+              fill="steelblue"
             />
           ))}
 
@@ -154,15 +154,14 @@ const UsageStripeChartScrollable = ({ entries, onSelectWeek }) => {
             return (
               <g
                 key={i}
-                transform={`translate(${xPos},${chartHeight - margin.bottom})`}
+                transform={`translate(${xPos},${chartHeight - margin.bottom - 5})`}
               >
-                <line y2={6} stroke="black" />
                 <text
                   y={20}
                   textAnchor="middle"
-                  fontSize={10}
-                  fill="black"
-                  style={{ userSelect: "none" }}
+                  fontSize={13}
+                  fill="white"
+                  style={{ userSelect: "none", fontFamily: "Noto Sans JP" }}
                 >
                   {yearDate.getFullYear()}
                 </text>
@@ -178,10 +177,10 @@ const UsageStripeChartScrollable = ({ entries, onSelectWeek }) => {
             top: 0,
             transform: `translateX(${highlightX}px)`,
             width: weekWidth,
-            height: "100%",
-            backgroundColor: "rgba(100, 50, 50, 0.3)",
-            borderLeft: "1px solid red",
-            borderRight: "1px solid red",
+            height: `${(chartHeight - margin.bottom)/chartHeight * 100}%`,
+            backgroundColor: "rgba(200, 250, 250, 0.3)",
+            borderLeft: "1px solid white",
+            borderRight: "1px solid white",
             pointerEvents: "none",
             transition: dragging ? "none" : "transform 0.2s",
             boxSizing: "border-box",
