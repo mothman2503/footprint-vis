@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
-import {getDB, DB_CONSTANTS } from '../utils/db';
+import { getDB, DB_CONSTANTS } from "../utils/db";
 import DatePicker from "./DatePicker";
+import Tooltip from "./Tooltip";
+import YAxis from "./YAxis";
 import Datapoint from "./Datapoint";
 import { BsChevronDown } from "react-icons/bs";
 
 const DailyCalendarView = () => {
-
   const colors = [
     "#e41a1c",
     "#377eb8",
@@ -33,8 +34,10 @@ const DailyCalendarView = () => {
   const [entries, setEntries] = useState([]);
 
   const radius = 7;
-  const margin = { top: 20, bottom: 100, left: 50, right:10 };
+  const margin = { top: 20, bottom: 100, left: 50, right: 10 };
   const labelMarginBottom = 20;
+
+  const isBeforeNoon = selectedPoint?.fullDate.getHours() < 12;
 
   useEffect(() => {
     const loadData = async () => {
@@ -62,6 +65,19 @@ const DailyCalendarView = () => {
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
+  const { yScale } = useMemo(() => {
+    const paddingY = 30 * 60 * 1000;
+
+    const yScale = d3
+      .scaleTime()
+      .domain([
+        new Date(new Date(1970, 0, 1, 0, 0).getTime() - paddingY),
+        new Date(new Date(1970, 0, 1, 23, 59).getTime() + paddingY),
+      ])
+      .range([margin.top, dimensions.height - margin.bottom]);
+
+    return { yScale };
+  }, [dimensions, margin.top, margin.bottom]);
   useEffect(() => {
     if (!currentDate || dimensions.width === 0) return;
 
@@ -157,40 +173,7 @@ const DailyCalendarView = () => {
         width={dimensions.width * 0.9}
         height={Math.max(0, dimensions.height - 70)}
       >
-
-        {/* Y Axis */}
-        <g transform={`translate(${margin.left}, 0)`}>
-          <g
-            ref={(node) => {
-              if (node) {
-                const y = d3
-                  .scaleTime()
-                  .domain([
-                    new Date(1970, 0, 1, 0, 0),
-                    new Date(1970, 0, 2, 0, 0),
-                  ])
-                  .range([
-                    margin.top,
-                    dimensions.height - margin.bottom - labelMarginBottom,
-                  ]);
-
-                d3.select(node)
-                  .call(
-                    d3
-                      .axisLeft(y)
-                      .ticks(d3.timeHour.every(6))
-                      .tickFormat(d3.timeFormat("%H:%M"))
-                  )
-                  .selectAll("text")
-                  .style("font-size", "15px")
-                  .style("color", "white")
-                .style("font-family", "Noto Sans JP");
-
-                d3.select(node).selectAll("path,line").style("stroke", "white");
-              }
-            }}
-          />
-        </g>
+        <YAxis scale={yScale} margin={margin} />
 
         {/* Horizontal gridlines every 6 hours */}
         <g>
@@ -215,22 +198,34 @@ const DailyCalendarView = () => {
           <Datapoint
             key={i}
             x={d.clusteredX}
-            y={d.clusteredY + margin.top/2}
+            y={d.clusteredY}
             query={d.query}
             obscure={selectedPoint?.query}
             color={getColorFromFirstLetter(d.query)}
             fullDate={d.fullDate}
             radius={radius}
-            selectedQuery={selectedPoint?.query}
-            selectedFullDate={selectedPoint?.fullDate}
+            selectedPoint={selectedPoint}
             onSelect={handleSelect}
             category={d.category}
           />
         ))}
+        <Tooltip
+          point={selectedPoint}
+          isTouch={true}
+          isMobile={true}
+          margin={margin}
+          isBeforeNoon={isBeforeNoon}
+          getColor={getColorFromFirstLetter}
+          radius={radius}
+          onClose={() => handleSelect(null)}
+        />
       </svg>
 
       <div>
-        <div className="h-[50px] flex justify-center items-center mb-2 w-full border-t-[0.5px] border-[#fff]" style={{fontFamily : "Noto Sans JP"}}>
+        <div
+          className="h-[50px] flex justify-center items-center mb-2 w-full border-t-[0.5px] border-[#fff]"
+          style={{ fontFamily: "Noto Sans JP" }}
+        >
           <button
             onClick={() => {
               setShowPicker((prev) => !prev);

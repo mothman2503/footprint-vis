@@ -8,7 +8,7 @@ const UsageStripeChartScrollable = ({ entries, onSelectWeek }) => {
   const [dragging, setDragging] = useState(false);
 
   const margin = { left: 40, right: 40, top: 0, bottom: 20 };
-  const chartHeight =(window.innerHeight - 80) * 0.11; // 20dvh
+  const chartHeight =(window.innerHeight - 80) * 0.115; // 20dvh
 
   const now = new Date();
   const fiveYearsAgo = d3.timeYear.offset(now, - 5);

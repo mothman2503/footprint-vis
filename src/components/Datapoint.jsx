@@ -1,5 +1,3 @@
-import { cluster } from "d3";
-
 const Datapoint = ({
   x,
   y,
@@ -35,7 +33,7 @@ const Datapoint = ({
         onMouseLeave={handleMouseLeave}
         onClick={() => {
           if (isTouch) {
-            onSelect({ query, fullDate, x, y, cluster });
+            onSelect({ query, fullDate, x, y, category });
           }
         }}
       >
