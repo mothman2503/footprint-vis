@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import { getDB, DB_CONSTANTS } from "../utils/db";
 import DatePicker from "./DatePicker";
-import Tooltip from "./Tooltip";
-import YAxis from "./YAxis";
-import Datapoint from "./Datapoint";
+import Tooltip from "./visualisation_tools/Tooltip";
+import YAxis from "./visualisation_tools/YAxis";
+import Datapoint from "./visualisation_tools/Datapoint";
 import { BsChevronDown } from "react-icons/bs";
 
 const DailyCalendarView = () => {

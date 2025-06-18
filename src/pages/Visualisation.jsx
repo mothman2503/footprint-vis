@@ -1,6 +1,6 @@
 import { useMediaQuery } from "react-responsive";
-import DesktopVisualisation from "./DesktopVisualisation";
-import MobileVisualisation from "./MobileVisualisation";
+import DesktopVisualisation from "../components/DesktopVisualisation";
+import MobileVisualisation from "../components/MobileVisualisation";
 
 const Visualisation = () => {
   const isMobile = useMediaQuery({ maxWidth: 767 });

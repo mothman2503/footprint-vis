@@ -1,3 +1,4 @@
+import { IAB_CATEGORIES } from "../constants/iabCategories";
 import { DateTime } from 'luxon';
 
 export function parseActivityHtml(htmlText) {
@@ -49,7 +50,8 @@ export function parseActivityHtml(htmlText) {
       }
     }
 
-    const category = "Miscellaneous";
+    const uncategorized = IAB_CATEGORIES.find(cat => cat.id === 'IAB24');
+    const category = uncategorized;
 
 
     // Extract map coordinates if available

@@ -1,18 +1,13 @@
 const Datapoint = ({
-  x,
-  y,
-  query,
-  fullDate,
+  point,
   radius,
-  color,
   obscure,
-  category,
   onSelect,
  selectedPoint
 }) => {
   const isSelected =
-    selectedPoint?.query === query &&
-    selectedPoint?.fullDate?.getTime() === fullDate.getTime();
+    selectedPoint?.query === point.query &&
+    selectedPoint?.fullDate?.getTime() === point.fullDate.getTime();
 
   const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
@@ -20,7 +15,7 @@ const Datapoint = ({
   
 
   const handleMouseEnter = () => {
-    if (!isTouch) onSelect({ query, fullDate, x, y, category });
+    if (!isTouch) onSelect(point);
   };
 
   const handleMouseLeave = () => {
@@ -33,30 +28,30 @@ const Datapoint = ({
         onMouseLeave={handleMouseLeave}
         onClick={() => {
           if (isTouch) {
-            onSelect({ query, fullDate, x, y, category });
+            onSelect(point);
           }
         }}
       >
         {isSelected && (
           <circle
-            cx={x}
-            cy={y}
+            cx={point.clusteredX}
+            cy={point.clusteredY}
             r={radius * 3.5}
             fill="none"
-            stroke={color}
+            stroke={point.category.color}
             strokeWidth={2}
             className="animate-growRing"
             style={{
-              transformOrigin: `${x}px ${y}px`,
+              transformOrigin: `${point.clusteredX}px ${point.clusteredY}px`,
             }}
           />
         )}
 
         <circle
-          cx={x}
-          cy={y}
+          cx={point.clusteredX}
+          cy={point.clusteredY}
           r={isSelected ? radius * 1.2 : radius}
-          fill={color}
+          fill={point.category.color}
           opacity={obscure ? (isSelected ? 0.85 : 0.6) : 0.85}
           style={{
             filter: !isSelected && obscure ? "blur(1px)" : "none",

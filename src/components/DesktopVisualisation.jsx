@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {getDB, DB_CONSTANTS } from '../utils/db';
-import UsageStripeChart from "./UsageStripeChart";
-import WeeklyCalendarView from "./WeeklyCalendarView";
+import UsageStripeChart from "./visualisation_tools/UsageStripeChart";
+import WeeklyCalendarView from "./visualisation_tools/WeeklyCalendarView";
 import * as d3 from "d3";
 
 const SearchActivityDashboard = () => {

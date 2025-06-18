@@ -6,14 +6,15 @@ const Tooltip = ({
   isFirstDay = false,
   isLastDay = false,
   isMobile = false,
-  isBeforeNoon,
-  getColor,
   radius,
   margin = {left:0, right:0, top:0, bottom:0},
   onClose,
 }) => {
   const tooltipRef = useRef(null);
   const [height, setHeight] = useState(80);
+
+
+  const isBeforeNoon = point?.fullDate.getHours() < 12;
 
   useEffect(() => {
     if (tooltipRef.current) {
@@ -24,14 +25,14 @@ const Tooltip = ({
   if (!point) return null;
 
   const tooltipX = isMobile ? margin.left*1.5 :(isFirstDay
-    ? point.x - 5
+    ? point.clusteredX - 5
     : isLastDay
-    ? point.x - 245
-    : point.x - 125);
+    ? point.clusteredX - 245
+    : point.clusteredX - 125);
 
   const tooltipY = isBeforeNoon
-    ? point.y + radius + 8
-    : point.y - radius - height - 8;
+    ? point.clusteredY + radius + 8
+    : point.clusteredY - radius - height - 8;
 
   return (
     <foreignObject
@@ -45,7 +46,7 @@ const Tooltip = ({
         ref={tooltipRef}
         className="rounded-md text-xs leading-tight shadow-md z-90 animate-tooltipFadeIn"
         style={{
-          backgroundColor: getColor(point.query),
+          backgroundColor: point.category.color,
           transformOrigin: isBeforeNoon ? "top center" : "bottom center",
         }}
       >
@@ -74,7 +75,7 @@ const Tooltip = ({
         </div>
         <div className="h-[0.3px] w-full bg-[#444]" />
         <div className="py-2 px-5">
-          <p className="text-sm">{point.category}</p>
+          <p className="text-sm">{point.category.name}</p>
         </div>
       </div>
     </foreignObject>
