@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo} from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import Tooltip from "./Tooltip";
 import * as d3 from "d3";
 import XAxis from "./XAxis";
@@ -6,35 +6,14 @@ import YAxis from "./YAxis";
 import Datapoint from "./Datapoint";
 
 const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
-  const colors = [
-    "#e41a1c",
-    "#377eb8",
-    "#4daf4a",
-    "#984ea3",
-    "#ff7f00",
-    "#ffff33",
-    "#a65628",
-    "#f781bf",
-  ];
-
   const isTouch = window.matchMedia("(pointer: coarse)").matches;
   const margin = { top: 20, right: 20, bottom: 30, left: 50 };
-
-  function getColorFromFirstLetter(str) {
-    if (!str || str.length === 0) return colors[0]; // default fallback
-    const firstChar = str[0].toUpperCase();
-    const charCode = firstChar.charCodeAt(0);
-    const index = charCode % colors.length;
-    return colors[index];
-  }
-
   const svgRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [clusteredData, setClusteredData] = useState([]);
   const [selectedPoint, setSelectedPoint] = useState(null);
   const radius = 5;
 
-  
   const weekTitle =
     startDate && endDate
       ? `${d3.timeFormat("%b %d, %Y")(startDate)} - ${d3.timeFormat(
@@ -42,7 +21,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
         )(endDate)}`
       : "Loading...";
 
-      
   useEffect(() => {
     const updateDimensions = () => {
       setDimensions({
@@ -55,40 +33,45 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
+  const { xScale, yScale } = useMemo(() => {
+    const paddingX = 12 * 60 * 60 * 1000;
+    const paddingY = 30 * 60 * 1000;
 
-const { xScale, yScale } = useMemo(() => {
-  const paddingX = 12 * 60 * 60 * 1000;
-  const paddingY = 30 * 60 * 1000;
+    const xScale = d3
+      .scaleTime()
+      .domain([
+        new Date(startDate.getTime() - paddingX),
+        new Date(endDate.getTime() + paddingX),
+      ])
+      .range([margin.left, dimensions.width - margin.right]);
 
-  const xScale = d3.scaleTime()
-    .domain([
-      new Date(startDate.getTime() - paddingX),
-      new Date(endDate.getTime() + paddingX),
-    ])
-    .range([margin.left, dimensions.width - margin.right]);
+    const yScale = d3
+      .scaleTime()
+      .domain([
+        new Date(new Date(1970, 0, 1, 0, 0).getTime() - paddingY),
+        new Date(new Date(1970, 0, 1, 23, 59).getTime() + paddingY),
+      ])
+      .range([margin.top, dimensions.height - margin.bottom]);
 
-  const yScale = d3.scaleTime()
-    .domain([
-      new Date(new Date(1970, 0, 1, 0, 0).getTime() - paddingY),
-      new Date(new Date(1970, 0, 1, 23, 59).getTime() + paddingY),
-    ])
-    .range([margin.top, dimensions.height - margin.bottom]);
-
-  return { xScale, yScale };
-}, [startDate, endDate, dimensions, margin.top, margin.bottom, margin.left, margin.right]);
+    return { xScale, yScale };
+  }, [
+    startDate,
+    endDate,
+    dimensions,
+    margin.top,
+    margin.bottom,
+    margin.left,
+    margin.right,
+  ]);
 
   useEffect(() => {
     if (!startDate || !endDate || dimensions.width === 0) return;
 
-    
     const width = dimensions.width;
     const adjustedEndDate = new Date(endDate);
 
-    
     adjustedEndDate.setHours(23, 59, 59, 999);
 
-
-    
     const filtered = entries.filter((d) => {
       const date = new Date(d.timestamp);
       return date >= startDate && date <= adjustedEndDate;
@@ -101,7 +84,6 @@ const { xScale, yScale } = useMemo(() => {
       return { ...d, fullDate, timeOnly };
     });
 
-    
     const clusterHeight = radius * 2.5;
     const maxPerCluster = (width - margin.left - margin.right) / radius / 21;
     const horizontalSpacing = radius * 2.5;
@@ -144,11 +126,21 @@ const { xScale, yScale } = useMemo(() => {
     });
 
     setClusteredData(clustered);
-  }, [entries, startDate, endDate, dimensions, xScale, yScale, margin.top, margin.bottom, margin.left, margin.right]);
+  }, [
+    entries,
+    startDate,
+    endDate,
+    dimensions,
+    xScale,
+    yScale,
+    margin.top,
+    margin.bottom,
+    margin.left,
+    margin.right,
+  ]);
 
   // Define margin here again for rendering
 
-  
   const hoverTimeoutRef = useRef(null);
 
   const handleSelection = (point) => {
@@ -167,8 +159,6 @@ const { xScale, yScale } = useMemo(() => {
   };
 
 
-  const isBeforeNoon = selectedPoint?.fullDate.getHours() < 12;
-
   const sameDay = (d1, d2) =>
     d1.getFullYear() === d2.getFullYear() &&
     d1.getMonth() === d2.getMonth() &&
@@ -179,18 +169,19 @@ const { xScale, yScale } = useMemo(() => {
   const isLastDay =
     selectedPoint?.fullDate && sameDay(selectedPoint.fullDate, endDate);
 
-
-  
   return (
     <div
       className="relative w-full"
       style={{ width: dimensions.width, height: dimensions.height }}
     >
       <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
- 
-        <XAxis scale={xScale} height={dimensions.height} width={dimensions.width} margin={margin} />
-<YAxis scale={yScale} margin={margin} />
-
+        <XAxis
+          scale={xScale}
+          height={dimensions.height}
+          width={dimensions.width}
+          margin={margin}
+        />
+        <YAxis scale={yScale} margin={margin} />
 
         {/* Horizontal gridlines every 6 hours */}
         <g>
@@ -213,7 +204,6 @@ const { xScale, yScale } = useMemo(() => {
               );
             })}
         </g>
-
 
         {/* Vertical gridlines between days */}
         <g>
@@ -247,31 +237,23 @@ const { xScale, yScale } = useMemo(() => {
         {clusteredData.map((d, i) => (
           <Datapoint
             key={i}
-            x={d.clusteredX}
-            y={d.clusteredY}
-            query={d.query}
+            point={d}
             obscure={selectedPoint?.query}
-            color={getColorFromFirstLetter(d.query)}
-            fullDate={d.fullDate}
             radius={radius}
             selectedPoint={selectedPoint}
             onSelect={handleSelection}
-            category={d.category}
           />
         ))}
 
         {selectedPoint && (
           <Tooltip
-  point={selectedPoint}
-  isTouch={isTouch}
-  isFirstDay={isFirstDay}
-  isLastDay={isLastDay}
-  isBeforeNoon={isBeforeNoon}
-  getColor={getColorFromFirstLetter}
-  radius={radius}
-  onClose={() => handleSelection(null)}
-/>
-
+            point={selectedPoint}
+            isTouch={isTouch}
+            isFirstDay={isFirstDay}
+            isLastDay={isLastDay}
+            radius={radius}
+            onClose={() => handleSelection(null)}
+          />
         )}
       </svg>
 
