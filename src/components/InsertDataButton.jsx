@@ -1,37 +1,41 @@
-import React, { useState } from 'react';
-import { getDB, DB_CONSTANTS } from '../utils/db';
-import { parseActivityHtml } from '../utils/parser';
+import React, { useState } from "react";
+import { getDB, DB_CONSTANTS } from "../utils/db";
+import { parseActivityHtml } from "../utils/parser";
 
 export default function InsertDataButton() {
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const storeRecords = async (records) => {
     try {
       const db = await getDB();
       await db.clear(DB_CONSTANTS.STORE_NAME);
 
-      const tx = db.transaction(DB_CONSTANTS.STORE_NAME, 'readwrite');
+      const tx = db.transaction(DB_CONSTANTS.STORE_NAME, "readwrite");
       const store = tx.objectStore(DB_CONSTANTS.STORE_NAME);
 
       for (let rec of records) {
-        await store.add(rec);
+        const { id, ...clean } = rec; // remove any pre-existing `id`
+        const newId = await store.add(clean);
+        rec.id = newId; // attach the generated ID back
       }
+
+      console.log(records[0]); // should include 'id'
 
       await tx.done;
       setSuccess(`✅ Stored ${records.length} search entries.`);
     } catch (err) {
-      console.error('DB Error:', err);
-      setError('⚠️ Failed to store data in IndexedDB.');
+      console.error("DB Error:", err);
+      setError("⚠️ Failed to store data in IndexedDB.");
     }
   };
 
   const handleFileInput = async (e) => {
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
     const file = e.target.files?.[0];
     if (!file) {
-      setError('⚠️ No file selected.');
+      setError("⚠️ No file selected.");
       return;
     }
 
@@ -39,13 +43,13 @@ export default function InsertDataButton() {
       const text = await file.text();
       const records = parseActivityHtml(text);
       if (records.length === 0) {
-        setError('⚠️ No valid search records found in the file.');
+        setError("⚠️ No valid search records found in the file.");
         return;
       }
       await storeRecords(records);
     } catch (err) {
       console.error(err);
-      setError('⚠️ Failed to parse or store the uploaded file.');
+      setError("⚠️ Failed to parse or store the uploaded file.");
     }
   };
 

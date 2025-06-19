@@ -1,5 +1,6 @@
+// SearchActivityDashboard.jsx patched to ensure entries include ID
 import React, { useEffect, useState } from "react";
-import {getDB, DB_CONSTANTS } from '../utils/db';
+import { getDB, DB_CONSTANTS } from '../utils/db';
 import UsageStripeChart from "./visualisation_tools/UsageStripeChart";
 import WeeklyCalendarView from "./visualisation_tools/WeeklyCalendarView";
 import * as d3 from "d3";
@@ -14,9 +15,18 @@ const SearchActivityDashboard = () => {
   useEffect(() => {
     const loadData = async () => {
       const db = await getDB();
-const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
+      const tx = db.transaction(DB_CONSTANTS.STORE_NAME, 'readonly');
+      const store = tx.objectStore(DB_CONSTANTS.STORE_NAME);
 
-      const sorted = all.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      const entriesWithIds = [];
+      let cursor = await store.openCursor();
+
+      while (cursor) {
+        entriesWithIds.push({ ...cursor.value, id: cursor.key });
+        cursor = await cursor.continue();
+      }
+
+      const sorted = entriesWithIds.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       setEntries(sorted);
 
       if (sorted.length) {
@@ -42,7 +52,6 @@ const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
         endDate={selectedWeek.endDate}
       />
 
-      {/* Add margin-top to separate */}
       <div className="mt-12">
         <UsageStripeChart
           entries={entries}

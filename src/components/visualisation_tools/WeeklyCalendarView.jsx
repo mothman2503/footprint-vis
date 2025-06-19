@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
+import { IAB_CATEGORIES } from "../../constants/iabCategories";
+import { getDB, DB_CONSTANTS } from "../../utils/db"; // adjust path as needed
 import Tooltip from "./Tooltip";
 import * as d3 from "d3";
 import XAxis from "./XAxis";
@@ -13,6 +15,33 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
   const [clusteredData, setClusteredData] = useState([]);
   const [selectedPoint, setSelectedPoint] = useState(null);
   const radius = 5;
+
+  const handleUpdatePointCategory = async (oldPoint, newCategoryId) => {
+    const newCategory = IAB_CATEGORIES.find((cat) => cat.id === newCategoryId);
+    if (!newCategory) return;
+
+    const db = await getDB();
+    const entry = await db.get(DB_CONSTANTS.STORE_NAME, oldPoint.id);
+    if (!entry) return;
+console.log("handleUpdatePointCategory called with:", oldPoint, newCategoryId);
+
+    const updatedDBEntry = { ...entry, category: newCategory };
+    await db.put(DB_CONSTANTS.STORE_NAME, updatedDBEntry);
+console.log("Fetched back from DB:", updatedDBEntry);
+
+    const updatedPoint = {
+      ...oldPoint, // retain layout info like clusteredX, clusteredY
+      ...updatedDBEntry,
+    };
+
+    setSelectedPoint({ ...updatedPoint });
+    setClusteredData((prev) =>
+      prev.map((p) => (p.id === oldPoint.id ? { ...updatedPoint } : p))
+    );
+
+    console.log("Final updated point:", updatedPoint);
+
+  };
 
   const weekTitle =
     startDate && endDate
@@ -69,7 +98,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
 
     const width = dimensions.width;
     const adjustedEndDate = new Date(endDate);
-
     adjustedEndDate.setHours(23, 59, 59, 999);
 
     const filtered = entries.filter((d) => {
@@ -88,7 +116,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     const maxPerCluster = (width - margin.left - margin.right) / radius / 21;
     const horizontalSpacing = radius * 2.5;
 
-    console.log(maxPerCluster);
     parsed.forEach((d) => {
       d.rawY = yScale(d.timeOnly);
     });
@@ -139,8 +166,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     margin.right,
   ]);
 
-  // Define margin here again for rendering
-
   const hoverTimeoutRef = useRef(null);
 
   const handleSelection = (point) => {
@@ -157,7 +182,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
       }, 100);
     }
   };
-
 
   const sameDay = (d1, d2) =>
     d1.getFullYear() === d2.getFullYear() &&
@@ -183,7 +207,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
         />
         <YAxis scale={yScale} margin={margin} />
 
-        {/* Horizontal gridlines every 6 hours */}
         <g>
           {d3.timeHour
             .range(new Date(1970, 0, 1, 6, 0), new Date(1970, 0, 1, 24, 0), 6)
@@ -199,13 +222,12 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
                   opacity={0.5}
                   stroke="#9db"
                   strokeWidth={1}
-                  strokeDasharray="4 4" // Makes the line dotted
+                  strokeDasharray="4 4"
                 />
               );
             })}
         </g>
 
-        {/* Vertical gridlines between days */}
         <g>
           {d3.timeDay.range(startDate, endDate, 1).map((date, i) => {
             const xPos =
@@ -233,7 +255,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
             strokeWidth={2}
           />
         </g>
-        {/* Data Points */}
         {clusteredData.map((d, i) => (
           <Datapoint
             key={i}
@@ -253,6 +274,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
             isLastDay={isLastDay}
             radius={radius}
             onClose={() => handleSelection(null)}
+            onCategoryChange={handleUpdatePointCategory}
           />
         )}
       </svg>
