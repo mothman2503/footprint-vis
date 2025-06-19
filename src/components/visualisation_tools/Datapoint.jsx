@@ -1,9 +1,12 @@
+// Datapoint.jsx with hover-stable tooltip support
+import React from "react";
+
 const Datapoint = ({
   point,
   radius,
   obscure,
   onSelect,
- selectedPoint
+  selectedPoint
 }) => {
   const isSelected =
     selectedPoint?.query === point.query &&
@@ -11,16 +14,21 @@ const Datapoint = ({
 
   const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
-
-  
-
   const handleMouseEnter = () => {
-    if (!isTouch) onSelect(point);
+    if (!isTouch) {
+      clearTimeout(window.__tooltipLeaveTimeout);
+      onSelect(point);
+    }
   };
 
   const handleMouseLeave = () => {
-    if (isSelected && !isTouch) onSelect(null);
+    if (!isTouch) {
+      window.__tooltipLeaveTimeout = setTimeout(() => {
+        onSelect(null);
+      }, 200);
+    }
   };
+
   return (
     <>
       <g

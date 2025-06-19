@@ -6,8 +6,9 @@ import Tooltip from "./visualisation_tools/Tooltip";
 import YAxis from "./visualisation_tools/YAxis";
 import Datapoint from "./visualisation_tools/Datapoint";
 import { BsChevronDown } from "react-icons/bs";
+import { IAB_CATEGORIES } from "../constants/iabCategories";
 
-const DailyCalendarView = () => {
+const MobileVisualisation = () => {
   const colors = [
     "#e41a1c",
     "#377eb8",
@@ -25,6 +26,26 @@ const DailyCalendarView = () => {
     return colors[index];
   };
 
+  const handleUpdatePointCategory = async (point, newCategoryId) => {
+    const db = await getDB();
+    const updatedCategory = IAB_CATEGORIES.find(
+      (cat) => cat.id === newCategoryId
+    );
+    if (!updatedCategory || !point?.id) return;
+
+    const entry = await db.get(DB_CONSTANTS.STORE_NAME, point.id);
+    if (!entry) return;
+
+    const updatedEntry = { ...entry, category: updatedCategory };
+    await db.put(DB_CONSTANTS.STORE_NAME, updatedEntry);
+
+    const updatedPoint = { ...point, category: updatedCategory };
+    setSelectedPoint(updatedPoint);
+    setClusteredData((prev) =>
+      prev.map((p) => (p.id === point.id ? updatedPoint : p))
+    );
+  };
+
   const svgRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [clusteredData, setClusteredData] = useState([]);
@@ -36,8 +57,6 @@ const DailyCalendarView = () => {
   const radius = 7;
   const margin = { top: 20, bottom: 100, left: 50, right: 10 };
   const labelMarginBottom = 20;
-
-  const isBeforeNoon = selectedPoint?.fullDate.getHours() < 12;
 
   useEffect(() => {
     const loadData = async () => {
@@ -197,16 +216,11 @@ const DailyCalendarView = () => {
         {clusteredData.map((d, i) => (
           <Datapoint
             key={i}
-            x={d.clusteredX}
-            y={d.clusteredY}
-            query={d.query}
+            point={d}
             obscure={selectedPoint?.query}
-            color={getColorFromFirstLetter(d.query)}
-            fullDate={d.fullDate}
             radius={radius}
             selectedPoint={selectedPoint}
             onSelect={handleSelect}
-            category={d.category}
           />
         ))}
         <Tooltip
@@ -214,10 +228,10 @@ const DailyCalendarView = () => {
           isTouch={true}
           isMobile={true}
           margin={margin}
-          isBeforeNoon={isBeforeNoon}
           getColor={getColorFromFirstLetter}
           radius={radius}
           onClose={() => handleSelect(null)}
+          onCategoryChange={handleUpdatePointCategory}
         />
       </svg>
 
@@ -255,4 +269,4 @@ const DailyCalendarView = () => {
   );
 };
 
-export default DailyCalendarView;
+export default MobileVisualisation;
