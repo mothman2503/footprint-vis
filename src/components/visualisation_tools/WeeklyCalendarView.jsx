@@ -1,18 +1,59 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
+import { IAB_CATEGORIES } from "../../constants/iabCategories";
 import Tooltip from "./Tooltip";
 import * as d3 from "d3";
 import XAxis from "./XAxis";
 import YAxis from "./YAxis";
 import Datapoint from "./Datapoint";
+import { getDB, DB_CONSTANTS } from "../../utils/db";
+import { useDataset } from "../../context/DataContext";
 
-const WeeklyCalendarView = ({ entries, startDate, endDate, onCategoryChange }) => {
-  const isTouch = window.matchMedia("(pointer: coarse)").matches;
+const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
   const margin = { top: 20, right: 20, bottom: 30, left: 50 };
   const svgRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [clusteredData, setClusteredData] = useState([]);
   const [selectedPoint, setSelectedPoint] = useState(null);
   const radius = 5;
+
+  const { dataset, setDataset } = useDataset();
+
+  const handleUpdatePointCategory = async (point, newCategoryId) => {
+    const newCategory = IAB_CATEGORIES.find(cat => cat.id === newCategoryId);
+    if (!newCategory || !point?.id) return;
+
+    const updatedPoint = { ...point, category: newCategory };
+
+    // Update context
+    const updatedRecords = dataset.records.map((p) =>
+      p.id === point.id ? updatedPoint : p
+    );
+    setDataset({ ...dataset, records: updatedRecords });
+
+    // Update IndexedDB
+    const db = await getDB();
+    if (dataset.source === "user") {
+      const entry = await db.get(DB_CONSTANTS.STORE_NAME, point.id);
+      if (entry) await db.put(DB_CONSTANTS.STORE_NAME, { ...entry, category: newCategory });
+    } else if (dataset.source === "saved") {
+      const allSaved = await db.getAll("savedDatasets");
+      const current = allSaved.find((d) => d.name === dataset.label);
+      if (current) {
+        const updated = {
+          ...current,
+          records: updatedRecords,
+          date: new Date().toISOString(),
+        };
+        await db.put("savedDatasets", updated);
+      }
+    }
+
+    // Update UI
+    setSelectedPoint(updatedPoint);
+    setClusteredData((prev) =>
+      prev.map((p) => (p.id === point.id ? updatedPoint : p))
+    );
+  };
 
   const weekTitle =
     startDate && endDate
@@ -29,30 +70,28 @@ const WeeklyCalendarView = ({ entries, startDate, endDate, onCategoryChange }) =
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
     return () => window.removeEventListener("resize", updateDimensions);
-  }, []);
+  }, [margin.left, margin.right]);
 
   const { xScale, yScale } = useMemo(() => {
     const paddingX = 12 * 60 * 60 * 1000;
     const paddingY = 30 * 60 * 1000;
-
-    const xScale = d3
-      .scaleTime()
-      .domain([
-        new Date(startDate.getTime() - paddingX),
-        new Date(endDate.getTime() + paddingX),
-      ])
-      .range([margin.left, dimensions.width - margin.right]);
-
-    const yScale = d3
-      .scaleTime()
-      .domain([
-        new Date(new Date(1970, 0, 1, 0, 0).getTime() - paddingY),
-        new Date(new Date(1970, 0, 1, 23, 59).getTime() + paddingY),
-      ])
-      .range([margin.top, dimensions.height - margin.bottom]);
-
-    return { xScale, yScale };
-  }, [startDate, endDate, dimensions, margin.left, margin.top, margin.right, margin.bottom]);
+    return {
+      xScale: d3
+        .scaleTime()
+        .domain([
+          new Date(startDate.getTime() - paddingX),
+          new Date(endDate.getTime() + paddingX),
+        ])
+        .range([margin.left, dimensions.width - margin.right]),
+      yScale: d3
+        .scaleTime()
+        .domain([
+          new Date(new Date(1970, 0, 1, 0, 0).getTime() - paddingY),
+          new Date(new Date(1970, 0, 1, 23, 59).getTime() + paddingY),
+        ])
+        .range([margin.top, dimensions.height - margin.bottom]),
+    };
+  }, [startDate, endDate, dimensions, margin.left, margin.right, margin.top, margin.bottom]);
 
   useEffect(() => {
     if (!startDate || !endDate || dimensions.width === 0) return;
@@ -89,7 +128,10 @@ const WeeklyCalendarView = ({ entries, startDate, endDate, onCategoryChange }) =
     const clustered = [];
 
     pointsByClusterY.forEach((pointsAtY) => {
-      const pointsByDay = d3.group(pointsAtY, (d) => d3.timeDay.floor(d.fullDate).getTime());
+      const pointsByDay = d3.group(pointsAtY, (d) =>
+        d3.timeDay.floor(d.fullDate).getTime()
+      );
+
       pointsByDay.forEach((points, dayTimestamp) => {
         const baseX = xScale(new Date(Number(dayTimestamp)));
         points.forEach((point, i) => {
@@ -108,7 +150,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate, onCategoryChange }) =
     });
 
     setClusteredData(clustered);
-  }, [entries, startDate, endDate, dimensions, xScale, yScale, margin.left, margin.top, margin.right, margin.bottom]);
+  }, [entries, startDate, endDate, dimensions, xScale, yScale, margin.left, margin.right]);
 
   const hoverTimeoutRef = useRef(null);
 
@@ -127,39 +169,29 @@ const WeeklyCalendarView = ({ entries, startDate, endDate, onCategoryChange }) =
     }
   };
 
-  const sameDay = (d1, d2) =>
-    d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate();
-
-  const isFirstDay = selectedPoint?.fullDate && sameDay(selectedPoint.fullDate, startDate);
-  const isLastDay = selectedPoint?.fullDate && sameDay(selectedPoint.fullDate, endDate);
-
   return (
     <div className="relative w-full" style={{ width: dimensions.width, height: dimensions.height }}>
       <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
         <XAxis scale={xScale} height={dimensions.height} width={dimensions.width} margin={margin} />
         <YAxis scale={yScale} margin={margin} />
 
+        {/* Grid lines */}
         <g>
           {d3.timeHour
-            .range(new Date(1970, 0, 1, 6, 0), new Date(1970, 0, 1, 24, 0), 6)
-            .map((time, i) => {
-              const yPos = yScale(time);
-              return (
-                <line
-                  key={`six-hour-grid-${i}`}
-                  x1={margin.left * 1.2}
-                  y1={yPos}
-                  x2={dimensions.width - margin.right}
-                  y2={yPos}
-                  opacity={0.5}
-                  stroke="#9db"
-                  strokeWidth={1}
-                  strokeDasharray="4 4"
-                />
-              );
-            })}
+            .range(new Date(1970, 0, 1, 6), new Date(1970, 0, 2, 0), 6)
+            .map((time, i) => (
+              <line
+                key={i}
+                x1={margin.left * 1.2}
+                y1={yScale(time)}
+                x2={dimensions.width - margin.right}
+                y2={yScale(time)}
+                opacity={0.5}
+                stroke="#9db"
+                strokeWidth={1}
+                strokeDasharray="4 4"
+              />
+            ))}
         </g>
 
         <g>
@@ -167,7 +199,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate, onCategoryChange }) =
             const xPos = ((i + 1) * (dimensions.width - margin.left - margin.right)) / 7 + margin.left;
             return (
               <line
-                key={`six-hour-grid-${i}`}
+                key={i}
                 x1={xPos}
                 y1={margin.top}
                 x2={xPos}
@@ -177,7 +209,6 @@ const WeeklyCalendarView = ({ entries, startDate, endDate, onCategoryChange }) =
               />
             );
           })}
-
           <line
             x1={dimensions.width - margin.right}
             y1={margin.top}
@@ -199,15 +230,17 @@ const WeeklyCalendarView = ({ entries, startDate, endDate, onCategoryChange }) =
           />
         ))}
 
-        {selectedPoint && (
+        {selectedPoint && selectedPoint.clusteredX && selectedPoint.clusteredY && (
           <Tooltip
             point={selectedPoint}
-            isTouch={isTouch}
-            isFirstDay={isFirstDay}
-            isLastDay={isLastDay}
             radius={radius}
+            position={{
+              x: selectedPoint.clusteredX,
+              y: selectedPoint.clusteredY,
+              isBeforeNoon: selectedPoint.fullDate.getHours() < 12,
+            }}
             onClose={() => handleSelection(null)}
-            onCategoryChange={onCategoryChange}
+            onCategoryChange={handleUpdatePointCategory}
           />
         )}
       </svg>

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { IAB_CATEGORIES } from '../../constants/iabCategories';
 import { Pencil } from 'lucide-react';
 
-const CategorySelector = ({ value, onChange, label = 'Category', className = '' }) => {
+const CategorySelector = ({ value, onChange, label = 'Category', className = '', noLabel = false}) => {
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const dropdownRef = useRef();
@@ -48,16 +48,18 @@ const CategorySelector = ({ value, onChange, label = 'Category', className = '' 
         onChange(selectedCat.id);
         setOpen(false);
       }
+    } else if (e.key === 'Escape') {
+      setOpen(false);
     }
   };
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
-      <label className="text-sm font-medium mb-1 block">{label}</label>
+      {!noLabel && <label className="text-sm font-medium mb-1 block">{label}</label>}
       <button
         onClick={() => setOpen(!open)}
         onKeyDown={handleKeyDown}
-        className="w-full pr-2 pl-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-left flex items-center gap-2 text-sm text-white hover:border-blue-500 focus:outline-none"
+        className="w-full pr-2 pl-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-left flex items-center gap-2 text-sm text-white hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <span className="truncate flex-1">{selected?.name || 'Select category'}</span>
         <Pencil className="w-4 h-4 opacity-70 hover:opacity-100 transition-opacity" />
