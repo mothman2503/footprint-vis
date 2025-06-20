@@ -1,22 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import {getDB, DB_CONSTANTS } from '../utils/db';
-import SearchEntryCard from './SearchEntryCard';
+import React, { useState } from 'react';
+import { useDataset } from '../context/DataContext';
 
 const ActivityViewer = () => {
-  const [entries, setEntries] = useState([]);
+  const { dataset } = useDataset();
   const [currentPage, setCurrentPage] = useState(1);
   const PER_PAGE = 20;
 
-  useEffect(() => {
-    const fetchEntries = async () => {
-      const db = await getDB();
-const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
-
-      setEntries(all);
-    };
-    fetchEntries();
-  }, []);
-
+  const entries = dataset?.records || [];
   const totalPages = Math.ceil(entries.length / PER_PAGE);
   const paginatedEntries = entries.slice(
     (currentPage - 1) * PER_PAGE,
@@ -33,33 +23,47 @@ const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
   }
 
   return (
-    <div className="mt-6 max-w-2xl text-black">
-      <h2 className="text-xl font-semibold mb-4 text-white">Your Search History</h2>
+    <div className="mt-6">
+      <h2 className="text-xl font-semibold mb-4 text-white">
+        Search History ({dataset?.label || 'Unnamed Dataset'})
+      </h2>
 
-      <ul className="space-y-4 h-[600px] overflow-y-auto">
+      <ul className="space-y-4 h-[600px] overflow-y-auto pr-2">
         {paginatedEntries.map(entry => (
-          <SearchEntryCard key={entry.id} entry={entry} />
+          <li key={entry.id} className="bg-gray-800 rounded-md p-4 shadow border border-gray-700">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm text-gray-400">
+                {new Date(entry.timestamp).toLocaleString()}
+              </span>
+              <span
+                className="text-xs font-semibold px-2 py-1 rounded-full"
+                style={{ backgroundColor: entry.category.color, color: '#111' }}
+              >
+                {entry.category.name}
+              </span>
+            </div>
+            <p className="text-white text-base">{entry.query}</p>
+          </li>
         ))}
       </ul>
 
-      {/* Pagination Controls */}
-      <div className="mt-6 flex items-center justify-between">
+      <div className="mt-6 flex items-center justify-between text-white">
         <button
           onClick={() => goToPage(currentPage - 1)}
           disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
+          className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded disabled:opacity-50"
         >
           Previous
         </button>
 
-        <span className="text-sm text-gray-700">
+        <span className="text-sm text-gray-400">
           Page {currentPage} of {totalPages}
         </span>
 
         <button
           onClick={() => goToPage(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-gray-500 text-white rounded disabled:opacity-50"
+          className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded disabled:opacity-50"
         >
           Next
         </button>

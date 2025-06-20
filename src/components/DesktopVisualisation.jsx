@@ -1,46 +1,44 @@
-// SearchActivityDashboard.jsx patched to ensure entries include ID
 import React, { useEffect, useState } from "react";
-import { getDB, DB_CONSTANTS } from '../utils/db';
 import UsageStripeChart from "./visualisation_tools/UsageStripeChart";
 import WeeklyCalendarView from "./visualisation_tools/WeeklyCalendarView";
 import * as d3 from "d3";
+import { getDB, DB_CONSTANTS } from "../utils/db";
+import { IAB_CATEGORIES } from "../constants/iabCategories";
 
-const SearchActivityDashboard = () => {
-  const [entries, setEntries] = useState([]);
+const DesktopVisualisation = ({ entries }) => {
   const [selectedWeek, setSelectedWeek] = useState({
     startDate: null,
     endDate: null,
   });
 
   useEffect(() => {
-    const loadData = async () => {
-      const db = await getDB();
-      const tx = db.transaction(DB_CONSTANTS.STORE_NAME, 'readonly');
-      const store = tx.objectStore(DB_CONSTANTS.STORE_NAME);
+    if (!entries.length) return;
 
-      const entriesWithIds = [];
-      let cursor = await store.openCursor();
+    const sorted = [...entries].sort(
+      (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+    );
 
-      while (cursor) {
-        entriesWithIds.push({ ...cursor.value, id: cursor.key });
-        cursor = await cursor.continue();
-      }
+    const lastDate = new Date(sorted[sorted.length - 1].timestamp);
+    const startDate = d3.timeDay.offset(d3.timeDay.floor(lastDate), -6);
+    const endDate = d3.timeDay.floor(lastDate);
+    setSelectedWeek({ startDate, endDate });
+  }, [entries]);
 
-      const sorted = entriesWithIds.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-      setEntries(sorted);
+  const handleUpdatePointCategory = async (point, newCategoryId) => {
+    const updatedCategory = IAB_CATEGORIES.find(
+      (cat) => cat.id === newCategoryId
+    );
+    if (!updatedCategory || !point?.id) return;
 
-      if (sorted.length) {
-        const lastDate = new Date(sorted[sorted.length - 1].timestamp);
-        const startDate = d3.timeDay.offset(d3.timeDay.floor(lastDate), -6);
-        const endDate = d3.timeDay.floor(lastDate);
-        setSelectedWeek({ startDate, endDate });
-      }
-    };
+    const db = await getDB();
+    const entry = await db.get(DB_CONSTANTS.STORE_NAME, point.id);
+    if (!entry) return;
 
-    loadData();
-  }, []);
+    const updatedEntry = { ...entry, category: updatedCategory };
+    await db.put(DB_CONSTANTS.STORE_NAME, updatedEntry);
+  };
 
-  if (!entries.length) {
+  if (!entries.length || !selectedWeek.startDate || !selectedWeek.endDate) {
     return <p className="mt-6 text-gray-500">No data loaded.</p>;
   }
 
@@ -50,6 +48,7 @@ const SearchActivityDashboard = () => {
         entries={entries}
         startDate={selectedWeek.startDate}
         endDate={selectedWeek.endDate}
+        onCategoryChange={handleUpdatePointCategory}
       />
 
       <div className="mt-12">
@@ -63,4 +62,4 @@ const SearchActivityDashboard = () => {
   );
 };
 
-export default SearchActivityDashboard;
+export default DesktopVisualisation;

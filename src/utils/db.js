@@ -2,17 +2,19 @@
 import { openDB, deleteDB } from 'idb';
 
 const DB_NAME = 'GoogleActivityApp';
-const DB_VERSION = 2; // bump this when schema changes
+const DB_VERSION = 3;
 const STORE_NAME = 'searchResults';
+
 
 async function initDB() {
   return openDB(DB_NAME, DB_VERSION, {
-    upgrade(db, oldVersion) {
+    upgrade(db) {
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
       }
-
-      // Future upgrade logic can go here
+      if (!db.objectStoreNames.contains('savedDatasets')) {
+        db.createObjectStore('savedDatasets', { keyPath: 'id' });
+      }
     },
   });
 }

@@ -53,7 +53,7 @@ const CategorySelector = ({ value, onChange, label = 'Category', className = '' 
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
-      <label className="text-sm font-medium text-white mb-1 block">{label}</label>
+      <label className="text-sm font-medium mb-1 block">{label}</label>
       <button
         onClick={() => setOpen(!open)}
         onKeyDown={handleKeyDown}

@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import { IAB_CATEGORIES } from "../../constants/iabCategories";
-import { getDB, DB_CONSTANTS } from "../../utils/db"; // adjust path as needed
 import Tooltip from "./Tooltip";
 import * as d3 from "d3";
 import XAxis from "./XAxis";
 import YAxis from "./YAxis";
 import Datapoint from "./Datapoint";
 
-const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
+const WeeklyCalendarView = ({ entries, startDate, endDate, onCategoryChange }) => {
   const isTouch = window.matchMedia("(pointer: coarse)").matches;
   const margin = { top: 20, right: 20, bottom: 30, left: 50 };
   const svgRef = useRef();
@@ -16,38 +14,9 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
   const [selectedPoint, setSelectedPoint] = useState(null);
   const radius = 5;
 
-  const handleUpdatePointCategory = async (oldPoint, newCategoryId) => {
-    const newCategory = IAB_CATEGORIES.find((cat) => cat.id === newCategoryId);
-    if (!newCategory) return;
-
-    const db = await getDB();
-    const entry = await db.get(DB_CONSTANTS.STORE_NAME, oldPoint.id);
-    if (!entry) return;
-console.log("handleUpdatePointCategory called with:", oldPoint, newCategoryId);
-
-    const updatedDBEntry = { ...entry, category: newCategory };
-    await db.put(DB_CONSTANTS.STORE_NAME, updatedDBEntry);
-console.log("Fetched back from DB:", updatedDBEntry);
-
-    const updatedPoint = {
-      ...oldPoint, // retain layout info like clusteredX, clusteredY
-      ...updatedDBEntry,
-    };
-
-    setSelectedPoint({ ...updatedPoint });
-    setClusteredData((prev) =>
-      prev.map((p) => (p.id === oldPoint.id ? { ...updatedPoint } : p))
-    );
-
-    console.log("Final updated point:", updatedPoint);
-
-  };
-
   const weekTitle =
     startDate && endDate
-      ? `${d3.timeFormat("%b %d, %Y")(startDate)} - ${d3.timeFormat(
-          "%b %d, %Y"
-        )(endDate)}`
+      ? `${d3.timeFormat("%b %d, %Y")(startDate)} - ${d3.timeFormat("%b %d, %Y")(endDate)}`
       : "Loading...";
 
   useEffect(() => {
@@ -83,15 +52,7 @@ console.log("Fetched back from DB:", updatedDBEntry);
       .range([margin.top, dimensions.height - margin.bottom]);
 
     return { xScale, yScale };
-  }, [
-    startDate,
-    endDate,
-    dimensions,
-    margin.top,
-    margin.bottom,
-    margin.left,
-    margin.right,
-  ]);
+  }, [startDate, endDate, dimensions, margin.left, margin.top, margin.right, margin.bottom]);
 
   useEffect(() => {
     if (!startDate || !endDate || dimensions.width === 0) return;
@@ -125,23 +86,17 @@ console.log("Fetched back from DB:", updatedDBEntry);
     });
 
     const pointsByClusterY = d3.group(parsed, (d) => d.clusterY);
-
     const clustered = [];
 
     pointsByClusterY.forEach((pointsAtY) => {
-      const pointsByDay = d3.group(pointsAtY, (d) =>
-        d3.timeDay.floor(d.fullDate).getTime()
-      );
-
+      const pointsByDay = d3.group(pointsAtY, (d) => d3.timeDay.floor(d.fullDate).getTime());
       pointsByDay.forEach((points, dayTimestamp) => {
         const baseX = xScale(new Date(Number(dayTimestamp)));
-
         points.forEach((point, i) => {
           const clusterOffset = Math.floor(i / maxPerCluster);
           const newClusterY = point.clusterY + clusterOffset * clusterHeight;
           const colIndex = i % maxPerCluster;
-          const offsetX =
-            (colIndex - Math.floor(maxPerCluster / 2)) * horizontalSpacing;
+          const offsetX = (colIndex - Math.floor(maxPerCluster / 2)) * horizontalSpacing;
 
           clustered.push({
             ...point,
@@ -153,18 +108,7 @@ console.log("Fetched back from DB:", updatedDBEntry);
     });
 
     setClusteredData(clustered);
-  }, [
-    entries,
-    startDate,
-    endDate,
-    dimensions,
-    xScale,
-    yScale,
-    margin.top,
-    margin.bottom,
-    margin.left,
-    margin.right,
-  ]);
+  }, [entries, startDate, endDate, dimensions, xScale, yScale, margin.left, margin.top, margin.right, margin.bottom]);
 
   const hoverTimeoutRef = useRef(null);
 
@@ -188,23 +132,13 @@ console.log("Fetched back from DB:", updatedDBEntry);
     d1.getMonth() === d2.getMonth() &&
     d1.getDate() === d2.getDate();
 
-  const isFirstDay =
-    selectedPoint?.fullDate && sameDay(selectedPoint.fullDate, startDate);
-  const isLastDay =
-    selectedPoint?.fullDate && sameDay(selectedPoint.fullDate, endDate);
+  const isFirstDay = selectedPoint?.fullDate && sameDay(selectedPoint.fullDate, startDate);
+  const isLastDay = selectedPoint?.fullDate && sameDay(selectedPoint.fullDate, endDate);
 
   return (
-    <div
-      className="relative w-full"
-      style={{ width: dimensions.width, height: dimensions.height }}
-    >
+    <div className="relative w-full" style={{ width: dimensions.width, height: dimensions.height }}>
       <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
-        <XAxis
-          scale={xScale}
-          height={dimensions.height}
-          width={dimensions.width}
-          margin={margin}
-        />
+        <XAxis scale={xScale} height={dimensions.height} width={dimensions.width} margin={margin} />
         <YAxis scale={yScale} margin={margin} />
 
         <g>
@@ -230,9 +164,7 @@ console.log("Fetched back from DB:", updatedDBEntry);
 
         <g>
           {d3.timeDay.range(startDate, endDate, 1).map((date, i) => {
-            const xPos =
-              ((i + 1) * (dimensions.width - margin.left - margin.right)) / 7 +
-              margin.left;
+            const xPos = ((i + 1) * (dimensions.width - margin.left - margin.right)) / 7 + margin.left;
             return (
               <line
                 key={`six-hour-grid-${i}`}
@@ -255,6 +187,7 @@ console.log("Fetched back from DB:", updatedDBEntry);
             strokeWidth={2}
           />
         </g>
+
         {clusteredData.map((d, i) => (
           <Datapoint
             key={i}
@@ -274,15 +207,12 @@ console.log("Fetched back from DB:", updatedDBEntry);
             isLastDay={isLastDay}
             radius={radius}
             onClose={() => handleSelection(null)}
-            onCategoryChange={handleUpdatePointCategory}
+            onCategoryChange={onCategoryChange}
           />
         )}
       </svg>
 
-      <h3
-        className="text-md text-white font-semibold mx-5 mb-2 text-center"
-        style={{ fontFamily: "Noto Sans JP" }}
-      >
+      <h3 className="text-md text-white font-semibold mx-5 mb-2 text-center" style={{ fontFamily: "Noto Sans JP" }}>
         Search Activity : {weekTitle}
       </h3>
     </div>
