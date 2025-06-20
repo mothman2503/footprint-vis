@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useDataset } from '../context/DataContext';
+import { getDB } from '../utils/db';
+import CategorySelector from './visualisation_tools/CategorySelector';
+import { IAB_CATEGORIES } from '../constants/iabCategories';
 
 const ActivityViewer = () => {
-  const { dataset } = useDataset();
+  const { dataset, setDataset } = useDataset();
   const [currentPage, setCurrentPage] = useState(1);
-  const PER_PAGE = 20;
+  const PER_PAGE = 30;
 
   const entries = dataset?.records || [];
   const totalPages = Math.ceil(entries.length / PER_PAGE);
@@ -12,6 +15,34 @@ const ActivityViewer = () => {
     (currentPage - 1) * PER_PAGE,
     currentPage * PER_PAGE
   );
+
+  const updateEntryCategory = async (id, newCategory) => {
+    const updatedRecords = entries.map(entry =>
+      entry.id === id ? { ...entry, category: newCategory } : entry
+    );
+
+    setDataset(prev => ({ ...prev, records: updatedRecords }));
+
+    const db = await getDB();
+
+    if (dataset.source === 'user') {
+      const entry = await db.get('searchResults', id);
+      if (entry) {
+        await db.put('searchResults', { ...entry, category: newCategory });
+      }
+    } else if (dataset.source === 'saved') {
+      const allSaved = await db.getAll('savedDatasets');
+      const current = allSaved.find(d => d.name === dataset.label);
+      if (current) {
+        const updated = {
+          ...current,
+          records: updatedRecords,
+          date: new Date().toISOString()
+        };
+        await db.put('savedDatasets', updated);
+      }
+    }
+  };
 
   const goToPage = (pageNum) => {
     if (pageNum < 1 || pageNum > totalPages) return;
@@ -42,7 +73,16 @@ const ActivityViewer = () => {
                 {entry.category.name}
               </span>
             </div>
-            <p className="text-white text-base">{entry.query}</p>
+            <p className="text-white text-base mb-2">{entry.query}</p>
+
+            <CategorySelector
+            noLabel
+              value={entry.category.id}
+              onChange={(newId) => {
+                const newCategory = IAB_CATEGORIES.find(c => c.id === newId);
+                if (newCategory) updateEntryCategory(entry.id, newCategory);
+              }}
+            />
           </li>
         ))}
       </ul>

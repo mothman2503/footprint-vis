@@ -9,43 +9,6 @@ import { BsChevronDown } from "react-icons/bs";
 import { IAB_CATEGORIES } from "../constants/iabCategories";
 
 const MobileVisualisation = () => {
-  const colors = [
-    "#e41a1c",
-    "#377eb8",
-    "#4daf4a",
-    "#984ea3",
-    "#ff7f00",
-    "#ffff33",
-    "#a65628",
-    "#f781bf",
-  ];
-
-  const getColorFromFirstLetter = (str) => {
-    if (!str || str.length === 0) return colors[0];
-    const index = str[0].toUpperCase().charCodeAt(0) % colors.length;
-    return colors[index];
-  };
-
-  const handleUpdatePointCategory = async (point, newCategoryId) => {
-    const db = await getDB();
-    const updatedCategory = IAB_CATEGORIES.find(
-      (cat) => cat.id === newCategoryId
-    );
-    if (!updatedCategory || !point?.id) return;
-
-    const entry = await db.get(DB_CONSTANTS.STORE_NAME, point.id);
-    if (!entry) return;
-
-    const updatedEntry = { ...entry, category: updatedCategory };
-    await db.put(DB_CONSTANTS.STORE_NAME, updatedEntry);
-
-    const updatedPoint = { ...point, category: updatedCategory };
-    setSelectedPoint(updatedPoint);
-    setClusteredData((prev) =>
-      prev.map((p) => (p.id === point.id ? updatedPoint : p))
-    );
-  };
-
   const svgRef = useRef();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [clusteredData, setClusteredData] = useState([]);
@@ -59,22 +22,6 @@ const MobileVisualisation = () => {
   const labelMarginBottom = 20;
 
   useEffect(() => {
-    const loadData = async () => {
-      const db = await getDB();
-      const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
-
-      const sorted = all.sort(
-        (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
-      );
-      setEntries(sorted);
-      if (sorted.length) {
-        setCurrentDate(new Date(sorted[sorted.length - 1].timestamp));
-      }
-    };
-    loadData();
-  }, []);
-
-  useEffect(() => {
     const updateDimensions = () => {
       const usableHeight = window.outerHeight - 80;
       setDimensions({ width: window.innerWidth, height: usableHeight });
@@ -84,36 +31,39 @@ const MobileVisualisation = () => {
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
-  const { yScale } = useMemo(() => {
-    const paddingY = 30 * 60 * 1000;
+  useEffect(() => {
+    const loadData = async () => {
+      const db = await getDB();
+      const all = await db.getAll(DB_CONSTANTS.STORE_NAME);
+      const sorted = all.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      setEntries(sorted);
+      if (sorted.length) {
+        setCurrentDate(new Date(sorted[sorted.length - 1].timestamp));
+      }
+    };
+    loadData();
+  }, []);
 
-    const yScale = d3
-      .scaleTime()
+  const yScale = useMemo(() => {
+    const paddingY = 30 * 60 * 1000;
+    return d3.scaleTime()
       .domain([
         new Date(new Date(1970, 0, 1, 0, 0).getTime() - paddingY),
         new Date(new Date(1970, 0, 1, 23, 59).getTime() + paddingY),
       ])
       .range([margin.top, dimensions.height - margin.bottom]);
-
-    return { yScale };
   }, [dimensions, margin.top, margin.bottom]);
+
   useEffect(() => {
     if (!currentDate || dimensions.width === 0) return;
 
     const baseX = dimensions.width / 2;
-
-    const y = d3
-      .scaleTime()
+    const y = d3.scaleTime()
       .domain([new Date(1970, 0, 1, 0, 0), new Date(1970, 0, 2, 0, 0)])
-      .range([
-        margin.top,
-        dimensions.height - margin.bottom - labelMarginBottom,
-      ]);
+      .range([margin.top, dimensions.height - margin.bottom - labelMarginBottom]);
 
-    const startOfDay = new Date(currentDate);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(currentDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    const startOfDay = new Date(currentDate); startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(currentDate); endOfDay.setHours(23, 59, 59, 999);
 
     const filtered = entries.filter((d) => {
       const timestamp = new Date(d.timestamp);
@@ -122,14 +72,7 @@ const MobileVisualisation = () => {
 
     const parsed = filtered.map((d) => {
       const fullDate = new Date(d.timestamp);
-      const timeOnly = new Date(
-        1970,
-        0,
-        1,
-        fullDate.getHours(),
-        fullDate.getMinutes(),
-        fullDate.getSeconds()
-      );
+      const timeOnly = new Date(1970, 0, 1, fullDate.getHours(), fullDate.getMinutes(), fullDate.getSeconds());
       return { ...d, fullDate, timeOnly };
     });
 
@@ -150,14 +93,8 @@ const MobileVisualisation = () => {
         const clusterOffset = Math.floor(i / maxPerCluster);
         const newClusterY = point.clusterY + clusterOffset * clusterHeight;
         const colIndex = i % maxPerCluster;
-        const offsetX =
-          (colIndex - Math.floor(maxPerCluster / 2)) * horizontalSpacing;
-
-        clustered.push({
-          ...point,
-          clusteredX: baseX + offsetX,
-          clusteredY: newClusterY,
-        });
+        const offsetX = (colIndex - Math.floor(maxPerCluster / 2)) * horizontalSpacing;
+        clustered.push({ ...point, clusteredX: baseX + offsetX, clusteredY: newClusterY });
       });
     });
 
@@ -168,51 +105,44 @@ const MobileVisualisation = () => {
     setSelectedPoint(point);
   };
 
-  const y = d3
-    .scaleTime()
-    .domain([
-      new Date(new Date(1970, 0, 1, 0, 0).getTime() - 30 * 60 * 1000),
-      new Date(new Date(1970, 0, 1, 23, 59).getTime() + 30 * 60 * 1000),
-    ])
+  const handleUpdatePointCategory = async (point, newCategoryId) => {
+    const db = await getDB();
+    const updatedCategory = IAB_CATEGORIES.find((cat) => cat.id === newCategoryId);
+    if (!updatedCategory || !point?.id) return;
+    const entry = await db.get(DB_CONSTANTS.STORE_NAME, point.id);
+    if (!entry) return;
+    const updatedEntry = { ...entry, category: updatedCategory };
+    await db.put(DB_CONSTANTS.STORE_NAME, updatedEntry);
+    const updatedPoint = { ...point, category: updatedCategory };
+    setSelectedPoint(updatedPoint);
+    setClusteredData((prev) =>
+      prev.map((p) => (p.id === point.id ? updatedPoint : p))
+    );
+  };
+
+  const y = d3.scaleTime()
+    .domain([new Date(1970, 0, 1, -0.5), new Date(1970, 0, 2, 0, 0)])
     .range([margin.top, dimensions.height - margin.bottom - labelMarginBottom]);
 
-  // Horizontal gridlines every 6 hours
   const sixHourIntervals = d3.timeHour.range(
     new Date(1970, 0, 1, 6, 0),
     new Date(1970, 0, 1, 24, 0),
     6
   );
-  return (
-    <div
-      className="relative w-full overflow-hidden px-2"
-      style={{ height: `${dimensions.height}px` }}
-    >
-      <svg
-        ref={svgRef}
-        width={dimensions.width * 0.9}
-        height={Math.max(0, dimensions.height - 70)}
-      >
-        <YAxis scale={yScale} margin={margin} />
 
-        {/* Horizontal gridlines every 6 hours */}
+  return (
+    <div className="relative w-full overflow-hidden px-2" style={{ height: `${dimensions.height}px` }}>
+      <svg ref={svgRef} width={dimensions.width * 0.9} height={Math.max(0, dimensions.height - 70)}>
+        <YAxis scale={yScale} margin={margin} />
         <g>
           {sixHourIntervals.map((time, i) => {
             const yPos = y(time);
             return (
-              <line
-                key={`six-hour-grid-${i}`}
-                x1={margin.left}
-                y1={yPos}
-                x2={dimensions.width - margin.right}
-                y2={yPos}
-                stroke="#9db"
-                strokeWidth={0.3}
-                strokeDasharray="4 4" // Makes the line dotted
-              />
+              <line key={i} x1={margin.left} y1={yPos} x2={dimensions.width - margin.right} y2={yPos}
+                stroke="#9db" strokeWidth={0.3} strokeDasharray="4 4" />
             );
           })}
         </g>
-
         {clusteredData.map((d, i) => (
           <Datapoint
             key={i}
@@ -223,34 +153,27 @@ const MobileVisualisation = () => {
             onSelect={handleSelect}
           />
         ))}
-        <Tooltip
-          point={selectedPoint}
-          isTouch={true}
-          isMobile={true}
-          margin={margin}
-          getColor={getColorFromFirstLetter}
-          radius={radius}
-          onClose={() => handleSelect(null)}
-          onCategoryChange={handleUpdatePointCategory}
-        />
+        {selectedPoint && (
+          <Tooltip
+            point={selectedPoint}
+            radius={radius}
+            onClose={() => setSelectedPoint(null)}
+            onCategoryChange={handleUpdatePointCategory}
+            position={{
+              x: selectedPoint.clusteredX,
+              y: selectedPoint.clusteredY,
+              isBeforeNoon: selectedPoint.fullDate?.getHours() < 12,
+            }}
+          />
+        )}
       </svg>
 
       <div>
-        <div
-          className="h-[50px] flex justify-center items-center mb-2 w-full border-t-[0.5px] border-[#fff]"
-          style={{ fontFamily: "Noto Sans JP" }}
-        >
-          <button
-            onClick={() => {
-              setShowPicker((prev) => !prev);
-              console.log(showPicker);
-            }}
-            className="text-white text-lg font-semibold flex items-center gap-1"
-          >
+        <div className="h-[50px] flex justify-center items-center mb-2 w-full border-t-[0.5px] border-[#fff]">
+          <button onClick={() => setShowPicker((prev) => !prev)} className="text-white text-lg font-semibold flex items-center gap-1">
             {d3.timeFormat("%A, %B %d, %Y")(currentDate)}
             <BsChevronDown />
           </button>
-
           {showPicker && (
             <div className="absolute mt-2 z-80">
               <DatePicker
