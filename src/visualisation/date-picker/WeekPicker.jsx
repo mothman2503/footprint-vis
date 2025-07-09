@@ -8,6 +8,8 @@ const getToday = () => {
   return d;
 };
 
+const areSameDay = (a, b) => a?.toDateString() === b?.toDateString();
+
 const WeekPicker = ({ startDate, onSelectDate, annotations = {} }) => {
   const today = getToday();
   const [currentMonth, setCurrentMonth] = useState(new Date(today));
@@ -45,8 +47,13 @@ const WeekPicker = ({ startDate, onSelectDate, annotations = {} }) => {
   };
 
   const handleSelect = (date) => {
-    setSelectedStart(date);
-    onSelectDate?.(date);
+    const isSameWeekStart = areSameDay(date, selectedStart);
+
+    if (isSameWeekStart) {
+      onSelectDate?.(date); // this is the signal to close (handled in parent)
+    } else {
+      setSelectedStart(date);
+    }
   };
 
   const changeMonth = (offset) => {
@@ -54,6 +61,9 @@ const WeekPicker = ({ startDate, onSelectDate, annotations = {} }) => {
     newMonth.setMonth(newMonth.getMonth() + offset);
     setCurrentMonth(newMonth);
   };
+
+  const weekStart = selectedStart;
+  const weekEnd = weekStart ? new Date(weekStart.getTime() + 6 * 86400000) : null;
 
   return (
     <div className="w-max bg-white p-4 border rounded shadow-md">
@@ -73,8 +83,10 @@ const WeekPicker = ({ startDate, onSelectDate, annotations = {} }) => {
         {days.map(({ date, isCurrentMonth }, i) => {
           const key = date.toISOString().split("T")[0];
           const strength = annotations[key]?.strength ?? 0;
+          const isSelected = areSameDay(date, selectedStart);
+          const inRange = isInSelectedRange(date);
 
-          const shade = strength > 0 ? `bg-opacity-${Math.min(Math.floor(strength * 100), 100)}` : "bg-opacity-0";
+          const glow = weekStart && date >= weekStart && date <= weekEnd;
 
           return (
             <button
@@ -82,16 +94,20 @@ const WeekPicker = ({ startDate, onSelectDate, annotations = {} }) => {
               onClick={() => handleSelect(date)}
               disabled={date > today || date < new Date(today.getFullYear() - 100, 0, 1)}
               className={clsx(
-                "relative text-xs rounded p-2 border text-center",
+                "relative text-xs rounded p-2 border text-center transition",
                 {
-                  "bg-indigo-500 text-white": selectedStart?.toDateString() === date.toDateString(),
-                  "bg-indigo-100 text-indigo-900": isInSelectedRange(date),
+                  "bg-indigo-100 text-indigo-900": inRange,
+                  "ring-2 ring-indigo-500 shadow-md": glow,
+                  "bg-indigo-500 text-white": isSelected,
                   "text-gray-400": !isCurrentMonth,
-                  "hover:bg-indigo-200": isCurrentMonth,
+                  "hover:bg-indigo-200": isCurrentMonth && !isSelected,
+                  "cursor-pointer": true,
                 }
               )}
               style={{
-                backgroundColor: `rgba(79, 70, 229, ${strength})`, // indigo-500 with opacity
+                backgroundColor: strength
+                  ? `rgba(79, 70, 229, ${Math.min(strength, 1)})`
+                  : undefined,
               }}
             >
               {date.getDate()}
