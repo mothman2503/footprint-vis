@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import "./i18n"; 
-import { DatasetProvider } from "./context/DataContext";
+import { DatasetProvider } from "./DataContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

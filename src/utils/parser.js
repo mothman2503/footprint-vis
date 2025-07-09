@@ -1,4 +1,6 @@
-import { IAB_CATEGORIES } from "../constants/iabCategories";
+//utils/parser.js
+
+import { IAB_CATEGORIES } from "../assets/constants/iabCategories";
 import { DateTime } from 'luxon';
 
 export function parseActivityHtml(htmlText) {
@@ -50,7 +52,7 @@ export function parseActivityHtml(htmlText) {
       }
     }
 
-    const uncategorized = IAB_CATEGORIES.find(cat => cat.id === 'IAB24');
+    const uncategorized = IAB_CATEGORIES.find(cat => cat.id === '12');
     const category = uncategorized;
 
 
