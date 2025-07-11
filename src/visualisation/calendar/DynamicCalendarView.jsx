@@ -1,23 +1,21 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
-import { IAB_CATEGORIES } from "../../../assets/constants/iabCategories";
-import Tooltip from "../components/Tooltip";
-import XAxis from "../components/XAxis";
-import YAxis from "../components/YAxis";
-import Datapoint from "../components/Datapoint";
-import { getDB, DB_CONSTANTS } from "../../../utils/db";
-import { useDataset } from "../../../DataContext";
+import { IAB_CATEGORIES } from "../../assets/constants/iabCategories";
+import Tooltip from "./components/Tooltip";
+import XAxis from "./components/XAxis";
+import YAxis from "./components/YAxis";
+import Datapoint from "./components/Datapoint";
+import { getDB, DB_CONSTANTS } from "../../utils/db";
+import { useDataset } from "../../DataContext";
 
-const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
+const DynamicCalendarView = ({ entries, startDate, numDays }) => {
   const margin = { top: 20, right: 20, bottom: 10, left: 50 };
   const svgRef = useRef();
+  const containerRef = useRef();
   const radius = 5;
   const { dataset, setDataset } = useDataset();
 
-  const [dimensions, setDimensions] = useState({
-    width: window.innerWidth,
-    height: Math.floor(window.innerHeight * 0.8) // 80vh in pixels
-  });
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [clusteredData, setClusteredData] = useState([]);
   const [selectedPoint, setSelectedPoint] = useState(null);
 
@@ -53,13 +51,25 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     );
   };
 
-  const weekTitle = startDate && endDate
-    ? `${d3.timeFormat("%b %d, %Y")(startDate)} - ${d3.timeFormat("%b %d, %Y")(endDate)}`
-    : "Loading...";
+  useEffect(() => {
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setDimensions({ width, height });
+    });
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  const endDate = useMemo(() => {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + (numDays || 1) - 1);
+    return d;
+  }, [startDate, numDays]);
 
   const { xScale, yScale } = useMemo(() => {
     const paddingX = 12 * 60 * 60 * 1000;
-    const paddingY = 30 * 60 * 1000;
     return {
       xScale: d3.scaleTime()
         .domain([new Date(startDate?.getTime() - paddingX), new Date(endDate?.getTime() + paddingX)])
@@ -71,7 +81,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
         ])
         .range([margin.top + 35, dimensions.height - margin.bottom])
     };
-  }, [startDate, endDate, dimensions]);
+  }, [startDate, endDate, dimensions, margin.bottom, margin.left, margin.right, margin.top]);
 
   useEffect(() => {
     if (!startDate || !endDate || dimensions.width === 0) return;
@@ -123,7 +133,7 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
     });
 
     setClusteredData(clustered);
-  }, [entries, startDate, endDate, dimensions, xScale, yScale]);
+  }, [entries, startDate, endDate, dimensions, xScale, yScale, margin.bottom, margin.left, margin.right, margin.top]);
 
   const hoverTimeoutRef = useRef(null);
 
@@ -137,96 +147,85 @@ const WeeklyCalendarView = ({ entries, startDate, endDate }) => {
   };
 
   return (
-    <div
-      className="relative w-full"
-      style={{
-        width: dimensions.width,
-        height: `${dimensions.height}px`
-      }}
-    >
+    <div ref={containerRef} className="relative w-full h-full">
+      {dimensions.width > 0 && dimensions.height > 0 && (
+        <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
+          <XAxis scale={xScale} height={dimensions.height} width={dimensions.width} margin={margin} />
+          <YAxis scale={yScale} margin={margin} />
 
+          {/* Horizontal grid lines */}
+          <g>
+            {d3.timeHour
+              .range(new Date(1970, 0, 1, 6), new Date(1970, 0, 2, 0), 6)
+              .map((time, i) => (
+                <line
+                  key={i}
+                  x1={margin.left * 1.2}
+                  y1={yScale(time)}
+                  x2={dimensions.width - margin.right}
+                  y2={yScale(time)}
+                  opacity={0.5}
+                  stroke="#9db"
+                  strokeWidth={1}
+                  strokeDasharray="4 4"
+                />
+              ))}
+          </g>
 
-      <h3 className="text-md text-white font-semibold mx-5 mt-2 text-center" style={{ fontFamily: "Noto Sans JP" }}>
-        {weekTitle}
-      </h3>
+          {/* Vertical grid lines (per day) */}
+          <g>
+            {d3.timeDay.range(startDate, endDate, 1).map((date, i) => {
+              const xPos = ((i + 1) * (dimensions.width - margin.left - margin.right)) / numDays + margin.left;
+              return (
+                <line
+                  key={i}
+                  x1={xPos}
+                  y1={margin.top}
+                  x2={xPos}
+                  y2={dimensions.height - margin.top}
+                  stroke="#cd5"
+                  strokeWidth={2}
+                />
+              );
+            })}
+            <line
+              x1={dimensions.width - margin.right}
+              y1={margin.top}
+              x2={dimensions.width - margin.right}
+              y2={dimensions.height - margin.top}
+              stroke="#cd5"
+              strokeWidth={2}
+            />
+          </g>
 
-      <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
-        <XAxis scale={xScale} height={dimensions.height} width={dimensions.width} margin={margin} />
-        <YAxis scale={yScale} margin={margin} />
+          {clusteredData.map((d, i) => (
+            <Datapoint
+              key={i}
+              point={d}
+              obscure={selectedPoint?.query}
+              radius={radius}
+              selectedPoint={selectedPoint}
+              onSelect={handleSelection}
+            />
+          ))}
 
-        {/* Horizontal grid lines */}
-        <g>
-          {d3.timeHour
-            .range(new Date(1970, 0, 1, 6), new Date(1970, 0, 2, 0), 6)
-            .map((time, i) => (
-              <line
-                key={i}
-                x1={margin.left * 1.2}
-                y1={yScale(time)}
-                x2={dimensions.width - margin.right}
-                y2={yScale(time)}
-                opacity={0.5}
-                stroke="#9db"
-                strokeWidth={1}
-                strokeDasharray="4 4"
-              />
-            ))}
-        </g>
-
-        {/* Vertical grid lines (per day) */}
-        <g>
-          {d3.timeDay.range(startDate, endDate, 1).map((date, i) => {
-            const xPos = ((i + 1) * (dimensions.width - margin.left - margin.right)) / 7 + margin.left;
-            return (
-              <line
-                key={i}
-                x1={xPos}
-                y1={margin.top}
-                x2={xPos}
-                y2={dimensions.height - margin.top}
-                stroke="#cd5"
-                strokeWidth={2}
-              />
-            );
-          })}
-          <line
-            x1={dimensions.width - margin.right}
-            y1={margin.top}
-            x2={dimensions.width - margin.right}
-            y2={dimensions.height - margin.top}
-            stroke="#cd5"
-            strokeWidth={2}
-          />
-        </g>
-
-        {clusteredData.map((d, i) => (
-          <Datapoint
-            key={i}
-            point={d}
-            obscure={selectedPoint?.query}
-            radius={radius}
-            selectedPoint={selectedPoint}
-            onSelect={handleSelection}
-          />
-        ))}
-
-        {selectedPoint && (
-          <Tooltip
-            point={selectedPoint}
-            radius={radius}
-            position={{
-              x: selectedPoint.clusteredX,
-              y: selectedPoint.clusteredY,
-              isBeforeNoon: selectedPoint.fullDate.getHours() < 12,
-            }}
-            onClose={() => handleSelection(null)}
-            onCategoryChange={handleUpdatePointCategory}
-          />
-        )}
-      </svg>
-
+          {selectedPoint && (
+            <Tooltip
+              point={selectedPoint}
+              radius={radius}
+              position={{
+                x: selectedPoint.clusteredX,
+                y: selectedPoint.clusteredY,
+                isBeforeNoon: selectedPoint.fullDate.getHours() < 12,
+              }}
+              onClose={() => handleSelection(null)}
+              onCategoryChange={handleUpdatePointCategory}
+            />
+          )}
+        </svg>
+      )}
     </div>
   );
 };
 
-export default WeeklyCalendarView;
+export default DynamicCalendarView;

@@ -13,6 +13,7 @@
 }
 
 html,body{
+  font-family: "Noto Sans JP";
   overflow-x: hidden;
   overflow-y: visible;
   background-color: #4e596f;

@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import NavigationMenu from "./components/NavigationMenu";
 import Footer from "./components/Footer";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Datasets from "./pages/Datasets";
-import Visualise from "./pages/Visualise";
+import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
+import DatasetsPage from "./pages/DatasetsPage";
+import VisualisationPage from "./pages/VisualisationPage";
 import './App.css';
 import "./i18n"; 
 
@@ -11,12 +12,13 @@ function App() {
   return (
     <Router>
       <div className="bg-[#131818] flex flex-col min-h-dvh items-center w-full">
+        <NavigationMenu />
         <main className="w-full grow">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/datasets" element={<Datasets />} />
-            <Route path="/visualise" element={<Visualise />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/datasets" element={<DatasetsPage />} />
+            <Route path="/visualise" element={<VisualisationPage />} />
           </Routes>
         </main>
         <Footer />

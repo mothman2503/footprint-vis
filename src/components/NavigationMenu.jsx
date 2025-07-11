@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import navLinks from "../navLinks";
-import { VscMenu, VscClose } from "react-icons/vsc";
-import LanguageSwitcherMobile from "./LanguageSwitcherMobile";
+import { VscClose } from "react-icons/vsc";
 import { useTranslation } from "react-i18next";
 import "../i18n";
 
@@ -10,18 +9,8 @@ const NavigationMenu = () => {
   const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(false); // State for animation visibility
 
-  // Disable scrolling when menu is open
-
-  // Trigger navbar visibility when the component mounts
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true); // After the page loads, make navbar visible
-    }, 200); // Delay to allow other components to load
-
-    return () => clearTimeout(timer); // Clean up the timer
-  }, []);
+  // Disable scrolling when menu is
 
   // Function to handle dynamic translation based on the link path
   const getTranslation = (link) => {
@@ -41,28 +30,30 @@ const NavigationMenu = () => {
 
   return (
     <>
-      {/* Sticky Navbar */}
-      <div
-        className={`bg-slate-200/30 backdrop-blur-sm w-full sticky top-0 flex flex-wrap p-3 space-x-8 items-center justify-between z-40 
-        transform transition-all duration-500 ease-in-out ${
-          isVisible ? "translate-y-0" : "translate-y-[-100%]"
-        }`}
-        style={{
-          background:
-            "linear-gradient(244deg,rgba(4, 66, 35, 0.7) 0%, rgba(15, 92, 110, 0.9) 100%)",
-        }}
-      >
-        {/* Hamburger Icon */}
-        <VscMenu size={30} onClick={() => setIsOpen(true)} />
-
-        <LanguageSwitcherMobile />
-      </div>
+      {/* Navbar */}
+<div className="w-full flex justify-start backdrop-blur-sm fixed top-0 z-40">
+  <div
+  className="fixed top-4 left-3 z-50 flex flex-col gap-[5px] cursor-pointer"
+  onClick={() => setIsOpen(true)}
+>
+  {[3, 2.5, 1.5].map((width, i) => (
+    <span
+      key={i}
+      className="block h-[4px] bg-white rounded-[1px] origin-left animate-grow "
+      style={{
+        width: `${width*10}px`,
+        animationDelay: `${i * 100}ms`,
+      }}
+    />
+  ))}
+</div>
+</div>
 
       {/* Sidebar Drawer */}
       <div
         className={`fixed top-0 left-0 h-full w-4/6 max-w-80 bg-slate-200/30 backdrop-blur-sm transform 
         ${isOpen ? "translate-x-0" : "-translate-x-full"} 
-        transition-transform duration-300 ease-in-out z-40 shadow-lg`}
+        transition-transform duration-300 ease-in-out z-50 shadow-lg`}
       >
         {/* Close Button */}
         <VscClose
@@ -92,7 +83,7 @@ const NavigationMenu = () => {
       {/* Overlay (to close menu when clicking outside) */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black opacity-50 z-30"
+          className="fixed inset-0 bg-black opacity-50 z-40"
           onClick={() => setIsOpen(false)}
         ></div>
       )}
