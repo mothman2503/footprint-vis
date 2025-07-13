@@ -36,7 +36,7 @@ const MonthGrid = ({ monthStart, startDate, numDays, annotations, onSelectDate }
   endDate.setDate(startDate.getDate() + (numDays - 1));
 
   return (
-    <div className="w-full max-w-xs border rounded p-2">
+    <div className=" max-w-xs border rounded p-2">
       <div className="text-center font-semibold mb-1">
         {start.toLocaleString("default", { month: "long", year: "numeric" })}
       </div>

@@ -10,7 +10,7 @@ const MonthGridPanel = ({ startDate, onSelectDate, numDays, annotations = {}, on
   }
 
   return (
-    <div className="w-full h-[85vh] overflow-y-scroll bg-white z-40 shadow-inner px-4 py-6">
+    <div className="h-full overflow-y-scroll bg-white z-40 shadow-inner px-4 py-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Select Start Date</h2>
         <button
