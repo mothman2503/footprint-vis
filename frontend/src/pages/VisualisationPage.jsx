@@ -8,17 +8,18 @@ import Legend from "../visualisation/Legend";
 import DonutChart from "../visualisation/donut/DonutChart";
 import { classifyQueries } from "../utils/classify";
 import { getDB, DB_CONSTANTS } from "../utils/db";
-
 import Toolbar from "../components/Toolbar";
 import ClassificationDialog from "../components/ClassificationDialog";
 import ClassificationPreview from "../components/ClassificationPreview";
+import { AnimatePresence, motion } from "framer-motion";
 
 function buildSearchCounts(records) {
   const counts = {};
   for (const rec of records) {
-    if (!rec.timestamp) continue;
-    const date = new Date(rec.timestamp).toISOString().split("T")[0];
-    counts[date] = (counts[date] || 0) + 1;
+    const date = new Date(rec.timestamp);
+    if (isNaN(date.getTime())) continue;
+    const key = date.toISOString().split("T")[0];
+    counts[key] = (counts[key] || 0) + 1;
   }
   return counts;
 }
@@ -37,11 +38,9 @@ const VisualisationPage = () => {
   useEffect(() => {
     const updateDays = () => {
       const width = window.innerWidth;
-      const estimatedDays =
-        width <= 768 ? 1 : Math.max(1, Math.floor(width / 300));
+      const estimatedDays = width <= 768 ? 1 : Math.max(1, Math.floor(width / 300));
       setNumDays(estimatedDays);
     };
-
     updateDays();
     window.addEventListener("resize", updateDays);
 
@@ -60,7 +59,6 @@ const VisualisationPage = () => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty("--vh", `${vh}px`);
     };
-
     setVH();
     window.addEventListener("resize", setVH);
     return () => window.removeEventListener("resize", setVH);
@@ -71,14 +69,11 @@ const VisualisationPage = () => {
     try {
       const recordsToClassify = dataset.records;
       const queries = recordsToClassify.map((r) => r.query).filter(Boolean);
-
       if (queries.length === 0) {
         alert("No queries found.");
         return;
       }
-
       const results = await classifyQueries(queries);
-      console.log("\ud83d\udd0d Classification results:", results);
       setClassificationPreview(results);
     } catch (err) {
       console.error("\u274c Classification failed:", err);
@@ -104,7 +99,6 @@ const VisualisationPage = () => {
     const db = await getDB();
     const tx = db.transaction(DB_CONSTANTS.STORE_NAME, "readwrite");
     const store = tx.objectStore(DB_CONSTANTS.STORE_NAME);
-
     for (const rec of updatedRecords) {
       if (rec.id !== undefined) {
         await store.put(rec);
@@ -130,29 +124,19 @@ const VisualisationPage = () => {
   };
 
   if (!dataset?.records?.length) {
-    return (
-      <p className="text-white text-center mt-10">
-        \u26a0\ufe0f No dataset selected. Please select or upload a dataset.
-      </p>
-    );
+    return <p className="text-white text-center mt-10">⚠️ No dataset selected. Please select or upload a dataset.</p>;
   }
 
   const searchCounts = buildSearchCounts(dataset.records);
 
   return (
-    <div
-      ref={containerRef}
-      className="flex w-full flex-col"
-      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
-    >
+    <div ref={containerRef} className="flex w-full flex-col" style={{ height: "calc(var(--vh, 1vh) * 100)" }}>
       <div className="absolute top-16 opacity-20 hover:opacity-80 right-4 z-50 bg-black bg-opacity-60 text-white rounded shadow-lg">
         {["calendar", "monthGrid", "donutChart", "view4"].map((mode) => (
           <button
             key={mode}
             onClick={() => setViewMode(mode)}
-            className={`px-3 py-1 block text-left w-full hover:bg-white hover:text-black ${
-              viewMode === mode ? "bg-white text-black font-bold" : ""
-            }`}
+            className={`px-3 py-1 block text-left w-full hover:bg-white hover:text-black ${viewMode === mode ? "bg-white text-black font-bold" : ""}`}
           >
             {mode}
           </button>
@@ -168,23 +152,14 @@ const VisualisationPage = () => {
             const all = await db.getAll("savedDatasets");
             const selected = all.find((d) => d.label === label);
             if (selected) {
-              setDataset({
-                source: "saved",
-                label: selected.label,
-                records: selected.records,
-              });
+              setDataset({ source: "saved", label: selected.label, records: selected.records });
             }
           }}
           onStartClassification={() => setShowDialog(true)}
         />
       </div>
 
-      <ClassificationDialog
-        open={showDialog}
-        onClose={() => setShowDialog(false)}
-        onClassify={handleClassify}
-        loading={loading}
-      />
+      <ClassificationDialog open={showDialog} onClose={() => setShowDialog(false)} onClassify={handleClassify} loading={loading} />
 
       {classificationPreview && (
         <ClassificationPreview
@@ -195,60 +170,63 @@ const VisualisationPage = () => {
       )}
 
       <div className="flex-grow min-h-0 flex flex-col overflow-hidden pt-7">
-        <div className="w-full h-full flex-col flex">
-            <div className="flex-grow min-h-0 overflow-y-auto">
-              {viewMode === "monthGrid" ? (
-                <MonthGridPanel
-                  startDate={selectedDate}
-                  onSelectDate={(date) => setSelectedDate(date)}
-                  numDays={numDays}
-                  searchCounts={searchCounts}
-                  onClose={() => setViewMode("calendar")}
-                  records={dataset.records}
-                />
-              ) : viewMode === "calendar" ? (
-                <DynamicCalendarView
-                  startDate={selectedDate}
-                  entries={dataset.records}
-                  numDays={numDays}
-                />
-              ) : viewMode === "donutChart" ? (
-                <DonutChart
-                  data={Object.entries(
-                    dataset.records.reduce((acc, rec) => {
-                      const key = rec.category?.id || "uncategorized";
-                      acc[key] = (acc[key] || 0) + 1;
-                      return acc;
-                    }, {})
-                  ).map(([id, value]) => {
-                    const cat = IAB_CATEGORIES.find((c) => c.id === id);
-                    return {
-                      label: cat?.name || "Uncategorized",
-                      color: cat?.color || "#888",
-                      value,
-                    };
-                  })}
-                  size={200}
-                  strokeWidth={30}
-                />
-              ) : (
-                <div className="h-full flex items-center justify-center text-white text-xl">
-                  Placeholder for {viewMode}
-                </div>
-              )}
-            </div>
-            <Legend />
-          </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={viewMode}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="flex-grow overflow-auto"
+          >
+            {viewMode === "monthGrid" ? (
+              <MonthGridPanel
+                startDate={selectedDate}
+                onSelectDate={(date) => setSelectedDate(date)}
+                numDays={numDays}
+                searchCounts={searchCounts}
+                onClose={() => setViewMode("calendar")}
+                records={dataset.records}
+              />
+            ) : viewMode === "calendar" ? (
+              <DynamicCalendarView
+                startDate={selectedDate}
+                entries={dataset.records}
+                numDays={numDays}
+              />
+            ) : viewMode === "donutChart" ? (
+              <DonutChart
+                data={Object.entries(dataset.records.reduce((acc, rec) => {
+                  const key = rec.category?.id || "uncategorized";
+                  acc[key] = (acc[key] || 0) + 1;
+                  return acc;
+                }, {})).map(([id, value]) => {
+                  const cat = IAB_CATEGORIES.find((c) => c.id === id);
+                  return {
+                    label: cat?.name || "Uncategorized",
+                    color: cat?.color || "#888",
+                    value,
+                  };
+                })}
+                size={200}
+                strokeWidth={30}
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center text-white text-xl">
+                Placeholder for {viewMode}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+        <div className="shadow-up">
+          <Legend />
+        </div>
       </div>
 
       <div className="flex justify-center py-3 bg-black bg-opacity-80">
         <DatePicker
           startDate={selectedDate}
-          onToggle={() =>
-            setViewMode((prev) =>
-              prev === "monthGrid" ? "calendar" : "monthGrid"
-            )
-          }
+          onToggle={() => setViewMode((prev) => (prev === "monthGrid" ? "calendar" : "monthGrid"))}
           numDays={numDays}
         />
       </div>

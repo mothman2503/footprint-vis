@@ -127,13 +127,18 @@ const MonthGrid = ({
       <div className="grid grid-cols-7">
         {days.map(({ date, isCurrentMonth }, i) => {
           const key = date.toISOString().split("T")[0];
+          const isStart = date === startDate;
+          const isEnd = date === endDate;
           const inRange = date >= startDate && date <= endDate;
           const strength = annotations[key]?.strength ?? 0;
           const count = searchCounts[key] || 0;
           const opacity = opacityScale(count);
-          const selectedStyle = inRange
-            ? "border-t border-red-500 shadow-[inset_0_6px_6px_-4px_rgba(239,68,68,0.7)]"
-            : "";
+
+          const selectedStyle = (inRange
+            ? ("border-t border-[green] shadow-[inset_0_6px_6px_-4px_rgba(68,239,68,0.7)]" + (isStart?" border-l ":isEnd?" border-r ":""))
+            : "") ;
+
+          
 
           const backgroundColor =
             count > 0
