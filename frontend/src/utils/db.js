@@ -37,5 +37,8 @@ export async function getDB() {
 export const DB_CONSTANTS = {
   DB_NAME,
   DB_VERSION,
-  STORE_NAME,
+  STORE_NAME: 'searchResults',
+  STORE_NAME_SAVED: 'savedDatasets',
 };
+
+

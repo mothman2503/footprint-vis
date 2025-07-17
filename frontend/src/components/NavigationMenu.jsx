@@ -31,23 +31,23 @@ const NavigationMenu = () => {
   return (
     <>
       {/* Navbar */}
-<div className="w-full flex justify-start backdrop-blur-sm fixed top-0 z-40">
-  <div
-  className="fixed top-4 left-3 z-50 flex flex-col gap-[5px] cursor-pointer"
-  onClick={() => setIsOpen(true)}
->
-  {[3, 2.5, 1.5].map((width, i) => (
-    <span
-      key={i}
-      className="block h-[4px] bg-white rounded-[1px] origin-left animate-grow "
-      style={{
-        width: `${width*10}px`,
-        animationDelay: `${i * 100}ms`,
-      }}
-    />
-  ))}
-</div>
-</div>
+      <div className="flex justify-start fixed h-14 top-0 z-50">
+        <div
+          className="fixed top-0 left-0 pt-4 pl-3 pr-4 z-50 flex flex-col gap-[5px] cursor-pointer bg-[black] h-14"
+          onClick={() => setIsOpen(true)}
+        >
+          {[3, 2.5, 1.5].map((width, i) => (
+            <span
+              key={i}
+              className="block h-[4px] bg-white rounded-[1px] origin-left animate-grow "
+              style={{
+                width: `${width * 10}px`,
+                animationDelay: `${i * 100}ms`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
 
       {/* Sidebar Drawer */}
       <div
