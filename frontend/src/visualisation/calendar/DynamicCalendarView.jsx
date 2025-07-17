@@ -79,7 +79,7 @@ const DynamicCalendarView = ({ entries, startDate, numDays }) => {
           new Date(1970, 0, 1, 0, 0),
           new Date(1970, 0, 1, 23, 59)
         ])
-        .range([margin.top + 35, dimensions.height - margin.bottom])
+        .range([margin.top + 30, dimensions.height - margin.bottom - 20])
     };
   }, [startDate, endDate, dimensions, margin.bottom, margin.left, margin.right, margin.top]);
 
@@ -147,7 +147,7 @@ const DynamicCalendarView = ({ entries, startDate, numDays }) => {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full h-full">
+<div ref={containerRef} className="flex-grow w-full h-full relative">
       {dimensions.width > 0 && dimensions.height > 0 && (
         <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
           <XAxis scale={xScale} height={dimensions.height} width={dimensions.width} margin={margin} />
@@ -182,8 +182,8 @@ const DynamicCalendarView = ({ entries, startDate, numDays }) => {
                   x1={xPos}
                   y1={margin.top}
                   x2={xPos}
-                  y2={dimensions.height - margin.top}
-                  stroke="#cd5"
+                  y2={dimensions.height - margin.bottom - 20}
+                  stroke="#98a34d"
                   strokeWidth={2}
                 />
               );
@@ -209,7 +209,11 @@ const DynamicCalendarView = ({ entries, startDate, numDays }) => {
             />
           ))}
 
-          {selectedPoint && (
+          
+        </svg>
+      )}
+
+      {selectedPoint && (
             <Tooltip
               point={selectedPoint}
               radius={radius}
@@ -222,8 +226,6 @@ const DynamicCalendarView = ({ entries, startDate, numDays }) => {
               onCategoryChange={handleUpdatePointCategory}
             />
           )}
-        </svg>
-      )}
     </div>
   );
 };

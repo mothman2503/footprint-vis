@@ -1,7 +1,7 @@
 {
   "nav": {
-    "home": "HOME",
     "about": "ABOUT",
+    "home": "HOME",
     "datasets": "DATASETS",
     "visualisation": "VISUALISATION"
   },

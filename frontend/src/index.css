@@ -19,6 +19,17 @@ code {
 }
 
 
+:root {
+  --vh: 100%;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --vh: 100vh;
+  }
+}
+
+
 /* hide scrollbar but allow scroll */
 .scrollbar-hide {
   scrollbar-width: none; /* Firefox */

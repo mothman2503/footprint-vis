@@ -1,7 +1,7 @@
 {
   "nav": {
-    "home": "HOME",
     "about": "ÜBER UNS",
+    "home": "HOME",
     "datasets": "DATENSÄTZE",
     "visualisation": "VISUALISIERUNG"
   },

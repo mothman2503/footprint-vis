@@ -29,17 +29,17 @@ export default function SavedDatasetList() {
           <button
             key={ds.id}
             onClick={() =>
-              setDataset({ source: "saved", label: ds.name, records: ds.records })
+              setDataset({ source: "saved", label: ds.label, records: ds.records })
             }
             className={`p-4 rounded-md text-white transition shadow-sm text-left border ${
-              dataset?.label === ds.name
+              dataset?.label === ds.label
                 ? "bg-blue-700 border-blue-400 ring-2"
                 : "bg-gray-800 hover:bg-gray-700 border-gray-700"
             }`}
           >
             <div className="flex items-center mb-2">
               <Save className="h-5 w-5 text-green-300 mr-2" />
-              <span className="text-lg font-semibold">{ds.name}</span>
+              <span className="text-lg font-semibold">{ds.label}</span>
             </div>
             <p className="text-sm text-gray-400">
               Your custom labeled dataset. Loaded from local DB.

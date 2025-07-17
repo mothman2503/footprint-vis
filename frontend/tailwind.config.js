@@ -30,6 +30,9 @@ module.exports = {
       colors: {
         categoryMagenta: '#ff00ff',
       },
+      boxShadow: {
+        up: '0 -4px 15px -1px rgba(0,0,0,0.3)', // ⬆️ upward shadow
+      }
     },
   },
   plugins: [],
