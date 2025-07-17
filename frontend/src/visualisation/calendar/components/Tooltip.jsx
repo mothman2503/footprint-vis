@@ -1,13 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import CategoryDropdown from "../../../components/CategoryDropdown";
-
-const Tooltip = ({
-  point,
-  radius,
-  position,
-  onClose,
-  onCategoryChange,
-}) => {
+// Tooltip.jsx
+const Tooltip = ({ point, radius, position, onClose, onCategoryChange }) => {
   const tooltipRef = useRef(null);
   const [height, setHeight] = useState(80);
 
@@ -21,45 +15,51 @@ const Tooltip = ({
 
   const { x, y, isBeforeNoon } = position;
 
+  const top = isBeforeNoon ? y + 4*radius : y - 4*radius - height;
+  const left = x - 150;
+
   return (
-    <foreignObject
-      x={x - 125}
-      y={isBeforeNoon ? y + radius + 8 : y - radius - height - 8}
-      width="300px"
-      height={height + 100}
-      className="z-90 px-4 overflow-visible"
-      onClick={(e) => e.stopPropagation()}
-      style={{ overflow: "visible" }}
+    <div
+      ref={tooltipRef}
+      className="absolute z-50 w-[300px] pointer-events-auto rounded"
+      style={{
+        top,
+        left,
+        backgroundColor: point.category.color,
+        transformOrigin: isBeforeNoon ? "top center" : "bottom center",
+      }}
+      onMouseEnter={() => clearTimeout(window.__tooltipLeaveTimeout)}
+      onMouseLeave={() =>
+        (window.__tooltipLeaveTimeout = setTimeout(onClose, 300))
+      }
     >
-      <div
-        ref={tooltipRef}
-        className="rounded-md text-xs leading-tight shadow-md z-90 animate-tooltipFadeIn overflow-visible"
-        style={{
-          backgroundColor: point.category.color,
-          transformOrigin: isBeforeNoon ? "top center" : "bottom center",
-        }}
-      >
-        <div className="py-2 px-8">
+      <div className="rounded-md text-xs leading-tight shadow-md animate-tooltipFadeIn overflow-visible">
+        <div className="py-2 px-2">
           <div className="flex justify-between">
-            <p className="text-xs">SEARCHED AT {point.fullDate?.toLocaleTimeString()}</p>
-            <button onClick={onClose} className="text-white bg-red-600 w-5 h-5 text-xs rounded-full text-center">
+            <p className="text-xs px-6">
+              SEARCHED AT {point.fullDate?.toLocaleTimeString()}
+            </p>
+            <button
+              onClick={onClose}
+              className="text-white bg-red-600 w-5 h-5 text-xs rounded-full text-center"
+            >
               ×
             </button>
           </div>
-          <p className="text-lg font-medium my-2">"{point.query}"</p>
+          <p className="text-lg font-medium my-2 px-6">"{point.query}"</p>
+          <p className="px-6">{point.category?.name}</p>
         </div>
         <div className="h-[0.3px] w-full bg-[#444]" />
-        <div className="py-2 px-5">
+        <div className="py-2 px-8">
           <CategoryDropdown
             value={point.category?.id}
             onChange={(newId) => {
               if (point?.id) onCategoryChange?.(point, newId);
             }}
-            label="Category"
           />
         </div>
       </div>
-    </foreignObject>
+    </div>
   );
 };
 
