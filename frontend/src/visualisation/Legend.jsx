@@ -1,10 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
 import { IAB_CATEGORIES } from "../assets/constants/iabCategories";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, EyeOff, Eye } from "lucide-react";
+import { useCategoryFilter } from "../CategoryFilterContext";
 
 const Legend = () => {
   const [expanded, setExpanded] = useState(false);
   const containerRef = useRef();
+
+  const { state, dispatch } = useCategoryFilter();
+  const hidden = new Set(state.excludedCategoryIds);
+
+  const toggleCategory = (id) => {
+    dispatch({ type: "TOGGLE_CATEGORY", payload: id });
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -16,11 +24,14 @@ const Legend = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Sort: visible first, then hidden
+  const sortedCategories = [
+    ...IAB_CATEGORIES.filter((cat) => !hidden.has(cat.id)),
+    ...IAB_CATEGORIES.filter((cat) => hidden.has(cat.id)),
+  ];
+
   return (
-    <div
-      ref={containerRef}
-      className="relative z-40"
-    >
+    <div ref={containerRef} className="relative z-40">
       {/* Fake space so layout doesn't shift */}
       <div className="h-12" />
 
@@ -36,20 +47,35 @@ const Legend = () => {
 
         {/* Categories */}
         <div className="flex flex-wrap gap-x-6 gap-y-2 items-center text-sm whitespace-nowrap pr-10 relative z-20">
-          {IAB_CATEGORIES.map((cat) => (
-            <div key={cat.id} className="flex items-center gap-2 h-[28px]">
-              <span
-                className="w-3 h-3 rounded-full inline-block"
-                style={{ backgroundColor: cat.color }}
-              ></span>
-              <span
-                className="text-sm text-white font-medium"
-                style={{ fontFamily: "Noto Sans JP" }}
+          {sortedCategories.map((cat) => {
+            const isHidden = hidden.has(cat.id);
+            return (
+              <button
+                key={cat.id}
+                onClick={() => toggleCategory(cat.id)}
+                className={`flex items-center gap-2 h-[28px] px-2 rounded cursor-pointer transition-all border ${
+                  isHidden
+                    ? "opacity-40 grayscale border-gray-700"
+                    : "border-transparent"
+                } hover:border-white`}
+                title={isHidden ? "Click to show category" : "Click to hide category"}
               >
-                {cat.name}
-              </span>
-            </div>
-          ))}
+                <span
+                  className="w-3 h-3 rounded-full inline-block"
+                  style={{ backgroundColor: cat.color }}
+                ></span>
+                <span
+                  className="text-sm text-white font-medium"
+                  style={{ fontFamily: "Noto Sans JP" }}
+                >
+                  {cat.name}
+                </span>
+                <span className="text-white">
+                  {isHidden ? <EyeOff size={14} /> : <Eye size={14} />}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Expand/collapse button */}
@@ -58,7 +84,7 @@ const Legend = () => {
           onClick={() => setExpanded((prev) => !prev)}
           title={expanded ? "Collapse legend" : "Expand legend"}
         >
-          {expanded ? <ChevronDown size={16} /> :  <ChevronUp size={16} />}
+          {expanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
         </button>
       </div>
     </div>

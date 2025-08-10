@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import CategoryDropdown from "../../../components/CategoryDropdown";
+import CategoryDropdown from "../../../../components/CategoryDropdown";
 // Tooltip.jsx
 const Tooltip = ({ point, radius, position, onClose, onCategoryChange }) => {
   const tooltipRef = useRef(null);

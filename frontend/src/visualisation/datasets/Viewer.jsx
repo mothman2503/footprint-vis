@@ -40,8 +40,28 @@ const ActivityViewer = () => {
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const stickyRef = useRef(null);
   const PER_PAGE = 40;
+  const [searchQuery, setSearchQuery] = useState("");
+const [selectedCategory, setSelectedCategory] = useState(""); // category id
+const [yearFilter, setYearFilter] = useState("");
 
-  const entries = dataset?.records || [];
+const entries = (dataset?.records || []).filter((entry) => {
+  // Query/category search
+  const queryMatch =
+    searchQuery === "" ||
+    entry.query.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    entry.category.name.toLowerCase().includes(searchQuery.toLowerCase());
+  // Category filter
+  const categoryMatch =
+    !selectedCategory || entry.category.id === selectedCategory;
+  // Year filter
+  const yearMatch =
+    !yearFilter ||
+    new Date(entry.timestamp).getFullYear().toString() === yearFilter;
+
+  return queryMatch && categoryMatch && yearMatch;
+});
+
+
   const totalPages = Math.ceil(entries.length / PER_PAGE);
   const paginatedEntries = entries.slice(
     (currentPage - 1) * PER_PAGE,
@@ -98,36 +118,46 @@ const ActivityViewer = () => {
     <div className="mt-10">
       <div ref={stickyRef}></div>
 
-      {/* Floating dataset bar */}
-      <AnimatePresence>
-        {showStickyHeader && (
-          <motion.div
-            initial={{ y: -30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -20, opacity: 0 }}
-            className="fixed top-0 left-0 z-40 w-full"
-          >
-            <div className="max-w-screen-xl mx-auto px-6">
-              <div className="mx-auto bg-[#1e1f22] px-1 py-3 border-b border-l border-r border-gray-700 text-xs sm:text-sm ">
-                <div className="text-green-400 font-mono mb-1 text-xl max-w-screen-xl mx-auto px-6">
-                  📄 {dataset?.label || "Unnamed Dataset"}
-                </div>
-                <div className=" grid-cols-12 text-gray-400 font-mono text-xs max-w-screen-xl mx-auto pl-8 hidden md:grid">
-                  <span className="col-span-3">Timestamp</span>
-                  <span className="col-span-5">Query</span>
-                  <span className="col-span-2">Category</span>
-                  <span className="col-span-2">Edit</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+<div className="flex flex-wrap items-center gap-2 mb-4">
+  {/* Query Search */}
+  <input
+    type="text"
+    placeholder="Search by query or category..."
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    className="px-2 py-1 rounded border bg-gray-900 text-white border-gray-600"
+    style={{ minWidth: 180 }}
+  />
+
+  {/* Category Dropdown */}
+  <CategoryDropdown
+    value={selectedCategory}
+    onChange={setSelectedCategory}
+    allowEmpty
+    noLabel
+  />
+
+  {/* Year Dropdown */}
+  <select
+    value={yearFilter}
+    onChange={(e) => setYearFilter(e.target.value)}
+    className="px-2 py-1 rounded border bg-gray-900 text-white border-gray-600"
+  >
+    <option value="">All Years</option>
+    {Array.from(
+      new Set(entries.map((e) => new Date(e.timestamp).getFullYear()))
+    )
+      .sort((a, b) => b - a)
+      .map((year) => (
+        <option key={year} value={year}>{year}</option>
+      ))}
+  </select>
+</div>
+
+     
 
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-xl font-semibold text-white">
-          Search History ({dataset?.label || "Unnamed Dataset"})
-        </h2>
+        
         <motion.button
           onClick={() => downloadCSV(entries)}
           whileHover={{ scale: 1.05 }}
@@ -137,7 +167,7 @@ const ActivityViewer = () => {
         </motion.button>
       </div>
 
-      <div className="grid grid-cols-12 text-gray-400 font-mono text-xs px-2 sticky top-[104px] z-30 bg-[#1e1f22] py-1 border-b border-gray-700">
+      <div className="grid grid-cols-12 text-gray-400 font-mono text-xs px-2 sticky top-[10px] z-30 bg-[#1e1f22] py-1 border-b border-gray-700">
         <span className="col-span-3">Timestamp</span>
         <span className="col-span-5">Query</span>
         <span className="col-span-2">Category</span>

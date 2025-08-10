@@ -1,7 +1,13 @@
 import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
 
-const DonutChart = ({ data, size = 200, strokeWidth = 30, onClick, disableDialog = false }) => {
+const DonutChart = ({
+  data,
+  size = 40,
+  strokeWidth, // Optional: let it auto-size by default
+  onClick,
+  disableDialog = false
+}) => {
   const ref = useRef();
 
   useEffect(() => {
@@ -10,50 +16,50 @@ const DonutChart = ({ data, size = 200, strokeWidth = 30, onClick, disableDialog
     svg.selectAll("*").remove();
 
     const radius = size / 2;
+    // Auto-calculate width for donut ring (8px min, up to 40% of radius for larger sizes)
+    const donutWidth =
+      typeof strokeWidth === "number"
+        ? strokeWidth
+        : Math.max(8, Math.round(radius * 0.40)); // tweak 0.40 for a "fatter" or thinner donut
+
+    const arc = d3.arc()
+      .innerRadius(radius - donutWidth)
+      .outerRadius(radius);
+
     const group = svg
       .attr("width", size)
       .attr("height", size)
       .append("g")
       .attr("transform", `translate(${radius},${radius})`);
 
-    const pie = d3.pie().value((d) => d.value).sort(null);
-    const arc = d3.arc().innerRadius(radius - strokeWidth).outerRadius(radius);
+    const pie = d3.pie().value(d => d.value).sort(null);
 
-    const paths = group
+    group
       .selectAll("path")
       .data(pie(data))
       .enter()
       .append("path")
-      .attr("fill", (d) => d.data.color)
+      .attr("fill", d => d.data.color)
       .attr("d", arc)
       .each(function (d) {
         this._current = d;
       });
-
-    paths
-      .transition()
-      .duration(1000)
-      .attrTween("d", function (d) {
-        const i = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
-        return (t) => arc(i(t));
-      });
-
   }, [data, size, strokeWidth]);
 
   return (
     <div
       className="cursor-pointer"
-      onClick={(e) => {
+      onClick={e => {
         if (!disableDialog && typeof onClick === "function") {
           e.stopPropagation();
           onClick();
         }
       }}
+      style={{ width: size, height: size }}
     >
-      <svg ref={ref} className="mx-auto block" />
+      <svg ref={ref} />
     </div>
   );
 };
-
 
 export default DonutChart;

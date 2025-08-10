@@ -71,12 +71,14 @@ export function parseActivityHtml(htmlText) {
     }
 
     records.push({
-      id: undefined, // ensures IndexedDB will generate a fresh one
-      category,
-      query,
-      timestamp,
-      coords: { lat, lon },
-    });
+  id: undefined, // ensures IndexedDB will generate a fresh ID
+  category,
+  query,
+  timestamp,
+  coords: { lat, lon },
+  verified: false, 
+});
+
 
   });
 

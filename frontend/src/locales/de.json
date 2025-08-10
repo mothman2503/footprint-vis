@@ -2,8 +2,7 @@
   "nav": {
     "about": "ÜBER UNS",
     "home": "HOME",
-    "datasets": "DATENSÄTZE",
-    "visualisation": "VISUALISIERUNG"
+    "visualise": "VISUALISIERUNG"
   },
   "footer": {
     "readAbout": "Lesen Sie hier darüber",

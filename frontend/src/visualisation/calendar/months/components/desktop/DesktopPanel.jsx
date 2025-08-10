@@ -1,0 +1,63 @@
+import React from "react";
+import GridContainer from "./GridContainer";
+import SidebarList from "./SidebarList";
+import SidebarDetails from "./SidebarDetails";
+import CalendarWeekdaysRow from "../CalendarWeekdaysRow";
+
+export default function DesktopPanel({
+  // from usePanelState
+  monthSummaries,
+  currentMonth,
+  selectedStartDate,
+  selectedEndDate,
+  allDates,
+  records,
+  searchCounts,
+
+  // refs
+  gridComponentRef,
+  dateRefs,
+  monthRefs,
+  scrollRef,
+
+  // handlers
+  scrollToMonth,
+  handleVisibleMonthChange,
+}) {
+  return (
+    <div className="flex h-full bg-[#181e22]">
+      <SidebarList
+        monthSummaries={monthSummaries}
+        currentMonth={currentMonth}
+        onClick={(monthKey) => {
+          scrollToMonth(monthKey);
+        }}
+      />
+
+      <SidebarDetails
+        currentMonth={currentMonth}
+        monthSummaries={monthSummaries}
+      />
+
+      <div className="flex flex-col flex-1 pt-3">
+        <CalendarWeekdaysRow />
+        <div className="flex-1 min-h-0">
+          <GridContainer
+            ref={gridComponentRef}
+            allDates={allDates}
+            dateRefs={dateRefs}
+            monthRefs={monthRefs}
+            selectedStartDate={selectedStartDate}
+            selectedEndDate={selectedEndDate}
+            searchCounts={searchCounts}
+            onSelectDate={(d) => {}}
+            currentMonth={currentMonth}
+            scrollRef={scrollRef}
+            onVisibleMonthChange={handleVisibleMonthChange}
+            records={records}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}

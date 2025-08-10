@@ -1,4 +1,4 @@
-import DonutChart from "./DonutChart"; // adjust path
+import DonutChart from "./Donut"; // adjust path
 
 const DonutDialog = ({ open, onClose, data }) => {
   if (!open) return null;

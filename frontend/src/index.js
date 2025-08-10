@@ -5,15 +5,19 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import "./i18n"; 
 import { DatasetProvider } from "./DataContext";
+import { CategoryFilterProvider } from "./CategoryFilterContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <DatasetProvider>
-      <App />
+      <CategoryFilterProvider>
+        <App />
+      </CategoryFilterProvider>
     </DatasetProvider>
   </React.StrictMode>
 );
+
 
 
 // If you want to start measuring performance in your app, pass a function
