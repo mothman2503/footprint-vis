@@ -1,4 +1,5 @@
 import DatasetDropdown from "./DatasetDropdown";
+import LanguageSwitch from "../components/LanguageSwitch";
 import { BookOpen } from "lucide-react";
 
 const DatasetToolbar = ({
@@ -7,7 +8,7 @@ const DatasetToolbar = ({
   onStartClassification,
   savedDatasets,
   sampleDatasets,
-  promptOpen = false, // ✨ NEW
+  promptOpen = false,
 }) => {
   return (
     <div className="w-full bg-[#1e2626] relative z-50 py-1 pl-16 pr-4">
@@ -18,12 +19,13 @@ const DatasetToolbar = ({
               value={datasetLabel}
               datasets={[...sampleDatasets, ...savedDatasets]}
               onChange={onSetDataset}
-              promptOpen={promptOpen} // ✨ NEW
+              promptOpen={promptOpen}
               className="min-w-[200px]"
             />
           </div>
         </div>
 
+        <LanguageSwitch />
         <div className="flex space-x-2">
           <button
             onClick={onStartClassification}

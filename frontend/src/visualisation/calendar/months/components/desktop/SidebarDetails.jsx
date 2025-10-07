@@ -6,7 +6,7 @@ const SidebarDetails = ({ currentMonth, monthSummaries }) => {
   const [monthName, year] = currentMonth.split(" ");
 
   return (
-    <div className="z-30 bg-[#162020] w-[250px] min-h-0 pb-2 shadow-lg border-b border-[#333] overflow-hidden flex flex-col justify-start">
+    <div className="z-30 bg-[#162020] w-[250px] min-h-0 pb-2 shadow-lg border-r border-[#444] overflow-hidden flex flex-col justify-start">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentMonth}

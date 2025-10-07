@@ -2,7 +2,6 @@ import logo from "../logo.png";
 import { useState, useEffect } from "react";
 import TypingEffect from "../components/TypingEffect";
 import { Link } from "react-router-dom";
-import TextClassifier from "../components/TextClassifier";
 import { useTranslation } from "react-i18next";
 import "../i18n"; // Ensure i18n is loaded
 
@@ -77,7 +76,6 @@ function Home() {
         Go to Datasets {/* Use the translated label here */}
       </Link>
 
-      <TextClassifier />
     </div>
   );
 }

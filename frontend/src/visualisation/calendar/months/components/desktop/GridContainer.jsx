@@ -1,4 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import { FixedSizeGrid as Grid } from "react-window";
 import { format } from "date-fns";
 import CalendarDayCell from "./DayCell";
@@ -7,27 +15,33 @@ import { IAB_CATEGORIES } from "../../../../../assets/constants/iabCategories";
 const COLS = 7;
 const CELL_GAP = 0; // px
 
-export default function GridContainer({
-  allDates,
-  dateRefs,
-  monthRefs,
-  selectedStartDate,
-  selectedEndDate,
-  searchCounts,
-  onSelectDate,
-  currentMonth,
-  scrollRef,
-  onVisibleMonthChange,
-  records,
-}) {
+const GridContainer = forwardRef(function GridContainer(
+  {
+    allDates,
+    dateRefs,
+    monthRefs,
+    selectedStartDate,
+    selectedEndDate,
+    searchCounts,
+    onSelectDate,
+    currentMonth,
+    scrollRef,
+    onVisibleMonthChange,
+    records,
+  },
+  ref
+) {
   const rowCount = Math.ceil(allDates.length / COLS);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [highlightRows, setHighlightRows] = useState([0]);
   const gridRef = useRef(null);
+  const gridOuterRef = useRef(null); 
 
-  const lastScrolledMonth = useRef(null);
   const isAnimating = useRef(false);
   const suppressVisibleMonthRef = useRef(false);
+
+  // expose smooth scrollToMonth
+ 
 
   // Responsive
   useEffect(() => {
@@ -58,88 +72,6 @@ export default function GridContainer({
       ? Math.floor((dimensions.width - totalGap) / COLS)
       : 48;
   const rowHeight = Math.max((columnWidth * 8) / 16, 80);
-
-  // --- Smooth scroll to month logic (original behavior preserved) ---
-  useEffect(() => {
-    if (dimensions.height === 0 || dimensions.width === 0) return;
-    if (!currentMonth || lastScrolledMonth.current === currentMonth) return;
-
-    const snapDelay = 400;
-    const animationDuration = 400;
-
-    const firstIdx = allDates.findIndex(
-      (d) => format(d, "MMMM yyyy") === currentMonth && d.getDate() === 1
-    );
-    if (firstIdx < 0) return;
-
-    const rowIdx = Math.floor(firstIdx / COLS);
-    const scrollToRow = Math.max(0, rowIdx - 1); // one row BEFORE the month
-    const gridEl = gridRef.current;
-    if (!gridEl || !gridEl._outerRef) return;
-
-    const outerRef = gridEl._outerRef;
-
-    let animationFrame;
-    let cancelled = false;
-    let snapTimeout;
-
-    const cleanupListeners = () => {
-      outerRef.removeEventListener("wheel", cancel, true);
-      outerRef.removeEventListener("touchmove", cancel, true);
-    };
-
-    const cancel = () => {
-      cancelled = true;
-      isAnimating.current = false;
-      suppressVisibleMonthRef.current = false;
-      cancelAnimationFrame(animationFrame);
-      clearTimeout(snapTimeout);
-      cleanupListeners();
-    };
-
-    outerRef.addEventListener("wheel", cancel, true);
-    outerRef.addEventListener("touchmove", cancel, true);
-
-    suppressVisibleMonthRef.current = true;
-
-    snapTimeout = setTimeout(() => {
-      if (cancelled) return;
-
-      const from = outerRef.scrollTop;
-      const to = scrollToRow * rowHeight;
-      const start = performance.now();
-
-      isAnimating.current = true;
-
-      const animate = (now) => {
-        if (cancelled) return;
-        const elapsed = Math.min((now - start) / animationDuration, 1);
-        // easeInOutCubic (per your last tweak)
-        const ease =
-          elapsed < 0.5
-            ? 4 * elapsed * elapsed * elapsed
-            : 1 - Math.pow(-2 * elapsed + 2, 3) / 2;
-        const next = from + (to - from) * ease;
-        outerRef.scrollTop = next;
-
-        if (elapsed < 1) {
-          animationFrame = requestAnimationFrame(animate);
-        } else {
-          outerRef.scrollTop = to;
-          lastScrolledMonth.current = currentMonth;
-          isAnimating.current = false;
-          suppressVisibleMonthRef.current = false;
-          cleanupListeners();
-        }
-      };
-
-      animationFrame = requestAnimationFrame(animate);
-    }, snapDelay);
-
-    return cancel;
-  }, [currentMonth, allDates, rowHeight, dimensions.height, dimensions.width]);
-
-  // ===============================
 
   const [curMonthName, curYear] = (currentMonth || "January 1970").split(" ");
   const curMonthNum = new Date(`${curMonthName} 1, ${curYear}`).getMonth();
@@ -173,6 +105,46 @@ export default function GridContainer({
     }
     return transformed;
   }, [records]);
+
+  // inside GridContainer (the version wrapped with forwardRef)
+useImperativeHandle(
+  ref,
+  () => ({
+    scrollToMonth: (monthKey, { animated = true } = {}) => {
+      if (!monthKey || !allDates?.length) return;
+
+      const firstIdx = allDates.findIndex(
+        (d) => d.getDate() === 1 && format(d, "MMMM yyyy") === monthKey
+      );
+      if (firstIdx < 0) return;
+
+      const rowIndex = Math.floor(firstIdx / COLS);
+
+      // Bias to avoid previous month being counted as visible
+      const bias = Math.max(8, Math.floor(rowHeight * 0.1)); // 10% row height, min 8px
+      const targetTop = rowIndex * rowHeight + bias;
+
+      const outer = gridOuterRef.current;
+      if (!outer) return;
+
+      suppressVisibleMonthRef.current = true;
+
+      if (animated && outer.scrollTo) {
+        outer.scrollTo({ top: targetTop, behavior: "smooth" });
+      } else if (gridRef.current?.scrollTo) {
+        gridRef.current.scrollTo({ scrollTop: targetTop });
+      }
+
+      window.setTimeout(() => {
+        suppressVisibleMonthRef.current = false;
+        onVisibleMonthChange?.([monthKey]);
+      }, 650);
+    },
+  }),
+  [allDates, rowHeight, onVisibleMonthChange]
+);
+
+
 
   const Cell = useCallback(
     ({ rowIndex, columnIndex, style }) => {
@@ -217,7 +189,10 @@ export default function GridContainer({
             bgColor={bgColor}
             selectedStartDate={selectedStartDate}
             selectedEndDate={selectedEndDate}
-            onSelect={onSelectDate}
+            onSelect={(d) => {
+              console.log("📦 GridContainer onSelectDate called with:", d);
+              onSelectDate?.(d);
+            }}
             isCurrentMonth={isCurMonth}
             showMonthLabel={isFirstOfMonth}
             index={idx}
@@ -253,9 +228,12 @@ export default function GridContainer({
         overflowX: "hidden",
       }}
     >
+
+      
       {dimensions.width > 0 && dimensions.height > 0 && (
         <Grid
           ref={gridRef}
+          outerRef={gridOuterRef} // <-- important for smooth scroll
           className="scrollbar-hide"
           columnCount={COLS}
           columnWidth={columnWidth}
@@ -265,7 +243,6 @@ export default function GridContainer({
           rowCount={rowCount}
           overscanRowCount={25}
           overscanColumnCount={1}
-          style={{ background: "#333" }}
           onItemsRendered={({ visibleRowStartIndex, visibleRowStopIndex }) => {
             setHighlightRows([visibleRowStartIndex]);
 
@@ -300,4 +277,6 @@ export default function GridContainer({
       )}
     </div>
   );
-}
+});
+
+export default GridContainer;

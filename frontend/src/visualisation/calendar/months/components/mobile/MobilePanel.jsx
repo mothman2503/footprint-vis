@@ -1,3 +1,4 @@
+// components/calendar/months/mobile/MobilePanel.jsx
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import DonutChart from "../../../../charts/Donut";
@@ -5,7 +6,6 @@ import MonthCategoryBarChart from "../../../../charts/MonthCategoryBarChart";
 import MonthSelectorModal from "./MonthSelectorModal";
 import OverviewStrip from "./OverviewStrip";
 import MobileGrid from "./Grid";
-
 import CalendarWeekdaysRow from "../CalendarWeekdaysRow";
 
 export default function MobilePanel({
@@ -15,6 +15,7 @@ export default function MobilePanel({
   setCurrentMonth,
   selectedStartDate,
   selectedEndDate,
+  onSelectDate,              // <-- use onSelectDate
   allDates,
   records,
   searchCounts,
@@ -36,7 +37,7 @@ export default function MobilePanel({
   setExpandChart,
 }) {
   return (
-    <div className="flex flex-col h-full bg-[#181e22] pt-3 relative">
+    <div className="flex flex-col h-full pt-3 relative">
       {/* Month overview strip */}
       <OverviewStrip
         monthSummaries={monthSummaries}
@@ -48,7 +49,7 @@ export default function MobilePanel({
       />
 
       {/* Sticky month header */}
-      <div className="z-30 bg-[#1e2626] h-[15dvh] w-full px-4 pb-2 pt-4 shadow-lg border-b border-r border-[#999] overflow-hidden flex flex-col items-center justify-start">
+      <div className="z-30 bg-[#1e2626] h-[15dvh] w-full px-4 pb-2 pt-4 shadow-lg border-b border-[#999] overflow-hidden flex flex-col items-center justify-start">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentMonth}
@@ -75,10 +76,12 @@ export default function MobilePanel({
               </span>
 
               {monthSummaries[currentMonth]?.categoryCounts?.length > 0 && (
-                <DonutChart
-                  data={monthSummaries[currentMonth].categoryCounts}
-                  size={60}
-                />
+                <div className="absolute right-8">
+                  <DonutChart
+                    data={monthSummaries[currentMonth].categoryCounts}
+                    size={100}
+                  />
+                </div>
               )}
             </div>
           </motion.div>
@@ -87,7 +90,7 @@ export default function MobilePanel({
         {monthSummaries[currentMonth]?.categoryCounts?.length > 0 && (
           <div className="w-full mt-2">
             <button
-              className="text-xs text-blue-400 hover:text-blue-300 px-2"
+              className="text-xs text-blue-400 hover:text-blue-300"
               onClick={() => setExpandChart(true)}
             >
               See Full Breakdown ▼
@@ -96,7 +99,8 @@ export default function MobilePanel({
         )}
       </div>
 
-<CalendarWeekdaysRow />
+      <CalendarWeekdaysRow />
+
       {/* Grid */}
       <div className="flex-1 min-h-0">
         <MobileGrid
@@ -107,9 +111,10 @@ export default function MobilePanel({
           selectedStartDate={selectedStartDate}
           selectedEndDate={selectedEndDate}
           searchCounts={searchCounts}
-          onSelectDate={() => {}}
+          onSelectDate={onSelectDate}           
           currentMonth={currentMonth}
           scrollRef={scrollRef}
+          records={records}
           onVisibleMonthChange={handleVisibleMonthChange}
         />
       </div>
@@ -123,7 +128,7 @@ export default function MobilePanel({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 bg-[#1e2626] overflow-y-auto p-4"
+            className="fixed inset-0 z-50 overflow-y-auto p-4"
           >
             <div className="flex justify-between items-center mb-4 sticky top-0 bg-[#1e2626] py-2">
               <h2 className="text-white text-lg font-bold">

@@ -5,6 +5,7 @@ const ProportionalBarChartDiv = ({
   data = [],
   height = 16,
   onClick,
+  leftFlat = false,
   disableDialog = false,
 }) => {
   const { state } = useCategoryFilter();
@@ -16,7 +17,7 @@ const ProportionalBarChartDiv = ({
 
   return (
     <div
-      className="w-full flex overflow-hidden gap-[1px] rounded cursor-pointer"
+      className={`w-full flex overflow-hidden ${leftFlat?"rounded-r" : "rounded"} gap-[1px] cursor-pointer`}
       onClick={(e) => {
         if (!disableDialog && typeof onClick === "function") {
           e.stopPropagation();

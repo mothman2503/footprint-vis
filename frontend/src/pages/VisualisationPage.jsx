@@ -11,6 +11,7 @@ import { toZonedTime, format } from "date-fns-tz";
 import { useDataset } from "../DataContext";
 import sampleDataset from "../assets/constants/sample-datasets/classified_records_OvGU.json";
 
+import sampleDataset2 from "../assets/constants/sample-datasets/billy_search_history_custom_iab.json";
 
 // Utility functions
 import { classifyQueries } from "../utils/classify";
@@ -40,9 +41,8 @@ function buildSearchCounts(records) {
 
 const VisualisationPage = () => {
   const { dataset, setDataset } = useDataset();
-  
-  const [selectedDate, setSelectedDate] = useState(() => new Date());
 
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
 
   const [numDays, setNumDays] = useState(1);
   const [viewMode, setViewMode] = useState("By Day");
@@ -51,7 +51,7 @@ const VisualisationPage = () => {
   const [showGridLoading, setShowGridLoading] = useState(false);
   const [classificationPreview, setClassificationPreview] = useState(null);
   const [savedDatasets, setSavedDatasets] = useState([]);
-const [sampleDatasets, setSampleDatasets] = useState([]);
+  const [sampleDatasets, setSampleDatasets] = useState([]);
 
   const containerRef = useRef(null);
 
@@ -68,30 +68,36 @@ const [sampleDatasets, setSampleDatasets] = useState([]);
   }, []);
 
   useEffect(() => {
-  const fetchDatasets = async () => {
-    const db = await getDB();
-    const saved = await db.getAll("savedDatasets");
+    const fetchDatasets = async () => {
+      const db = await getDB();
+      const saved = await db.getAll("savedDatasets");
 
-    setSavedDatasets(saved.map(d => ({
-      source: "saved",
-      label: d.label,
-      records: d.records,
-      date: d.date,
-    })));
+      setSavedDatasets(
+        saved.map((d) => ({
+          source: "saved",
+          label: d.label,
+          records: d.records,
+          date: d.date,
+        }))
+      );
 
-    // Add any additional sample datasets as needed
-    setSampleDatasets([
-      {
-        source: "sample",
-        label: "OvGU Sample Dataset",
-        records: sampleDataset,
-      },
-    ]);
-  };
+      // Add any additional sample datasets as needed
+      setSampleDatasets([
+        {
+          source: "sample",
+          label: "OvGU Sample Dataset",
+          records: sampleDataset,
+        },
+        {
+          source: "sample",
+          label: "Billy",
+          records: sampleDataset2,
+        },
+      ]);
+    };
 
-  fetchDatasets();
-}, []);
-
+    fetchDatasets();
+  }, []);
 
   useEffect(() => {
     if (viewMode === "monthGrid") {
@@ -147,64 +153,61 @@ const [sampleDatasets, setSampleDatasets] = useState([]);
     >
       <MovableViewMenu viewMode={viewMode} setViewMode={setViewMode} />
       <div className="fixed top-0 z-40 w-full">
-  <DatasetToolbar
-    datasetLabel={dataset?.label}
-    savedDatasets={savedDatasets}
-    sampleDatasets={sampleDatasets}
-    onSetDataset={(ds) => ds && setDataset(ds)}
-    onStartClassification={() => setShowDialog(true)}
-    promptOpen={!dataset?.records?.length}
-  />
-</div>
-
-{!dataset?.records?.length ? (
-  <p className="text-white text-center mt-28 text-lg">
-    ⚠️ No dataset selected. Please choose or upload one above to begin.
-  </p>
-) : (
-  <>
-     <ClassificationControls
-        showDialog={showDialog}
-        setShowDialog={setShowDialog}
-        loading={loading}
-        onClassify={handleClassify}
-        preview={classificationPreview}
-        onApply={applyClassification}
-        onCancel={() => setClassificationPreview(null)}
-      />
-
-      <div className="flex-grow h-[100dvh] min-h-0 flex flex-col overflow-hidden pt-7">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={viewMode + showGridLoading}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="flex-grow overflow-auto relative"
-          >
-            <ViewContentSwitcher
-              viewMode={viewMode}
-              showGridLoading={showGridLoading}
-              dataset={dataset}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              numDays={numDays}
-              setViewMode={setViewMode}
-              searchCounts={searchCounts}
-            />
-          </motion.div>
-        </AnimatePresence>
-
-        
-        <div className="shadow-up">
-          <Legend />
-        </div>
+        <DatasetToolbar
+          datasetLabel={dataset?.label}
+          savedDatasets={savedDatasets}
+          sampleDatasets={sampleDatasets}
+          onSetDataset={(ds) => ds && setDataset(ds)}
+          onStartClassification={() => setShowDialog(true)}
+          promptOpen={!dataset?.records?.length}
+        />
       </div>
-  </>
-)}
 
-     
+      {!dataset?.records?.length ? (
+        <p className="text-white text-center mt-28 text-lg">
+          ⚠️ No dataset selected. Please choose or upload one above to begin.
+        </p>
+      ) : (
+        <>
+          <ClassificationControls
+            showDialog={showDialog}
+            setShowDialog={setShowDialog}
+            loading={loading}
+            onClassify={handleClassify}
+            preview={classificationPreview}
+            onApply={applyClassification}
+            onCancel={() => setClassificationPreview(null)}
+          />
+
+          <div className="flex-grow h-[100dvh] min-h-0 flex flex-col overflow-hidden pt-7">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={viewMode + showGridLoading}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="flex-grow overflow-auto relative"
+              >
+                <ViewContentSwitcher
+                  viewMode={viewMode}
+                  showGridLoading={showGridLoading}
+                  dataset={dataset}
+                  selectedDate={selectedDate}
+                  setSelectedDate={setSelectedDate}
+                  numDays={numDays}
+                  setViewMode={setViewMode}
+                  searchCounts={searchCounts}
+                />
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="shadow-up">
+              <Legend />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

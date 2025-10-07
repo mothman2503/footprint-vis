@@ -2,10 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { IAB_CATEGORIES } from "../assets/constants/iabCategories";
 import { ChevronDown, ChevronUp, EyeOff, Eye } from "lucide-react";
 import { useCategoryFilter } from "../CategoryFilterContext";
+import { useTranslation } from "react-i18next";
 
 const Legend = () => {
   const [expanded, setExpanded] = useState(false);
   const containerRef = useRef();
+
+  const { t } = useTranslation();
 
   const { state, dispatch } = useCategoryFilter();
   const hidden = new Set(state.excludedCategoryIds);
@@ -16,7 +19,10 @@ const Legend = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
         setExpanded(false);
       }
     };
@@ -58,7 +64,9 @@ const Legend = () => {
                     ? "opacity-40 grayscale border-gray-700"
                     : "border-transparent"
                 } hover:border-white`}
-                title={isHidden ? "Click to show category" : "Click to hide category"}
+                title={
+                  isHidden ? "Click to show category" : "Click to hide category"
+                }
               >
                 <span
                   className="w-3 h-3 rounded-full inline-block"
@@ -68,7 +76,7 @@ const Legend = () => {
                   className="text-sm text-white font-medium"
                   style={{ fontFamily: "Noto Sans JP" }}
                 >
-                  {cat.name}
+                  {t(cat.name)}{" "}
                 </span>
                 <span className="text-white">
                   {isHidden ? <EyeOff size={14} /> : <Eye size={14} />}

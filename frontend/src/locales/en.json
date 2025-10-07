@@ -9,5 +9,19 @@
     "basedOn": "Based on the",
     "madeToMeasure": "Made to Measure project"
   },
-  "Visualise your internet footprint!": "Visualise your internet footprint!"
+  "Visualise your internet footprint!": "Visualise your internet footprint!",
+
+"computers_technology_video_games": "Computers, Technology & Video Games",
+  "education_and_science": "Education & Science",
+  "family_and_relationships": "Family & Relationships",
+  "finance_and_career": "Finance & Career",
+  "health_fitness_beauty": "Health, Fitness & Beauty",
+  "hobbies_interests_leisure": "Hobbies, Interests & Leisure",
+  "lifestyle_food_home_fashion_travel_pets": "Lifestyle: Food, Home, Fashion, Travel & Pets",
+  "politics_economics_law_world_affairs": "Politics, Economics, Law & World Affairs",
+  "pop_culture_arts_entertainment_film_music": "Pop Culture, Arts, Entertainment, Film & Music",
+  "sensitive_topics": "Sensitive Topics",
+  "shopping": "Shopping",
+  "sports": "Sports",
+  "uncategorized": "Uncategorized"
 }

@@ -9,5 +9,19 @@
     "basedOn": "Basierend auf dem",
     "madeToMeasure": "Made to Measure-Projekt"
   },
-  "Visualise your internet footprint!": "Visualisieren Sie Ihren Internet-Fußabdruck!"
+  "Visualise your internet footprint!": "Visualisieren Sie Ihren Internet-Fußabdruck!",
+
+  "computers_technology_video_games": "Computer, Technologie & Videospiele",
+  "education_and_science": "Bildung & Wissenschaft",
+  "family_and_relationships": "Familie & Beziehungen",
+  "finance_and_career": "Finanzen & Karriere",
+  "health_fitness_beauty": "Gesundheit, Fitness & Schönheit",
+  "hobbies_interests_leisure": "Hobbys, Interessen & Freizeit",
+  "lifestyle_food_home_fashion_travel_pets": "Lifestyle: Essen, Wohnen, Mode, Reisen & Haustiere",
+  "politics_economics_law_world_affairs": "Politik, Wirtschaft, Recht & Weltgeschehen",
+  "pop_culture_arts_entertainment_film_music": "Popkultur, Kunst, Unterhaltung, Film & Musik",
+  "sensitive_topics": "Sensible Themen",
+  "shopping": "Einkaufen",
+  "sports": "Sport",
+  "uncategorized": "Nicht kategorisiert"
 }

@@ -10,7 +10,6 @@ export default function MonthlyCalendarView(props) {
 
   const state = usePanelState(props);
 
-  // body scroll lock only on mobile when expandChart is true
   useEffect(() => {
     if (!isMobile) return;
     document.body.style.overflow = state.expandChart ? "hidden" : "";

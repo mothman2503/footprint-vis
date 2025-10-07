@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import useMonthSummaries from "../../../../hooks/useMonthSummaries";
 import { getDateArray } from "./dateRange";
@@ -7,6 +7,7 @@ export default function usePanelState({
   records = [],
   searchCounts = {},
   selectedDate,
+  onSelectDate,
   numDays = 1,
   IAB_CATEGORIES = [],
   programmaticSettleMs = 840,
@@ -59,6 +60,7 @@ export default function usePanelState({
     const selectedMonthKey = selectedDate
       ? format(selectedStartDate, "MMMM yyyy")
       : format(allDates[0], "MMMM yyyy");
+    // keep old behavior: only set once on first mount
     setCurrentMonth((prev) => prev || selectedMonthKey);
   }, [allDates, selectedDate, selectedStartDate]);
 
@@ -91,11 +93,58 @@ export default function usePanelState({
     [programmaticSettleMs]
   );
 
-  // initial scroll
+  // run once guard
+  const didInitialScroll = useRef(false);
+
+  // if dataset window or selectedDate changes, allow one fresh initial snap
   useEffect(() => {
-    if (!currentMonth) return;
-    scrollToMonth(currentMonth, { animated: true });
-  }, [currentMonth, scrollToMonth]);
+    didInitialScroll.current = false;
+  }, [minDate, maxDate, selectedDate]);
+
+  // *** INITIAL auto-scroll ***
+  // on first render, scroll to the START of the month derived from selectedDate (if provided),
+  // otherwise the dataset's first month. Use double rAF so GridContainer has measured.
+  // *** INITIAL auto-scroll ***// Add dimensions state to know when grid has measured
+const [gridReady, setGridReady] = useState(false);
+
+// Inside usePanelState, after scrollRef setup:
+useEffect(() => {
+  function checkReady() {
+    if (scrollRef.current?.offsetWidth > 0 && scrollRef.current?.offsetHeight > 0) {
+      setGridReady(true);
+    }
+  }
+  checkReady();
+  window.addEventListener("resize", checkReady);
+  return () => window.removeEventListener("resize", checkReady);
+}, [scrollRef]);
+
+// Initial auto-scroll — only run when grid is ready
+useEffect(() => {
+  if (didInitialScroll.current) return;
+  if (!allDates || allDates.length === 0) return;
+  if (!gridReady) return; // ⬅ wait for measurement
+
+  const targetMonthKey = selectedDate
+    ? format(selectedStartDate, "MMMM yyyy")
+    : format(allDates[0], "MMMM yyyy");
+
+  didInitialScroll.current = true;
+
+  // double rAF to ensure react-window finishes layout
+  let raf1, raf2;
+  raf1 = requestAnimationFrame(() => {
+    raf2 = requestAnimationFrame(() => {
+      scrollToMonth(targetMonthKey, { animated: true });
+    });
+  });
+
+  return () => {
+    if (raf1) cancelAnimationFrame(raf1);
+    if (raf2) cancelAnimationFrame(raf2);
+  };
+}, [allDates, selectedDate, selectedStartDate, scrollToMonth, gridReady]);
+
 
   // visible month handler
   const handleVisibleMonthChange = useCallback(
@@ -148,6 +197,7 @@ export default function usePanelState({
     // handlers
     scrollToMonth,
     handleVisibleMonthChange,
+    onSelectDate,
 
     // mobile ui state
     isMonthModalOpen,

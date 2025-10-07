@@ -20,21 +20,22 @@ model.eval()
 # === Load label encoder
 label_encoder = joblib.load(os.path.join(model_dir, "label_encoder.joblib"))
 
-# === Category definitions (name-based!)
 IAB_CATEGORIES = {
-    "Arts, Culture & Entertainment": {"id": "1", "name": "Arts, Culture & Entertainment", "color": "#ff4b5c"},
-    "News, Politics & Society": {"id": "2", "name": "News, Politics & Society", "color": "#f15bb5"},
-    "Technology & Science": {"id": "3", "name": "Technology & Science", "color": "#3cba54"},
-    "Health & Wellness": {"id": "4", "name": "Health & Wellness", "color": "#4ade80"},
-    "Food, Drink & Lifestyle": {"id": "5", "name": "Food, Drink & Lifestyle", "color": "#ff6f61"},
-    "Business & Finance": {"id": "6", "name": "Business & Finance", "color": "#ffbe0b"},
-    "Travel & Transportation": {"id": "7", "name": "Travel & Transportation", "color": "#8ecae6"},
-    "Education & Learning": {"id": "8", "name": "Education & Learning", "color": "#5bc0eb"},
-    "Family & Relationships": {"id": "9", "name": "Family & Relationships", "color": "#9d4edd"},
-    "Shopping": {"id": "10", "name": "Shopping", "color": "#ffb703"},
-    "Sports": {"id": "11", "name": "Sports", "color": "#8338ec"},
-    "Uncategorized": {"id": "12", "name": "Uncategorized", "color": "#aaaaaa"},
+  "computers_technology_video_games": {"id": "1", "name": "computers_technology_video_games", "color": "#ff4b5c"},
+  "education_and_science": {"id": "2", "name": "education_and_science", "color": "#f15bb5"},
+  "family_and_relationships": {"id": "3", "name": "family_and_relationships", "color": "#3cba54"},
+  "finance_and_career": {"id": "4", "name": "finance_and_career", "color": "#4ade80"},
+  "health_fitness_beauty": {"id": "5", "name": "health_fitness_beauty", "color": "#ff6f61"},
+  "hobbies_interests_leisure": {"id": "6", "name": "hobbies_interests_leisure", "color": "#ffbe0b"},
+  "lifestyle_food_home_fashion_travel_pets": {"id": "7", "name": "lifestyle_food_home_fashion_travel_pets", "color": "#8ecae6"},
+  "politics_economics_law_world_affairs": {"id": "8", "name": "politics_economics_law_world_affairs", "color": "#5bc0eb"},
+  "pop_culture_arts_entertainment_film_music": {"id": "9", "name": "pop_culture_arts_entertainment_film_music", "color": "#9d4edd"},
+  "sensitive_topics": {"id": "10", "name": "sensitive_topics", "color": "#ffb703"},
+  "shopping": {"id": "11", "name": "shopping", "color": "#8338ec"},
+  "sports": {"id": "12", "name": "sports", "color": "#1155ff"},
+  "uncategorized": {"id": "13", "name": "uncategorized", "color": "#aaaaaa"}
 }
+
 
 @app.route("/classify", methods=["POST"])
 def classify():
@@ -60,7 +61,7 @@ def classify():
                 labels = label_encoder.inverse_transform(preds)
 
             for query, label in zip(batch, labels):
-                category = IAB_CATEGORIES.get(label, IAB_CATEGORIES["Uncategorized"])
+                category = IAB_CATEGORIES.get(label, IAB_CATEGORIES["uncategorized"])
                 results.append({
                     "query": query,
                     "category": category

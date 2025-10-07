@@ -1,12 +1,9 @@
 import { motion } from "framer-motion";
-import MonthCategoryBarChart from "./charts/MonthCategoryBarChart";
 import MonthlyCalendarView from "./calendar/months/MonthlyCalendarView";
 import DailyCalendarView from "./calendar/days/DailyCalendarView";
-import DonutChart from "./charts/Donut";
-import CategoryTrendChart from "./charts/CategoryTrendChart";
+import OverviewDashboard from "./OverviewDashboard";
 import Viewer from "./datasets/Viewer";
 import { IAB_CATEGORIES } from "../assets/constants/iabCategories";
-import WordCloud from "./charts/WordCloud";
 
 const ViewContentSwitcher = ({
   viewMode,
@@ -18,20 +15,6 @@ const ViewContentSwitcher = ({
   setViewMode,
   searchCounts,
 }) => {
-  const categoryData = Object.entries(
-    dataset.records.reduce((acc, rec) => {
-      const key = rec.category?.id || "uncategorized";
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    }, {})
-  ).map(([id, value]) => {
-    const cat = IAB_CATEGORIES.find((c) => c.id === id);
-    return {
-      label: cat?.name || "Uncategorized",
-      color: cat?.color || "#888",
-      value,
-    };
-  });
 
   return (
     <motion.div
@@ -46,7 +29,8 @@ const ViewContentSwitcher = ({
           <div className="h-full flex items-center justify-center text-white text-xl animate-pulse">
             Loading month view...
           </div>
-        ) : <MonthlyCalendarView
+        ) : (
+          <MonthlyCalendarView
             selectedDate={selectedDate}
             onSelectDate={setSelectedDate}
             numDays={numDays}
@@ -55,6 +39,7 @@ const ViewContentSwitcher = ({
             records={dataset.records}
             IAB_CATEGORIES={IAB_CATEGORIES}
           />
+        )
       ) : viewMode === "By Day" ? (
         <DailyCalendarView
           startDate={selectedDate}
@@ -62,13 +47,12 @@ const ViewContentSwitcher = ({
           numDays={numDays}
         />
       ) : viewMode === "Overview" ? (
-        <>
-          <CategoryTrendChart records={dataset.records} />
-
-          <MonthCategoryBarChart data={categoryData} />
-          <DonutChart data={categoryData} size={200} strokeWidth={30} />
-          <WordCloud data={dataset.records} />
-        </>
+        <OverviewDashboard
+          dataset={dataset}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          setViewMode={setViewMode}
+        />
       ) : viewMode === "Table" ? (
         <Viewer />
       ) : (

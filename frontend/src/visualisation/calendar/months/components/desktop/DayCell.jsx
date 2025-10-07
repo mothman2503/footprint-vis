@@ -33,10 +33,10 @@ const DayCell = React.forwardRef(
       <motion.div
         ref={ref}
         className={clsx(
-          "flex flex-col items-start justify-between aspect-[16/8] min-h-[80px] w-full p-2 cursor-pointer border-[0.5px] border-[#444] bg-[#252525]",
-          showMonthLabel ? " border-l-[4px] border-l-[#aaa]" : ""
+          "flex flex-col items-start justify-between aspect-[16/8] min-h-[80px] w-full p-2 cursor-pointer border-t border-b border-t-[#98a34d] border-b-[#98a34d] border-r-[0.5px] border-r-[#444]",
+          showMonthLabel ? " border-l-[4px] border-l-[#aaa]" : " border-l-[0.5px] border-l-[#444]",
         )}
-        onClick={() => onSelect?.(date)}
+        onClick={() => {onSelect?.(date);}}
         animate={isSelected ? { y: [0, -2, -0.4] } : { y: 0 }}
         transition={
           isSelected
@@ -55,10 +55,10 @@ const DayCell = React.forwardRef(
           <div className="absolute inset-0 z-10 backdrop-blur-[4px]" />
         )}
 
-        <div className="flex items-center justify-between w-full p-1">
+        <div className="flex items-center justify-between w-full">
           <button
             className={clsx(
-              "text-base w-[30px] aspect-square rounded-full font-semibold flex items-center justify-center z-10",
+              "text-base w-[15%] aspect-square rounded-full font-semibold flex items-center justify-center z-10",
               isSelected
                 ? "bg-white text-black"
                 : isCurrentMonth
@@ -77,7 +77,7 @@ const DayCell = React.forwardRef(
         </div>
 
         {count > 0 && (
-          <p className="flex gap-2 text-xs items-center text-[#aaa] z-10 px-3">
+          <p className="flex gap-2 text-xs items-center text-[#aaa] z-10 w-full justify-end">
             <div
               className="w-2 h-2 rounded-full"
               style={bgColor ? { background: bgColor } : undefined}
@@ -86,8 +86,8 @@ const DayCell = React.forwardRef(
           </p>
         )}
 
-        {isCurrentMonth && (
-          <div className="opacity-90 w-full mb-1 z-0">
+        {(isCurrentMonth || isSelected) && (
+          <div className="opacity-90 w-full mb-1 z-0" style={!isCurrentMonth? {opacity: "0.6"} : {}}>
             <ProportionalBarChartDiv data={categoryData} height={5} />
           </div>
         )}

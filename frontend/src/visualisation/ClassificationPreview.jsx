@@ -14,7 +14,7 @@ const ClassificationPreview = ({ results, onApply, onCancel }) => {
                 {res.category.name}
               </span>
             </li>
-          ))}
+          ))} 
         </ul>
 
         <div className="flex justify-end gap-2 mt-4">

@@ -2,11 +2,15 @@ import React, { useRef, useEffect, useMemo } from "react";
 import { EyeOff } from "lucide-react";
 import * as d3 from "d3";
 import { useCategoryFilter } from "../../CategoryFilterContext";
+import { useTranslation } from "react-i18next";
+
 
 const MonthCategoryBarChart = ({ data }) => {
   const ref = useRef();
   const { state, dispatch } = useCategoryFilter();
   const hiddenIds = new Set(state.excludedCategoryIds);
+
+  const {t} = useTranslation();
 
   const visibleData = useMemo(
     () => data.filter((d) => !hiddenIds.has(d.id)).sort((a, b) => b.value - a.value),
@@ -65,7 +69,7 @@ const MonthCategoryBarChart = ({ data }) => {
       // Label
       rowGroup
         .append("text")
-        .text(d.label)
+        .text(t(d.label))
         .attr("x", 0)
         .attr("y", -6)
         .attr("fill", "#fff")
@@ -98,7 +102,7 @@ const MonthCategoryBarChart = ({ data }) => {
         .duration(700)
         .attr("x", x(d.value) + 8);
     });
-  }, [visibleData, dispatch]);
+  }, [visibleData, dispatch, t]);
 
   return (
     <div>
@@ -150,7 +154,7 @@ const MonthCategoryBarChart = ({ data }) => {
                   className="text-sm text-white font-medium truncate"
                   style={{ fontFamily: "Noto Sans JP" }}
                 >
-                  {cat.label}
+                  {t(cat.label)}
                 </span>
                 <EyeOff className="text-white w-4 h-4 shrink-0" />
               </button>
