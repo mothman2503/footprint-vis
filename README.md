@@ -68,23 +68,29 @@ If you change the backend port, update the API URL in `frontend/src/config.js`.
 
 ### 4. Google Takeout
 
-To use your own search history in this app, you’ll need to export it from Google Takeout as a `MyActivity.html` file.
+To use your own search history in this app, export it from Google Takeout as **`MyActivity.html`** located specifically under **My Activity ➜ Search**.
 
 #### Steps
 
 1. Go to [**Google Takeout**](https://takeout.google.com).
-2. Click **“Deselect all”** to start fresh.
-3. Scroll down and check **“My Activity”** (or **“My Activity / Activity Controls / Web & App Activity”**)
-   → this ensures your Google Search activity is included.
-4. (Optional) Also make sure **Web & App Activity** is enabled in your Google Account settings before exporting.
-5. Click **Next step**.
-6. Choose your **delivery method** (e.g. *Send download link via email*) and **file type & size** (e.g. ZIP, 2 GB).
-7. Click **Create export**.
-   The export may take several minutes to hours, depending on data size.
-8. Once you receive the download email, download and unzip the archive.
-9. Inside the extracted folder, find a sub-folder named **“My Activity”** (or similar).
-10. Inside that folder, locate the file named **`MyActivity.html`** (sometimes lowercase).
-11. Upload that **`MyActivity.html`** file inside the app interface — or place it in the expected data folder — so the system can parse and visualize your searches.
+2. Click **Deselect all**.
+3. Scroll to **My Activity** and tick the checkbox.
+4. Click the blue text **All activity data included**.
+   - In the list, **uncheck everything except _Search_**.
+   - Click **OK** (or **Apply**).
+5. Click **Multiple formats** (if shown) and ensure **HTML** is included for My Activity exports.
+6. Click **Next step**.
+7. Choose a **delivery method** (e.g., “Send download link via email”) and set **File type & size** (e.g., `.zip`, 2 GB).
+8. Click **Create export**. (This can take minutes to hours.)
+9. When the email arrives, download and unzip the archive.
+10. Navigate to:  
+    ```
+    Takeout/
+      My Activity/
+        Search/
+          MyActivity.html
+    ```
+11. In the app, upload **`MyActivity.html`** from that **Search** folder (not the top-level `My Activity` folder).
 
 ---
 
@@ -106,7 +112,3 @@ footprint-vis/
 * Model files are stored via **Git LFS** — they will automatically download when cloning or running `git lfs pull`.
 
 ---
-
-### License
-
-MIT License © 2025 Othman Ghani
