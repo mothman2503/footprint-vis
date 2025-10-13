@@ -43,11 +43,11 @@ pip install -r requirements.txt
 python app.py
 ```
 
-By default, the backend runs on **[http://localhost:5000](http://localhost:5000)**.
+By default, the backend runs on **[http://localhost:5000](http://localhost:8000)**.
 If this port is busy or you want to use a different one, you can set it manually:
 
 ```bash
-flask run --port 8000
+flask run --port 5000
 ```
 
 ---
@@ -61,7 +61,7 @@ npm start
 ```
 
 This will start the React development server on **[http://localhost:3000](http://localhost:3000)**.
-The frontend expects the backend to be running locally (default port 5000).
+The frontend expects the backend to be running locally (default port 8000).
 If you change the backend port, update the API URL in `frontend/src/config.js`.
 
 ---
