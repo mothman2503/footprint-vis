@@ -1,3 +1,23 @@
 # Local Netlify folder
 .netlify
 node_modules
+
+# Node
+node_modules/
+**/.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python / venv
+.venv*/
+__pycache__/
+*.pyc
+
+# Models / large data
+runs_*/
+*.onnx
+*.safetensors
+*.pt
+*.bin
+*.dylib
