@@ -43,7 +43,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-By default, the backend runs on **[http://localhost:5000](http://localhost:8000)**.
+By default, the backend runs on **[http://localhost:8000](http://localhost:8000)**.
 If this port is busy or you want to use a different one, you can set it manually:
 
 ```bash
