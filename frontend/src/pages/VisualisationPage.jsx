@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { toZonedTime, format } from "date-fns-tz";
 
 // App context
-import { useDataset } from "../DataContext";
+import { useDataset } from "../app/providers";
 import sampleDataset from "../assets/constants/sample-datasets/classified_records_OvGU.json";
 
 import sampleDataset2 from "../assets/constants/sample-datasets/billy_search_history_custom_iab.json";
@@ -18,13 +18,13 @@ import { classifyQueries } from "../utils/classify";
 import { getDB, DB_CONSTANTS } from "../utils/db";
 
 // Shared components
-import MovableViewMenu from "../components/MovableViewMenu";
-import ClassificationControls from "../visualisation/ClassificationControls";
-import DatasetToolbar from "../visualisation/DatasetToolbar";
-import Legend from "../visualisation/Legend";
+import MovableViewMenu from "../shared/components/MovableViewMenu";
+import ClassificationControls from "../features/visualisation/ClassificationControls";
+import DatasetToolbar from "../features/visualisation/DatasetToolbar";
+import Legend from "../features/visualisation/Legend";
 
 // Visualisation views
-import ViewContentSwitcher from "../visualisation/ViewContentSwitcher";
+import ViewContentSwitcher from "../features/visualisation/ViewContentSwitcher";
 
 function buildSearchCounts(records) {
   const counts = {};
@@ -48,12 +48,14 @@ const VisualisationPage = () => {
   const [viewMode, setViewMode] = useState("By Day");
   const [showDialog, setShowDialog] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [classificationProgress, setClassificationProgress] = useState(0);
   const [showGridLoading, setShowGridLoading] = useState(false);
   const [classificationPreview, setClassificationPreview] = useState(null);
   const [savedDatasets, setSavedDatasets] = useState([]);
   const [sampleDatasets, setSampleDatasets] = useState([]);
 
   const containerRef = useRef(null);
+  const progressIntervalRef = useRef(null);
 
   useEffect(() => {
     const updateDays = () => {
@@ -112,8 +114,28 @@ const VisualisationPage = () => {
     return buildSearchCounts(dataset.records);
   }, [dataset?.records]);
 
+  const stopProgress = (value = 0) => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+    setClassificationProgress(value);
+  };
+
+  const startProgress = () => {
+    stopProgress(10);
+    progressIntervalRef.current = setInterval(() => {
+      setClassificationProgress((prev) => Math.min(prev + 7, 90));
+    }, 400);
+  };
+
+  useEffect(() => {
+    return () => stopProgress();
+  }, []);
+
   const handleClassify = async () => {
     setLoading(true);
+    startProgress();
     try {
       const queries = dataset.records.map((r) => r.query).filter(Boolean);
       const results = await classifyQueries(queries);
@@ -122,8 +144,10 @@ const VisualisationPage = () => {
       console.error("\u274c Classification failed:", err);
       alert("Classification failed.");
     } finally {
+      stopProgress(100);
       setLoading(false);
       setShowDialog(false);
+      setTimeout(() => stopProgress(0), 400);
     }
   };
 
@@ -134,12 +158,30 @@ const VisualisationPage = () => {
     });
 
     const db = await getDB();
-    const tx = db.transaction(DB_CONSTANTS.STORE_NAME, "readwrite");
-    const store = tx.objectStore(DB_CONSTANTS.STORE_NAME);
-    for (const rec of updatedRecords) {
-      if (rec.id !== undefined) await store.put(rec);
+
+    if (dataset.source === "user") {
+      // Update the primary searchResults store
+      const tx = db.transaction(DB_CONSTANTS.STORE_NAME, "readwrite");
+      const store = tx.objectStore(DB_CONSTANTS.STORE_NAME);
+      for (const rec of updatedRecords) {
+        if (rec.id !== undefined) await store.put(rec);
+      }
+      await tx.done;
+    } else if (dataset.source === "saved") {
+      // Update the saved dataset entry by label/name
+      const saved = await db.getAll(DB_CONSTANTS.STORE_NAME_SAVED);
+      const found = saved.find(
+        (d) => d.label === dataset.label || d.name === dataset.label
+      );
+      if (found) {
+        await db.put(DB_CONSTANTS.STORE_NAME_SAVED, {
+          ...found,
+          label: found.label || found.name, // normalize
+          records: updatedRecords,
+          date: new Date().toISOString(),
+        });
+      }
     }
-    await tx.done;
 
     setDataset({ ...dataset, records: updatedRecords });
     setClassificationPreview(null);
@@ -173,6 +215,7 @@ const VisualisationPage = () => {
             showDialog={showDialog}
             setShowDialog={setShowDialog}
             loading={loading}
+            progress={classificationProgress}
             onClassify={handleClassify}
             preview={classificationPreview}
             onApply={applyClassification}

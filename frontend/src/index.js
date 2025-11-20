@@ -1,20 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import "./i18n"; 
-import { DatasetProvider } from "./DataContext";
-import { CategoryFilterProvider } from "./CategoryFilterContext";
+import "./index.css";
+import "./i18n";
+import App from "./app/App";
+import reportWebVitals from "./reportWebVitals";
+import AppProviders from "./app/providers/AppProviders";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <DatasetProvider>
-      <CategoryFilterProvider>
-        <App />
-      </CategoryFilterProvider>
-    </DatasetProvider>
+    <AppProviders>
+      <App />
+    </AppProviders>
   </React.StrictMode>
 );
 

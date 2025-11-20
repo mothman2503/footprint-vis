@@ -1,82 +1,78 @@
 import logo from "../logo.png";
-import { useState, useEffect } from "react";
-import TypingEffect from "../components/TypingEffect";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import "../i18n"; // Ensure i18n is loaded
+import TypingEffect from "../shared/components/TypingEffect";
+import "../i18n";
 
 function Home() {
   const { t } = useTranslation();
 
-  const [showSecond, setShowSecond] = useState(false);
-
-  const [width, setWidth] = useState("w-0"); // Start with width 0
-
-  useEffect(() => {
-    if (showSecond) {
-      const timeout = setTimeout(() => {
-        setWidth("w-11/12"); // Expand to w-11/12
-      }, 100); // Delay before expanding
-
-      return () => clearTimeout(timeout);
-    }
-  }, [showSecond]);
-
-  const [isUp, setIsUp] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsUp((prev) => !prev); // Toggle between up and down
-    }, 1000); // Adjust speed of bounce
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="bg-slate-50 flex flex-col space-y-4 items-center content-start text-center w-full py-12 px-5">
-      <img
-        src={logo}
-        className={`max-w-full transition-transform duration-1000 ease-in-out ${
-          isUp ? "translate-y-0" : "translate-y-1"
-        }`}
-        alt="logo"
-      />
+    <div className="min-h-dvh w-full bg-gradient-to-br from-[#0f1a1d] via-[#0f1d24] to-[#11242b] text-white">
+      <div className="max-w-6xl mx-auto px-5 md:px-10 py-16 flex flex-col gap-10">
+        <header className="flex flex-col md:flex-row gap-8 items-center justify-between">
+          <div className="flex-1 space-y-4">
+            <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">
+              {t("nav.visualise", { defaultValue: "Visualise" })} · Privacy · Insight
+            </p>
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+              <TypingEffect
+                words={[t("Visualise your internet footprint!")]}
+                speed={50}
+                delay={40}
+                disableSpaces
+              />
+            </h1>
+            <p className="text-base md:text-lg text-gray-300 max-w-2xl">
+              Map your search history, classify queries, and explore trends across days and months with a rich, interactive dashboard.
+            </p>
 
-      <div className="min-h-32 flex flex-col space-y-4 items-center content-start">
-        <p className="font-mono font-semibold text-2xl">
-          <TypingEffect
-            words={[t("Visualise your internet footprint!")]}
-            speed={60}
-            delay={50}
-            disableSpaces={true}
-            onComplete={() => setShowSecond(true)}
-          />
-        </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/visualise"
+                className="inline-flex items-center gap-2 px-5 py-3 font-semibold text-black bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-lg shadow-lg hover:shadow-cyan-500/30 transition"
+              >
+                {t("nav.visualise", { defaultValue: "Launch Visualisation" })}
+              </Link>
+              <Link
+                to="/about"
+                className="inline-flex items-center gap-2 px-5 py-3 font-semibold border border-white/20 text-cyan-100 rounded-lg hover:bg-white/10 transition"
+              >
+                {t("nav.about", { defaultValue: "Learn more" })}
+              </Link>
+            </div>
+          </div>
 
-        <div
-          className={`bg-slate-500 h-0.5 transition-all duration-1000 max-w-80 ease-in-out ${width}`}
-        />
-        {showSecond && (
-          <p className="font-mono font-semibold text-base">
-            <TypingEffect
-              words={["Coming", " soon", ".", ".", "."]}
-              speed={40}
-              delay={50}
-              disableSpaces={true}
-              disableCursor={true}
-            />
-          </p>
-        )}
+          <div className="relative w-full md:w-80">
+            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-cyan-500/30 to-emerald-500/20 blur-3xl" />
+            <div className="relative bg-[#0c1316] border border-white/10 rounded-3xl p-6 shadow-xl">
+              <img
+                src={logo}
+                alt="logo"
+                className="w-full object-contain drop-shadow-lg"
+              />
+              <p className="mt-4 text-sm text-gray-300">
+                Built to help you understand and manage your digital footprint with clarity and control.
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <section className="grid gap-4 md:grid-cols-3">
+          {[
+            { title: "By Month", desc: "Pan and zoom through months of activity with quick filters." },
+            { title: "By Day", desc: "Inspect daily patterns, peak hours, and categories at a glance." },
+            { title: "Classification", desc: "Classify queries, edit labels, and persist them to your datasets." },
+          ].map((card) => (
+            <div key={card.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg">
+              <p className="text-cyan-300 text-sm font-semibold">{card.title}</p>
+              <p className="text-gray-200 mt-2 text-sm">{card.desc}</p>
+            </div>
+          ))}
+        </section>
       </div>
-
-      <Link
-        to={"/datasets"} // Assuming each link has a 'path' property
-        className="block py-2 px-4 text-lg font-mono font-semibold text-white no-underline hover:text-sky-950 hover:italic"
-      >
-        Go to Datasets {/* Use the translated label here */}
-      </Link>
-
     </div>
   );
 }
+
 export default Home;
