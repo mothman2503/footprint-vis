@@ -22,7 +22,9 @@ const ViewContentSwitcher = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3 }}
-      className="flex-grow overflow-auto relative h-full"
+      className={`flex-grow relative h-full ${
+        viewMode === "By Day" ? "overflow-hidden" : "overflow-auto"
+      }`}
     >
       {viewMode === "By Month" ? (
         showGridLoading ? (

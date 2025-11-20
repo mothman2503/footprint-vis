@@ -2,6 +2,13 @@ import React, { useRef, useEffect, useState, useMemo } from "react";
 import * as d3 from "d3";
 import { IAB_CATEGORIES } from "../../../assets/constants/iabCategories";
 import { useCategoryFilter } from "../../../app/providers";
+import {
+  CalendarRange,
+  MousePointer2,
+  Sparkles,
+  Waves,
+  Flame,
+} from "lucide-react";
 
 /* ---------- helpers ---------- */
 const ema = (arr, alpha = 0.3) => {
@@ -54,6 +61,7 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
 
   const [smaWindow, setSmaWindow] = useState(3);
   const [hoverData, setHoverData] = useState(null);
+  const [hoverSummary, setHoverSummary] = useState(null);
   const [flagArmed, setFlagArmed] = useState(false);
   const [showEpisodes, setShowEpisodes] = useState(true);
   const [showPeaks, setShowPeaks] = useState(true);
@@ -139,6 +147,11 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
 
     return { dataByCategory, colorMap, weeks: weekTicks, maxY: globalMax, episodesByCategory, peaksByCategory };
   }, [records, hiddenIds, smaWindow]);
+
+  const labelLookup = useMemo(
+    () => Object.fromEntries(IAB_CATEGORIES.map((c) => [String(c.id), c])),
+    []
+  );
 
   // store scales for other effects
   const scalesRef = useRef(null);
@@ -270,10 +283,10 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
     root.select(".selected-marker")?.remove();
     root.append("g").attr("class", "selected-marker");
 
-    // mousemove handler (only when one category visible)
+    // mousemove handler (supports multi-category hover summary)
     root.on("mousemove", (event) => {
       const cats = Object.keys(processed.dataByCategory);
-      if (cats.length !== 1) return;
+      if (!cats.length) return;
       const { xScale, yScale, margin, width } = scalesRef.current || {};
       if (!xScale || !yScale) return;
       const [x] = d3.pointer(event, root.node());
@@ -281,23 +294,43 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
       if (xIn < 0 || xIn > width) return;
 
       const dateAtCursor = xScale.invert(xIn);
-      const pts = processed.dataByCategory[cats[0]];
-      let yVal = 0;
-      for (let i = 0; i < pts.length - 1; i++) {
-        const a = pts[i], b = pts[i + 1];
-        if (a.date <= dateAtCursor && dateAtCursor <= b.date) {
-          const t = (dateAtCursor - a.date) / (b.date - a.date);
-          yVal = a.count + t * (b.count - a.count);
-          break;
-        }
-      }
+      const nearestWeek = processed.weeks.reduce((prev, cur) => {
+        return Math.abs(cur - dateAtCursor) < Math.abs(prev - dateAtCursor) ? cur : prev;
+      }, processed.weeks[0]);
+
+      const summary = cats.map((catId) => {
+        const pts = processed.dataByCategory[catId] || [];
+        const match = pts.find((p) => p.date.getTime() === nearestWeek.getTime());
+        const value = match?.count || 0;
+        const meta = labelLookup[catId] || {};
+        return {
+          id: catId,
+          value,
+          label: meta.name || catId,
+          color: meta.color || processed.colorMap[catId] || "#888",
+        };
+      });
+
+      const topCat = summary.slice().sort((a, b) => b.value - a.value)[0] || summary[0];
+      const yVal = topCat?.value || 0;
+
+      setHoverSummary({
+        date: nearestWeek,
+        series: summary.filter((s) => s.value > 0).sort((a, b) => b.value - a.value),
+      });
+
       setHoverData({
         x: xIn,
         y: yScale(yVal),
-        color: processed.colorMap[cats[0]] || "#aaa",
-        date: dateAtCursor,
+        color: topCat?.color || "#aaa",
+        date: nearestWeek,
         count: yVal,
       });
+    });
+
+    root.on("mouseleave", () => {
+      setHoverData(null);
+      setHoverSummary(null);
     });
 
     // click to set/move date (reads latest refs, so no redraw)
@@ -424,14 +457,14 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
   return (
     <div
       ref={wrapperRef}
-      className="relative w-full h-full bg-[#111] p-4 rounded flex flex-col gap-2"
+      className="relative w-full h-full bg-gradient-to-br from-[#0d1418] to-[#0b1012] p-4 rounded-2xl border border-white/10 shadow-2xl flex flex-col gap-2"
       style={{ minHeight: 240 }}
     >
       {/* Controls */}
       <div className="absolute top-2 right-3 z-10 flex items-center gap-2">
         <button
-          className={`px-2 py-1 rounded text-sm border ${
-            flagArmed ? "bg-amber-500 text-black border-amber-400" : "bg-[#1e1e1e] text-white border-[#333]"
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-2 ${
+            flagArmed ? "bg-amber-400 text-black border-amber-300" : "bg-white/5 text-white border-white/10"
           }`}
           onClick={() => {
             if (selectedDate) onOpenMonthly?.();
@@ -445,27 +478,44 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
               : "Pick a date from the chart"
           }
         >
-          {selectedDate ? "📅 Open Month" : flagArmed ? "✅ Pick a date…" : "📍 Select date"}
+          {selectedDate ? (
+            <>
+              <CalendarRange size={14} />
+              Open Month
+            </>
+          ) : flagArmed ? (
+            <>
+              <MousePointer2 size={14} />
+              Pick a date…
+            </>
+          ) : (
+            <>
+              <MousePointer2 size={14} />
+              Select date
+            </>
+          )}
         </button>
 
         <button
-          className="px-2 py-1 rounded text-sm border bg-[#1e1e1e] text-white border-[#333]"
+          className="px-3 py-1.5 rounded-lg text-xs font-semibold border bg-white/5 text-white border-white/10 flex items-center gap-2"
           onClick={() => setShowEpisodes((v) => !v)}
           title="Toggle episode bands"
         >
-          {showEpisodes ? "🟦 Episodes on" : "⬜ Episodes off"}
+          <Waves size={14} />
+          {showEpisodes ? "Episodes on" : "Episodes off"}
         </button>
 
         <button
-          className="px-2 py-1 rounded text-sm border bg-[#1e1e1e] text-white border-[#333]"
+          className="px-3 py-1.5 rounded-lg text-xs font-semibold border bg-white/5 text-white border-white/10 flex items-center gap-2"
           onClick={() => setShowPeaks((v) => !v)}
           title="Toggle peak markers"
         >
-          {showPeaks ? "🔺 Peaks on" : "△ Peaks off"}
+          <Flame size={14} />
+          {showPeaks ? "Peaks on" : "Peaks off"}
         </button>
 
         <label className="hidden md:flex items-center gap-2 text-xs text-white/70">
-          <span>SMA</span>
+          <Sparkles size={14} />
           <input type="range" min={1} max={9} step={2} value={smaWindow} onChange={(e) => setSmaWindow(+e.target.value)} />
           <span className="w-6 text-right">{smaWindow}</span>
         </label>
@@ -474,6 +524,29 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
       <div className="absolute left-3 bottom-2 text-[11px] text-white/50 select-none">
         Tip: click to set/move date • drag line to adjust • Shift+click clears
       </div>
+
+      {hoverSummary?.series?.length ? (
+        <div className="absolute top-3 left-3 z-10 bg-[#0b1013]/90 border border-white/10 rounded-lg p-3 backdrop-blur">
+          <p className="text-xs text-white/70 flex items-center gap-2 mb-2">
+            <CalendarRange size={12} />
+            {d3.timeFormat("%b %d, %Y")(hoverSummary.date)}
+          </p>
+          <div className="flex flex-col gap-1 max-w-xs">
+            {hoverSummary.series.slice(0, 5).map((s) => (
+              <div key={s.id} className="flex items-center justify-between gap-3 text-xs text-white">
+                <span className="inline-flex items-center gap-2">
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ background: s.color }}
+                  />
+                  {s.label}
+                </span>
+                <span className="font-semibold">{Math.round(s.value)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <svg ref={svgRef} className="w-full flex-1" style={{ height: "100%" }} />
     </div>

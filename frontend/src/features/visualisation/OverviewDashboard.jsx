@@ -5,6 +5,7 @@ import MonthCategoryBarChart from "./charts/MonthCategoryBarChart";
 import DonutChart from "./charts/Donut";
 import WordCloud from "./charts/WordCloud";
 import { IAB_CATEGORIES } from "../../assets/constants/iabCategories";
+import { Activity, BarChart3, CalendarClock, CircleDot, PieChart } from "lucide-react";
 
 // Simple animated card shell so every viz feels consistent
 function OverviewCard({ title, subtitle, actions, children, className = "" }) {
@@ -55,63 +56,123 @@ export default function OverviewDashboard({
   }, [dataset.records]);
 
   const total = dataset.records.length;
+  const uniqueDays = useMemo(() => {
+    const set = new Set(
+      dataset.records.map((r) => new Date(r.timestamp).toISOString().slice(0, 10))
+    );
+    return set.size;
+  }, [dataset.records]);
+
+  const uniqueCategories = useMemo(() => {
+    const set = new Set(dataset.records.map((r) => r?.category?.id || "uncategorized"));
+    return set.size;
+  }, [dataset.records]);
+
+  const rangeLabel = useMemo(() => {
+    if (!dataset.records.length) return "No data";
+    const times = dataset.records
+      .map((r) => new Date(r.timestamp).getTime())
+      .filter((n) => !Number.isNaN(n));
+    if (!times.length) return "No data";
+    const min = new Date(Math.min(...times));
+    const max = new Date(Math.max(...times));
+    return `${min.toLocaleDateString()} → ${max.toLocaleDateString()}`;
+  }, [dataset.records]);
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key="overview"
-        className="grid grid-cols-12 gap-4 xl:gap-5 w-full"
+        className="flex flex-col gap-4 xl:gap-5 w-full"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        {/* KPI header */}
-        <OverviewCard
-          title="Activity Overview"
-          subtitle={`Total items • ${total.toLocaleString()} records`}
-          className="col-span-12"
-          actions={
-            <button
-              onClick={() => setViewMode?.("Table")}
-              className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-white/10 text-white hover:bg-white/20 border border-white/10"
-            >
-              Open Table
-            </button>
-          }
-        >
-          <div className="text-white text-sm opacity-80">
-            Click peaks or anywhere on the line chart to set a date. Drag the vertical marker to fine‑tune.
-          </div>
-        </OverviewCard>
-
-        {/* Trend chart full width on small screens, 8/12 on xl if you want to add more to the right */}
-        <OverviewCard title="Trends by Category" className="col-span-12">
-          <div className="h-[320px] md:h-[380px] xl:h-[420px]">
-            <CategoryTrendChart
-              records={dataset.records}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-              onOpenMonthly={() => setViewMode?.("By Month")}
-            />
-          </div>
-        </OverviewCard>
-
-        {/* Bars and side column */}
-        <OverviewCard title="This Month by Category" className="col-span-12 xl:col-span-8">
-          <div className="h-[380px] overflow-hidden">
-            <MonthCategoryBarChart data={categoryData} />
-          </div>
-        </OverviewCard>
-
-        <div className="col-span-12 xl:col-span-4 grid grid-cols-12 gap-4">
-          <OverviewCard title="Category Share" className="col-span-12">
-            <div className="flex items-center justify-center h-[260px]">
-              <DonutChart data={categoryData} size={220} strokeWidth={26} />
+        {/* KPI row */}
+        <div className="grid grid-cols-12 gap-4">
+          <OverviewCard
+            title="Activity Overview"
+            subtitle="High-level pulse of your dataset"
+            className="col-span-12 md:col-span-6 xl:col-span-4"
+            actions={
+              <button
+                onClick={() => setViewMode?.("Table")}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/10 text-white hover:bg-white/20 border border-white/10 flex items-center gap-2"
+              >
+                <BarChart3 size={14} />
+                Table view
+              </button>
+            }
+          >
+            <div className="grid grid-cols-2 gap-3 text-sm text-white/80">
+              <div className="flex items-center gap-2">
+                <Activity size={16} className="text-emerald-300" />
+                <div>
+                  <p className="text-white font-semibold">{total.toLocaleString()}</p>
+                  <p className="text-xs text-white/60">Total searches</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <CircleDot size={16} className="text-cyan-300" />
+                <div>
+                  <p className="text-white font-semibold">{uniqueCategories}</p>
+                  <p className="text-xs text-white/60">Categories</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <CalendarClock size={16} className="text-indigo-300" />
+                <div>
+                  <p className="text-white font-semibold">{uniqueDays}</p>
+                  <p className="text-xs text-white/60">Days of data</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <PieChart size={16} className="text-amber-300" />
+                <div>
+                  <p className="text-white font-semibold">{rangeLabel}</p>
+                  <p className="text-xs text-white/60">Coverage</p>
+                </div>
+              </div>
             </div>
           </OverviewCard>
-          <OverviewCard title="Frequent Terms" className="col-span-12">
-            <div className="h-[260px]">
+
+          <OverviewCard
+            title="Category Share"
+            subtitle="Top-level category distribution"
+            className="col-span-12 md:col-span-6 xl:col-span-4"
+          >
+            <div className="flex items-center justify-center h-[220px]">
+              <DonutChart data={categoryData} size={200} strokeWidth={24} />
+            </div>
+          </OverviewCard>
+
+          <OverviewCard
+            title="Frequent Terms"
+            subtitle="Most common words across your searches"
+            className="col-span-12 xl:col-span-4"
+          >
+            <div className="h-[220px]">
               <WordCloud data={dataset.records} />
+            </div>
+          </OverviewCard>
+        </div>
+
+        {/* Trend & breakdown */}
+        <div className="grid grid-cols-12 gap-4">
+          <OverviewCard title="Trends by Category" className="col-span-12 xl:col-span-8">
+            <div className="h-[360px] md:h-[420px] xl:h-[460px]">
+              <CategoryTrendChart
+                records={dataset.records}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+                onOpenMonthly={() => setViewMode?.("By Month")}
+              />
+            </div>
+          </OverviewCard>
+
+          <OverviewCard title="This Month by Category" className="col-span-12 xl:col-span-4">
+            <div className="h-[360px]">
+              <MonthCategoryBarChart data={categoryData} />
             </div>
           </OverviewCard>
         </div>

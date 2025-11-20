@@ -187,7 +187,7 @@ const DailyCalendarView = ({ entries, startDate, numDays }) => {
   return (
     <div
       ref={containerRef}
-      className="w-full h-full flex-grow relative"
+      className="w-full h-full flex-grow relative overflow-hidden"
     >
       {dimensions.width > 0 && dimensions.height > 0 && (
         <svg
