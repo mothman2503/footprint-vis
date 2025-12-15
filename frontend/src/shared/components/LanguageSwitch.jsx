@@ -1,95 +1,88 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import enFlag from "../../assets/flags/en.png"; // Path to English flag image
-import deFlag from "../../assets/flags/de.png"; // Path to German flag image
-import { BsChevronDown } from "react-icons/bs"; // Dropdown icon
+import enFlag from "../../assets/flags/en.png";
+import deFlag from "../../assets/flags/de.png";
+import { BsChevronDown } from "react-icons/bs";
 
 const LanguageSwitch = () => {
   const { i18n: t } = useTranslation();
 
-  const [isOpen, setIsOpen] = useState(false); // State to toggle the dropdown visibility
+  const [isOpen, setIsOpen] = useState(false);
 
   const changeLanguage = (lang) => {
     t.changeLanguage(lang);
-    setIsOpen(false); // Close dropdown after language change
+    setIsOpen(false);
   };
 
-  // Disable scrolling when menu is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden"; // Prevent scrolling
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "auto"; // Restore scrolling
+      document.body.style.overflow = "auto";
     }
 
     return () => {
-      document.body.style.overflow = "auto"; // Cleanup when component unmounts
+      document.body.style.overflow = "auto";
     };
   }, [isOpen]);
 
-  // Function to return the flag image based on the current language
   const getFlag = (language) => {
-    if (language === "en") return enFlag; // Return the English flag
-    if (language === "de") return deFlag; // Return the German flag
-    return null; // Fallback, though it's unnecessary in this case
+    if (language === "en") return enFlag;
+    if (language === "de") return deFlag;
+    return null;
   };
 
   return (
     <div className="relative">
-      {" "}
-      {/* Make the button container relative for positioning */}
       <button
-        onClick={() => setIsOpen(!isOpen)} // Toggle dropdown visibility
-        className="flex items-center p-2 hover:bg-gray-200 w-full"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex h-10 items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 text-white hover:border-emerald-300/60 hover:bg-white/10 transition"
       >
         <img
-          src={getFlag(t.language)} // Use the getFlag function to load the correct flag
-          alt={t.language === "en" ? "English" : "German"} // alt text changes based on language
-          className={`w-7 h-5 rounded-sm mr-2`}
+          src={getFlag(t.language)}
+          alt={t.language === "en" ? "English" : "German"}
+          className="w-7 h-5 rounded-sm"
         />
-        <BsChevronDown />
+        <span className="text-xs uppercase tracking-[0.18em] text-white/70">
+          {t.language}
+        </span>
+        <BsChevronDown className="text-white/70" />
       </button>
-      {/* Dropdown menu */}
       <div
-        className={`absolute -top-4 right-0 max-w-full w-24 bg-slate-50/95 backdrop-blur-sm shadow-lg rounded-md pb-2 pt-5
-                transform transition-all duration-300 ease-in-out
-                ${
-                  isOpen
-                    ? "opacity-100 translate-y-0 z-40"
-                    : "opacity-0 -translate-y-full z-0"
-                }`}
+        className={`absolute right-0 mt-2 w-40 rounded-xl border border-white/15 bg-gradient-to-br from-[#0f1718] via-[#111c1f] to-[#17242a] shadow-2xl backdrop-blur-sm overflow-hidden transform transition-all duration-200 ${
+          isOpen ? "opacity-100 translate-y-0 z-40" : "opacity-0 -translate-y-2 pointer-events-none"
+        }`}
       >
         <button
           onClick={() => changeLanguage("en")}
-          className="flex items-center p-2 hover:bg-gray-200 w-full font-mono text-sm"
+          className={`flex items-center gap-2 px-3 py-2 w-full text-sm transition ${
+            t.language === "en" ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/5"
+          }`}
         >
           <img
             src={enFlag}
             alt="English"
-            className={`w-7 h-5 rounded-sm mr-2 ${
-              t.language === "en" ? "" : "opacity-65"
-            }`}
+            className="w-7 h-5 rounded-sm"
           />
-          EN
+          <span className="font-semibold">English</span>
         </button>
         <button
           onClick={() => changeLanguage("de")}
-          className="flex items-center p-2 hover:bg-gray-200 w-full font-mono text-sm"
+          className={`flex items-center gap-2 px-3 py-2 w-full text-sm transition ${
+            t.language === "de" ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/5"
+          }`}
         >
           <img
             src={deFlag}
             alt="German"
-            className={`w-7 h-5 rounded-sm mr-2 ${
-              t.language === "de" ? "" : "opacity-65"
-            }`}
+            className="w-7 h-5 rounded-sm"
           />
-          DE
+          <span className="font-semibold">Deutsch</span>
         </button>
       </div>
-      {/* Overlay (to close menu when clicking outside) */}
       {isOpen && (
         <div
-          className="fixed h-dvh inset-0 bg-black opacity-20 z-30"
+          className="fixed h-dvh inset-0 bg-black/40 z-30"
           onClick={() => setIsOpen(false)}
         ></div>
       )}

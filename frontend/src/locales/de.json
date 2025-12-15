@@ -4,6 +4,15 @@
     "home": "HOME",
     "visualise": "VISUALISIERUNG"
   },
+  "views": {
+    "overview": "Übersicht",
+    "byMonth": "Nach Monat",
+    "byDay": "Nach Tag",
+    "table": "Tabelle"
+  },
+  "toolbar": {
+    "viewLabel": "Ansicht"
+  },
   "footer": {
     "readAbout": "Lesen Sie hier darüber",
     "basedOn": "Basierend auf dem",

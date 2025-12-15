@@ -14,6 +14,7 @@ const ViewContentSwitcher = ({
   numDays,
   setViewMode,
   searchCounts,
+  datasetRange,
 }) => {
 
   return (
@@ -22,7 +23,7 @@ const ViewContentSwitcher = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3 }}
-      className={`flex-grow relative h-full ${
+      className={`flex-grow relative h-full pt-[80px] md:pt-10  ${
         viewMode === "By Day" ? "overflow-hidden" : "overflow-auto"
       }`}
     >
@@ -47,6 +48,9 @@ const ViewContentSwitcher = ({
           startDate={selectedDate}
           entries={dataset.records}
           numDays={numDays}
+          minDate={datasetRange?.min}
+          maxDate={datasetRange?.max}
+          onChangeDate={setSelectedDate}
         />
       ) : viewMode === "Overview" ? (
         <OverviewDashboard

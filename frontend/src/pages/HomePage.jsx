@@ -45,14 +45,14 @@ function Home() {
 
           <div className="relative w-full md:w-80">
             <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-cyan-500/30 to-emerald-500/20 blur-3xl" />
-            <div className="relative bg-[#0c1316] border border-white/10 rounded-3xl p-6 shadow-xl">
+            <div className="relative bg-[#fcf3f6] border border-white/10 rounded-3xl p-6 shadow-xl">
               <img
                 src={logo}
                 alt="logo"
                 className="w-full object-contain drop-shadow-lg"
               />
-              <p className="mt-4 text-sm text-gray-300">
-                Built to help you understand and manage your digital footprint with clarity and control.
+              <p className="mt-4 text-sm text-gray-700">
+                Built to help you understand your digital footprint with clarity and insight.
               </p>
             </div>
           </div>
@@ -62,7 +62,7 @@ function Home() {
           {[
             { title: "By Month", desc: "Pan and zoom through months of activity with quick filters." },
             { title: "By Day", desc: "Inspect daily patterns, peak hours, and categories at a glance." },
-            { title: "Classification", desc: "Classify queries, edit labels, and persist them to your datasets." },
+            { title: "Classification", desc: "Classify queries." },
           ].map((card) => (
             <div key={card.title} className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg">
               <p className="text-cyan-300 text-sm font-semibold">{card.title}</p>

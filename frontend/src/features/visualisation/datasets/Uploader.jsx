@@ -3,7 +3,7 @@ import { getDB, DB_CONSTANTS } from "../../../utils/db";
 import { parseActivityHtml } from "../../../utils/parser";
 import { useDataset } from "../../../app/providers";
 
-export default function Uploader() {
+export default function Uploader({ onDatasetSaved }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const { setDataset } = useDataset();
@@ -30,13 +30,21 @@ export default function Uploader() {
       // Ask for dataset name and save to persistent store
       const name = prompt("Name this dataset (e.g. 'Session 1', 'May Upload'):");
       if (name?.trim()) {
-        const dbSave = await getDB();
-        await dbSave.put("savedDatasets", {
+        const label = name.trim();
+        const savedEntry = {
           id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-          name: name.trim(),
+          label,
+          name: label,
           records,
           date: new Date().toISOString(),
-        });
+        };
+
+        const dbSave = await getDB();
+        await dbSave.put(DB_CONSTANTS.STORE_NAME_SAVED, savedEntry);
+        setDataset({ source: "saved", ...savedEntry });
+        if (onDatasetSaved) {
+          await onDatasetSaved(savedEntry);
+        }
       }
     } catch (err) {
       console.error("DB Error:", err);
@@ -68,19 +76,19 @@ export default function Uploader() {
   };
 
   return (
-    <div className="space-y-4 p-4 w-full bg-gray-900 rounded-md border border-gray-700">
-      <label className="block text-sm font-medium text-gray-300">
+    <div className="space-y-4 p-4 w-full bg-white/5 border border-white/10 rounded-xl shadow-[0_16px_50px_rgba(0,0,0,0.45)]">
+      <label className="block text-sm font-semibold text-white">
         Upload <code>MyActivity.html</code> file:
       </label>
       <input
         type="file"
         accept=".html"
         onChange={handleFileInput}
-        className="w-full file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 text-gray-300"
+        className="w-full text-sm text-white bg-[#0b1316] border border-white/10 rounded-lg px-3 py-2 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-emerald-500 file:to-cyan-500 file:text-black hover:file:from-emerald-400 hover:file:to-cyan-400"
       />
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      {success && <p className="text-green-500 text-sm">{success}</p>}
-      <p className="text-xs text-gray-400">
+      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {success && <p className="text-emerald-300 text-sm">{success}</p>}
+      <p className="text-xs text-white/60">
         Only Google Takeout "My Activity" HTML files are supported.
       </p>
     </div>

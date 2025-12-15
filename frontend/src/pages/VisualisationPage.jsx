@@ -1,7 +1,7 @@
 // VisualisationPage.js
 
 // React & hooks
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 
 // Third-party libs
 import { AnimatePresence, motion } from "framer-motion";
@@ -18,9 +18,8 @@ import { classifyQueries } from "../utils/classify";
 import { getDB, DB_CONSTANTS } from "../utils/db";
 
 // Shared components
-import MovableViewMenu from "../shared/components/MovableViewMenu";
 import ClassificationControls from "../features/visualisation/ClassificationControls";
-import DatasetToolbar from "../features/visualisation/DatasetToolbar";
+import Toolbar from "../features/visualisation/Toolbar";
 import Legend from "../features/visualisation/Legend";
 
 // Visualisation views
@@ -53,6 +52,7 @@ const VisualisationPage = () => {
   const [classificationPreview, setClassificationPreview] = useState(null);
   const [savedDatasets, setSavedDatasets] = useState([]);
   const [sampleDatasets, setSampleDatasets] = useState([]);
+  const [datasetRange, setDatasetRange] = useState(null);
 
   const containerRef = useRef(null);
   const progressIntervalRef = useRef(null);
@@ -69,21 +69,40 @@ const VisualisationPage = () => {
     return () => window.removeEventListener("resize", updateDays);
   }, []);
 
-  useEffect(() => {
-    const fetchDatasets = async () => {
+  const normalizeSavedDataset = useCallback(
+    (entry) => ({
+      source: "saved",
+      label: entry.label || entry.name || "Untitled dataset",
+      records: entry.records || [],
+      date: entry.date,
+    }),
+    []
+  );
+
+  const refreshSavedDatasets = useCallback(async () => {
+    try {
       const db = await getDB();
-      const saved = await db.getAll("savedDatasets");
+      const saved = await db.getAll(DB_CONSTANTS.STORE_NAME_SAVED);
 
-      setSavedDatasets(
-        saved.map((d) => ({
-          source: "saved",
-          label: d.label,
-          records: d.records,
-          date: d.date,
-        }))
-      );
+      const normalized = saved
+        .map(normalizeSavedDataset)
+        .sort(
+          (a, b) =>
+            new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
+        );
 
-      // Add any additional sample datasets as needed
+      setSavedDatasets(normalized);
+      return normalized;
+    } catch (error) {
+      console.error("❌ Failed to refresh saved datasets:", error);
+      return [];
+    }
+  }, [normalizeSavedDataset]);
+
+  useEffect(() => {
+    const seedDatasets = async () => {
+      await refreshSavedDatasets();
+
       setSampleDatasets([
         {
           source: "sample",
@@ -98,8 +117,8 @@ const VisualisationPage = () => {
       ]);
     };
 
-    fetchDatasets();
-  }, []);
+    seedDatasets();
+  }, [refreshSavedDatasets]);
 
   useEffect(() => {
     if (viewMode === "monthGrid") {
@@ -132,6 +151,33 @@ const VisualisationPage = () => {
   useEffect(() => {
     return () => stopProgress();
   }, []);
+
+  // Derive dataset min/max dates and clamp current selection into range
+  useEffect(() => {
+    if (!dataset?.records?.length) {
+      setDatasetRange(null);
+      return;
+    }
+    const timestamps = dataset.records
+      .map((r) => new Date(r.timestamp).getTime())
+      .filter((t) => Number.isFinite(t));
+    if (!timestamps.length) {
+      setDatasetRange(null);
+      return;
+    }
+    const min = new Date(Math.min(...timestamps));
+    const max = new Date(Math.max(...timestamps));
+    setDatasetRange({ min, max });
+
+    // Clamp selected date into range
+    if (selectedDate) {
+      const current = selectedDate.getTime();
+      if (current < min.getTime()) setSelectedDate(min);
+      else if (current > max.getTime()) setSelectedDate(max);
+    } else {
+      setSelectedDate(min);
+    }
+  }, [dataset?.records, selectedDate]);
 
   const handleClassify = async () => {
     setLoading(true);
@@ -193,14 +239,17 @@ const VisualisationPage = () => {
       className="flex w-full flex-col max-h-dvh"
       style={{}}
     >
-      <MovableViewMenu viewMode={viewMode} setViewMode={setViewMode} />
-      <div className="fixed top-0 z-40 w-full">
-        <DatasetToolbar
+      <div className="fixed top-0 z-40 w-full flex justify-center">
+        <Toolbar
           datasetLabel={dataset?.label}
           savedDatasets={savedDatasets}
           sampleDatasets={sampleDatasets}
           onSetDataset={(ds) => ds && setDataset(ds)}
+          onRefreshDatasets={refreshSavedDatasets}
+          onDatasetSaved={refreshSavedDatasets}
           onStartClassification={() => setShowDialog(true)}
+          viewMode={viewMode}
+          onChangeViewMode={setViewMode}
           promptOpen={!dataset?.records?.length}
         />
       </div>
@@ -238,6 +287,7 @@ const VisualisationPage = () => {
                   dataset={dataset}
                   selectedDate={selectedDate}
                   setSelectedDate={setSelectedDate}
+                  datasetRange={datasetRange}
                   numDays={numDays}
                   setViewMode={setViewMode}
                   searchCounts={searchCounts}

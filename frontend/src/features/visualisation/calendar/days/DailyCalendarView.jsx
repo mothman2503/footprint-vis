@@ -6,8 +6,9 @@ import XAxis from "./components/XAxis";
 import YAxis from "./components/YAxis";
 import Datapoint from "./components/Datapoint";
 import { useCategoryFilter } from "../../../../app/providers";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
-const DailyCalendarView = ({ entries, startDate, numDays }) => {
+const DailyCalendarView = ({ entries, startDate, numDays, onChangeDate }) => {
   const dateBarHeight = 42;
   const margin = useMemo(
     () => ({ top: 30, right: 20, bottom: 0, left: 50 }),
@@ -51,6 +52,13 @@ const DailyCalendarView = ({ entries, startDate, numDays }) => {
     a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
+
+  const shiftDate = (delta) => {
+    if (!startDate || !onChangeDate) return;
+    const next = new Date(startDate);
+    next.setDate(next.getDate() + delta);
+    onChangeDate(next);
+  };
 
   const { xScale, yScale } = useMemo(
     () => ({
@@ -284,9 +292,16 @@ const DailyCalendarView = ({ entries, startDate, numDays }) => {
       )}
 
       <div
-        className="flex justify-center py-2 bg-black bg-opacity-80"
+        className="flex justify-center items-center gap-3 py-2 bg-black bg-opacity-80"
         style={{ height: dateBarHeight }}
       >
+        <button
+          onClick={() => shiftDate(-1)}
+          className="flex items-center justify-center h-8 w-8 rounded-md bg-white/10 hover:bg-white/15 text-white border border-white/15"
+          aria-label="Previous day"
+        >
+          <ArrowLeft size={16} />
+        </button>
         <h3
           className="text-md text-white font-semibold text-center cursor-pointer"
           style={{ fontFamily: "Noto Sans JP" }}
@@ -298,6 +313,13 @@ const DailyCalendarView = ({ entries, startDate, numDays }) => {
               }`
             : "Select Date"}
         </h3>
+        <button
+          onClick={() => shiftDate(1)}
+          className="flex items-center justify-center h-8 w-8 rounded-md bg-white/10 hover:bg-white/15 text-white border border-white/15"
+          aria-label="Next day"
+        >
+          <ArrowRight size={16} />
+        </button>
       </div>
     </div>
   );
