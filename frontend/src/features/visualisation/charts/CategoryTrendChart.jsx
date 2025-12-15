@@ -356,7 +356,7 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
     // after this draw, disable animation until filters change and bump drawVersion
     shouldAnimateRef.current = false;
     setDrawVersion((v) => v + 1); // ⬅ triggers marker re-render after a rebuild
-  }, [processed, dimensions, smaWindow, showEpisodes, showPeaks, onSelectDate]);
+  }, [processed, dimensions, smaWindow, showEpisodes, showPeaks, onSelectDate, labelLookup]);
 
   // --- SELECTED MARKER effect (no redraw/animation)
   useEffect(() => {
