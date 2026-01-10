@@ -60,7 +60,7 @@ const DatasetToolbar = ({
                   <activeView.icon size={16} />
                   {activeView.label}
                 </span>
-                <span className="text-[11px] uppercase tracking-[0.16em] text-white/70">
+                <span className="text-[11px] ml-3 uppercase tracking-[0.16em] text-white/70">
                   {viewLabel}
                 </span>
               </button>

@@ -1,114 +1,82 @@
 # Footprint-Vis
 
-**Footprint-Vis** is a web application for visualizing and analyzing personal search-history data.  
-It consists of a **React frontend** and a **Flask backend**.
+Footprint-Vis is a full-stack app that helps you understand and visualize your Google Search history. The React frontend renders interactive day/month calendars, category trends, and table views. The Flask backend exposes a lightweight classifier so searches can be grouped into IAB-style categories.
 
-There are some pre-loaded search histories that can be visualized, and you also have the option to upload your own Google Search history.  
-To export your own search history, follow the steps in [Section 4 – Google Takeout](#4-google-takeout).
+## Table of Contents
+- [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+- [Repository Setup](#repository-setup)
+- [Quick Start](#quick-start)
+  - [Frontend](#frontend)
+  - [Backend](#backend)
+- [Using Your Own Data (Google Takeout)](#using-your-own-data-google-takeout)
+- [Project Structure](#project-structure)
+- [Common Commands](#common-commands)
+- [Notes](#notes)
 
-The backend runs a small classification model that the frontend communicates with to categorize search queries and visualize them interactively.
+## Introduction
+Visualize search activity across days and months, drill into categories, and upload your own Google Takeout export. Sample datasets are bundled so you can explore immediately; uploading your own `MyActivity.html` (Search only) lets you classify and browse personal history offline in the browser while the backend handles category inference.
 
----
+## Prerequisites
+- **Node.js ≥ 18**
+- **Python ≥ 3.10**
+- **Git LFS** (required for model assets)  
+  ```bash
+  git lfs install
+  ```
 
-## 🧩 How to set up and run the project
-
-### 1. Clone the repository
+## Repository Setup
 ```bash
 git clone https://github.com/mothman2503/footprint-vis.git
 cd footprint-vis
-````
-
-**Note:** This project uses [Git LFS](https://git-lfs.github.com/) for large model files.
-Before cloning, ensure Git LFS is installed on your system:
-
-```bash
-git lfs install
+git lfs pull          # fetch LFS-tracked model files
 ```
 
-If you already cloned without it, you can fetch the model files afterward with:
+## Quick Start
 
-```bash
-git lfs pull
-```
-
----
-
-### 2. Backend setup
-
-```bash
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate       # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-python app.py
-```
-
-By default, the backend runs on **[http://localhost:8000](http://localhost:8000)**.
-If this port is busy or you want to use a different one, you can set it manually:
-
-```bash
-flask run --port 5000
-```
-
----
-
-### 3. Frontend setup
-
+### Frontend
 ```bash
 cd frontend
 npm install
 npm start
 ```
+Runs at **http://localhost:3000** and expects the backend at **http://localhost:8000** by default.
 
-This will start the React development server on **[http://localhost:3000](http://localhost:3000)**.
-The frontend expects the backend to be running locally (default port 8000).
-If you change the backend port, update the API URL in `frontend/src/config.js`.
+### Backend
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python app.py                      # serves on http://localhost:8000
+```
+If you need a different port: `flask run --port 5000`.
 
----
+## Using Your Own Data (Google Takeout)
+Export **MyActivity.html** for **Search** only, then upload it in the app.
+1) Go to [Google Takeout](https://takeout.google.com) → **Deselect all**.  
+2) Select **My Activity** → **All activity data included** → keep only **Search** checked.  
+3) Ensure export format includes **HTML**.  
+4) Create export, download, unzip, then pick:
+```
+Takeout/My Activity/Search/MyActivity.html
+```
+Upload that file via the dataset “Add dataset” action.
 
-### 4. Google Takeout
-
-To use your own search history in this app, export it from Google Takeout as **`MyActivity.html`** located specifically under **My Activity ➜ Search**.
-
-#### Steps
-
-1. Go to [**Google Takeout**](https://takeout.google.com).
-2. Click **Deselect all**.
-3. Scroll to **My Activity** and tick the checkbox.
-4. Click the blue text **All activity data included**.
-   - In the list, **uncheck everything except _Search_**.
-   - Click **OK** (or **Apply**).
-5. Click **Multiple formats** (if shown) and ensure **HTML** is included for My Activity exports.
-6. Click **Next step**.
-7. Choose a **delivery method** (e.g., “Send download link via email”) and set **File type & size** (e.g., `.zip`, 2 GB).
-8. Click **Create export**. (This can take minutes to hours.)
-9. When the email arrives, download and unzip the archive.
-10. Navigate to:  
-    ```
-    Takeout/
-      My Activity/
-        Search/
-          MyActivity.html
-    ```
-11. In the app, upload **`MyActivity.html`** from that **Search** folder (not the top-level `My Activity` folder).
-
----
-
-### 📁 Project structure
-
+## Project Structure
 ```
 footprint-vis/
-│
-├── frontend/   # React web app (visual interface)
-└── backend/    # Flask API and classification model
+├── frontend/   # React app: views, charts, dataset management
+└── backend/    # Flask API + classifier model
 ```
 
----
+## Common Commands
+- Frontend dev server: `npm start` (from `frontend/`)
+- Frontend build: `npm run build` (from `frontend/`)
+- Backend dev: `python app.py` (from `backend/`)
+- Lint (frontend): `npm run lint` (from `frontend/`)
 
-### Notes
-
-* You need both servers (frontend + backend) running at the same time.
-* Make sure **Node.js ≥ 18** and **Python ≥ 3.10** are installed.
-* Model files are stored via **Git LFS** — they will automatically download when cloning or running `git lfs pull`.
-
----
+## Notes
+- Run **frontend and backend** together for a full experience.  
+- Update backend URL in `frontend/src/config.js` if you change ports.  
+- LFS assets must be present (`git lfs pull`) before running the classifier.***

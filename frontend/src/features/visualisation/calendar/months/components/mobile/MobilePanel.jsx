@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import DonutChart from "../../../../charts/Donut";
 import MonthCategoryBarChart from "../../../../charts/MonthCategoryBarChart";
 import MonthSelectorModal from "./MonthSelectorModal";
-import OverviewStrip from "./OverviewStrip";
 import MobileGrid from "./Grid";
 import CalendarWeekdaysRow from "../CalendarWeekdaysRow";
 
@@ -38,15 +37,6 @@ export default function MobilePanel({
 }) {
   return (
     <div className="flex flex-col h-full pt-3 relative">
-      {/* Month overview strip */}
-      <OverviewStrip
-        monthSummaries={monthSummaries}
-        currentMonth={currentMonth}
-        onClick={(key) => {
-          scrollToMonth(key);
-          setCurrentMonth(key);
-        }}
-      />
 
       {/* Sticky month header */}
       <div className="z-30 bg-[#1e2626] h-[15dvh] w-full px-4 pb-2 pt-4 shadow-lg border-b border-[#999] overflow-hidden flex flex-col items-center justify-start">
