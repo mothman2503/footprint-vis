@@ -161,6 +161,7 @@ const DailyCalendarView = ({ entries, startDate, numDays, onChangeDate }) => {
     });
 
     setClusteredData(clustered);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleData, startDate, endDate, dimensions, xScale, yScale, margin.left, margin.right, margin.top, margin.bottom]);
 
   const hoverTimeoutRef = useRef(null);
