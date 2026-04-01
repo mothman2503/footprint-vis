@@ -1,16 +1,15 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useDataset } from "../../../app/providers";
+import { useConsent, useDataset } from "../../../app/providers";
 import { getDB } from "../../../utils/db";
 import CategoryDropdown from "../../../shared/components/CategoryDropdown";
 import { IAB_CATEGORIES } from "../../../assets/constants/iabCategories";
+import { useTranslation } from "react-i18next";
 import {
   Download,
-  Filter,
   Search as SearchIcon,
   CalendarRange,
   RotateCcw,
-  SlidersHorizontal,
 } from "lucide-react";
 
 function getPaginationRange(current, total, delta = 2) {
@@ -42,14 +41,39 @@ function downloadCSV(data) {
   link.click();
 }
 
+const getCategoryTranslationKey = (category) => {
+  const canonical =
+    IAB_CATEGORIES.find((c) => String(c.id) === String(category?.id))?.name ||
+    category?.name ||
+    "uncategorized";
+  return String(canonical).trim().replace(/^categories\./, "");
+};
+
+const getLocalizedCategoryLabel = (category, t) => {
+  const key = getCategoryTranslationKey(category);
+  return t(`categories.${key}`, {
+    defaultValue: key.replaceAll("_", " "),
+  });
+};
+
+const getCategoryRowColor = (color) => {
+  const raw = String(color || "").trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(raw)) return `${raw}1A`;
+  if (/^#[0-9a-fA-F]{3}$/.test(raw)) {
+    const expanded = `#${raw[1]}${raw[1]}${raw[2]}${raw[2]}${raw[3]}${raw[3]}`;
+    return `${expanded}1A`;
+  }
+  return "rgba(44, 62, 80, 0.1)";
+};
+
 const ActivityViewer = () => {
   const { dataset, setDataset } = useDataset();
+  const { consent } = useConsent();
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
   const stickyRef = useRef(null);
   const PER_PAGE = 40;
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [yearFilter, setYearFilter] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -66,15 +90,12 @@ const ActivityViewer = () => {
     const queryMatch =
       searchQuery === "" ||
       entry.query.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.category.name.toLowerCase().includes(searchQuery.toLowerCase());
+      entry.category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      getLocalizedCategoryLabel(entry.category, t)
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
 
-    const categoryMatch =
-      !selectedCategory || entry.category.id === selectedCategory;
-
-    const yearMatch =
-      !yearFilter || ts.getFullYear().toString() === yearFilter;
-
-    return withinRange && queryMatch && categoryMatch && yearMatch;
+    return withinRange && queryMatch;
   });
 
 
@@ -85,10 +106,12 @@ const ActivityViewer = () => {
   );
 
   const updateEntryCategory = async (id, newCategory) => {
-    const updatedRecords = entries.map((entry) =>
+    const updatedRecords = (dataset?.records || []).map((entry) =>
       entry.id === id ? { ...entry, category: newCategory } : entry
     );
     setDataset((prev) => ({ ...prev, records: updatedRecords }));
+
+    if (consent !== "accepted") return;
 
     const db = await getDB();
     if (dataset.source === "user") {
@@ -123,18 +146,10 @@ const ActivityViewer = () => {
 
   const resetFilters = () => {
     setSearchQuery("");
-    setSelectedCategory("");
-    setYearFilter("");
     setStartDate("");
     setEndDate("");
     setCurrentPage(1);
   };
-
-  const years = Array.from(
-    new Set((dataset?.records || []).map((e) => new Date(e.timestamp).getFullYear()))
-  )
-    .filter((n) => !Number.isNaN(n))
-    .sort((a, b) => b - a);
 
   return (
     <div className="mt-6 text-white">
@@ -146,7 +161,7 @@ const ActivityViewer = () => {
             <p className="text-xs text-white/60 uppercase tracking-[0.2em]">Table View</p>
             <h2 className="text-xl font-semibold">Search entries</h2>
             <p className="text-sm text-white/60">
-              Filter by query, category, or time span. Edit categories inline.
+              Search by query or category text, and filter by time span. Edit categories inline.
             </p>
           </div>
           <motion.button
@@ -160,7 +175,7 @@ const ActivityViewer = () => {
           </motion.button>
         </div>
 
-        <div className="grid lg:grid-cols-5 gap-3 bg-white/5 border border-white/10 rounded-xl p-3">
+        <div className="grid lg:grid-cols-4 gap-3 bg-white/5 border border-white/10 rounded-xl p-3">
           <div className="lg:col-span-2 flex items-center gap-2 bg-[#0d1316] border border-white/10 rounded-lg px-3 py-2">
             <SearchIcon size={16} className="text-white/60" />
             <input
@@ -172,19 +187,6 @@ const ActivityViewer = () => {
                 setCurrentPage(1);
               }}
               className="bg-transparent text-white text-sm w-full outline-none placeholder:text-white/40"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 bg-[#0d1316] border border-white/10 rounded-lg px-3 py-2">
-            <Filter size={16} className="text-white/60" />
-            <CategoryDropdown
-              value={selectedCategory}
-              onChange={(val) => {
-                setSelectedCategory(val);
-                setCurrentPage(1);
-              }}
-              allowEmpty
-              noLabel
             />
           </div>
 
@@ -212,25 +214,6 @@ const ActivityViewer = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 bg-[#0d1316] border border-white/10 rounded-lg px-3 py-2">
-            <SlidersHorizontal size={16} className="text-white/60" />
-            <select
-              value={yearFilter}
-              onChange={(e) => {
-                setYearFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="bg-transparent text-white text-sm w-full border border-white/10 rounded px-2 py-1"
-            >
-              <option value="">All years</option>
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <button
             onClick={resetFilters}
             className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/10 hover:bg-white/15 transition text-sm font-semibold"
@@ -240,11 +223,18 @@ const ActivityViewer = () => {
           </button>
         </div>
 
+        <div className="px-1 text-xs text-white/60">
+          Visible entries after filters:{" "}
+          <span className="text-white font-semibold">
+            {entries.length.toLocaleString()}
+          </span>{" "}
+          / {(dataset?.records?.length ?? 0).toLocaleString()}
+        </div>
+
         <div className="grid grid-cols-12 text-gray-400 font-mono text-xs px-2 sticky top-[10px] z-30 bg-[#0d1316] py-1 border-b border-white/10 rounded-t-lg">
           <span className="col-span-3">Timestamp</span>
-          <span className="col-span-5">Query</span>
-          <span className="col-span-2">Category</span>
-          <span className="col-span-2">Edit</span>
+          <span className="col-span-6">Query</span>
+          <span className="col-span-3">Category</span>
         </div>
 
         <div className="border border-white/10 rounded-lg divide-y divide-white/5 overflow-hidden bg-[#0b1013]">
@@ -257,31 +247,18 @@ const ActivityViewer = () => {
                 exit={{ opacity: 0, y: 10 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="p-3 grid grid-cols-1 md:grid-cols-12 gap-y-2 md:gap-4 items-center"
+                style={{ backgroundColor: getCategoryRowColor(entry.category?.color) }}
               >
                 <div className="text-sm text-gray-400 md:col-span-3">
                   {new Date(entry.timestamp).toLocaleString()}
                 </div>
-                <div className="text-white text-sm md:col-span-5 break-words">
+                <div className="text-white text-sm md:col-span-6 break-words">
                   {entry.query}
                 </div>
-                <div className="md:col-span-2">
-                  <span
-                    className="text-xs font-semibold px-2 py-1 rounded-full inline-flex items-center gap-2"
-                    style={{
-                      backgroundColor: entry.category.color || "#2c3e50",
-                      color: "#0b1013",
-                    }}
-                  >
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ background: entry.category.color || "#6c6" }}
-                    />
-                    {entry.category.name}
-                  </span>
-                </div>
-                <div className="md:col-span-2">
+                <div className="md:col-span-3">
                   <CategoryDropdown
                     noLabel
+                    className="max-w-[220px]"
                     value={entry.category.id}
                     onChange={(newId) => {
                       const newCategory = IAB_CATEGORIES.find(

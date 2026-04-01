@@ -118,10 +118,10 @@ const DailyCalendarView = ({ entries, startDate, numDays, onChangeDate }) => {
       return { ...d, fullDate, timeOnly };
     });
 
-    const clusterHeight = radius * 2.5;
+    const clusterHeight = radius * 2.7;
     const maxPerCluster =
-      (dimensions.width - margin.left - margin.right) / radius / 21;
-    const horizontalSpacing = radius * 2.5;
+      (dimensions.width - margin.left - margin.right) / radius / numDays/ 2.7 *0.8;
+    const horizontalSpacing = radius * 2.7;
 
     parsed.forEach((d) => {
       d.rawY = yScale(d.timeOnly);

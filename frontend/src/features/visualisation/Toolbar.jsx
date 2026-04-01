@@ -1,15 +1,40 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DatasetDropdown from "./DatasetDropdown";
 import LanguageSwitch from "../../shared/components/LanguageSwitch";
-import { Sparkles, CalendarDays, CalendarRange, BarChart3, Table2 } from "lucide-react";
+import {
+  Sparkles,
+  CalendarDays,
+  CalendarRange,
+  LineChart,
+  LayoutDashboard,
+  Table2,
+} from "lucide-react";
 
 const VIEW_OPTIONS = [
-  { key: "Overview", labelKey: "views.overview", fallback: "Overview", icon: BarChart3 },
-  { key: "By Month", labelKey: "views.byMonth", fallback: "By Month", icon: CalendarRange },
-  { key: "By Day", labelKey: "views.byDay", fallback: "By Day", icon: CalendarDays },
-  { key: "Table", labelKey: "views.table", fallback: "Table", icon: Table2 },
+  { key: "Overview", icon: LineChart },
+  { key: "Dashboard", icon: LayoutDashboard },
+  { key: "By Month", icon: CalendarRange },
+  { key: "By Day", icon: CalendarDays },
+  { key: "Table", icon: Table2 },
 ];
+
+const getViewLabel = (viewKey, t) => {
+  switch (viewKey) {
+    case "Overview":
+      return t("views.overview", { defaultValue: "Overview" });
+    case "Dashboard":
+      return t("views.dashboard", { defaultValue: "Dashboard" });
+    case "By Month":
+      return t("views.byMonth", { defaultValue: "By Month" });
+    case "By Day":
+      return t("views.byDay", { defaultValue: "By Day" });
+    case "Table":
+      return t("views.table", { defaultValue: "Table" });
+    default:
+      return viewKey;
+  }
+};
 
 const DatasetToolbar = ({
   datasetLabel,
@@ -26,19 +51,46 @@ const DatasetToolbar = ({
   const { t } = useTranslation();
   const [mobileViewsOpen, setMobileViewsOpen] = useState(false);
   const [desktopViewsOpen, setDesktopViewsOpen] = useState(false);
-  const translatedViewOptions = VIEW_OPTIONS.map(({ labelKey, fallback, ...rest }) => ({
-    ...rest,
-    label: t(labelKey, { defaultValue: fallback || rest.key }),
+  const desktopDropdownRef = useRef(null);
+  const translatedViewOptions = VIEW_OPTIONS.map((option) => ({
+    ...option,
+    label: getViewLabel(option.key, t),
   }));
   const activeView = translatedViewOptions.find((v) => v.key === viewMode) || translatedViewOptions[0];
   const viewLabel = t("toolbar.viewLabel", { defaultValue: "View" });
+
+  useEffect(() => {
+    const handlePointerOutside = (e) => {
+      if (
+        desktopDropdownRef.current &&
+        !desktopDropdownRef.current.contains(e.target)
+      ) {
+        setDesktopViewsOpen(false);
+      }
+    };
+
+    const canUsePointerEvents =
+      typeof window !== "undefined" && "PointerEvent" in window;
+
+    if (canUsePointerEvents) {
+      document.addEventListener("pointerdown", handlePointerOutside);
+      return () => document.removeEventListener("pointerdown", handlePointerOutside);
+    }
+
+    document.addEventListener("mousedown", handlePointerOutside);
+    document.addEventListener("touchstart", handlePointerOutside, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handlePointerOutside);
+      document.removeEventListener("touchstart", handlePointerOutside);
+    };
+  }, []);
 
   return (
     <div className="w-full bg-[#131a1b]/90 backdrop-blur border-b border-white/10 relative z-50 py-1 sm:py-2 px-2 sm:px-6">
       <div className="w-full max-w-6xl mx-auto flex flex-col gap-2 sm:gap-3">
         {/* Desktop / tablet */}
-        <div className="hidden md:flex items-center justify-between gap-2 overflow-x-auto lg:overflow-visible flex-nowrap no-scrollbar min-h-[56px]">
-          <div className="flex-1 min-w-[220px]">
+        <div className="hidden md:flex items-center justify-between gap-2 overflow-visible flex-wrap lg:flex-nowrap min-h-[56px]">
+          <div className="flex-1 min-w-[220px] md:min-w-[280px]">
             <DatasetDropdown
               value={datasetLabel}
               datasets={[...sampleDatasets, ...savedDatasets]}
@@ -50,11 +102,11 @@ const DatasetToolbar = ({
             />
           </div>
 
-          <div className="flex items-center gap-3 min-w-[240px] relative">
+          <div className="flex items-center gap-3 min-w-0 w-full lg:w-auto lg:min-w-[240px] relative" ref={desktopDropdownRef}>
             <div className="relative flex-1">
               <button
                 onClick={() => setDesktopViewsOpen((o) => !o)}
-                className="w-full h-10 flex items-center justify-between rounded-md bg-white/5 border border-white/10 px-3 text-sm text-white"
+                className="w-full h-10 flex items-center justify-between rounded-md bg-white/5 border border-white/10 px-3 text-sm text-white touch-manipulation"
               >
                 <span className="flex items-center gap-2">
                   <activeView.icon size={16} />
@@ -77,7 +129,7 @@ const DatasetToolbar = ({
                         viewMode === key
                           ? "bg-white/10 text-white"
                           : "text-white/80 hover:bg-white/5"
-                      }`}
+                      } touch-manipulation`}
                     >
                       <Icon size={14} />
                       {label}
@@ -116,7 +168,7 @@ const DatasetToolbar = ({
             <div className="relative flex-1">
               <button
                 onClick={() => setMobileViewsOpen((o) => !o)}
-                className="w-full h-9 flex items-center justify-between rounded-lg bg-white/5 border border-white/10 px-3 text-sm text-white shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+                className="w-full h-9 flex items-center justify-between rounded-lg bg-white/5 border border-white/10 px-3 text-sm text-white shadow-[0_8px_20px_rgba(0,0,0,0.35)] touch-manipulation"
               >
                 <span className="flex items-center gap-2">
                   <activeView.icon size={16} />
@@ -141,7 +193,7 @@ const DatasetToolbar = ({
                           viewMode === key
                             ? "bg-white/10 text-white"
                             : "text-white/80 hover:bg-white/5"
-                        }`}
+                        } touch-manipulation`}
                       >
                         <Icon size={14} />
                         {label}

@@ -3,6 +3,7 @@ import { DndContext } from "@dnd-kit/core";
 import HomePage from "../pages/HomePage";
 import AboutPage from "../pages/AboutPage";
 import VisualisationPage from "../pages/VisualisationPage";
+import CookieConsent from "../features/privacy/CookieConsent";
 import "../App.css";
 import "../i18n";
 
@@ -11,6 +12,7 @@ function App() {
     <DndContext>
       <Router>
       <div className="bg-[#131818] flex flex-col min-h-dvh items-center w-full overflow-y-auto">
+        <CookieConsent />
         <main className="w-full flex-grow flex">
           <Routes>
             <Route path="/" element={<HomePage />} />

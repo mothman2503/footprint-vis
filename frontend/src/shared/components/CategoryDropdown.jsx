@@ -1,6 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { IAB_CATEGORIES } from "../../assets/constants/iabCategories";
 import { Pencil } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
+const getLocalizedCategoryLabel = (label, t) => {
+  const raw = String(label || "uncategorized").trim();
+  const bare = raw.replace(/^categories\./, "");
+  const key = bare.toLowerCase() === "uncategorized" ? "uncategorized" : bare;
+  const defaultLabel = key.replaceAll("_", " ");
+  return t(`categories.${key}`, { defaultValue: defaultLabel });
+};
 
 const CategoryDropdown = ({
   value,
@@ -14,17 +23,33 @@ const CategoryDropdown = ({
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const dropdownRef = useRef();
+  const { t } = useTranslation();
 
   const selected = IAB_CATEGORIES.find((cat) => cat.id === value);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handlePointerOutside = (event) => {
+      if (!dropdownRef.current) return;
+      const target = event.target;
+      if (target && !dropdownRef.current.contains(target)) {
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    const canUsePointerEvents =
+      typeof window !== "undefined" && "PointerEvent" in window;
+
+    if (canUsePointerEvents) {
+      document.addEventListener("pointerdown", handlePointerOutside);
+      return () => document.removeEventListener("pointerdown", handlePointerOutside);
+    }
+
+    document.addEventListener("mousedown", handlePointerOutside);
+    document.addEventListener("touchstart", handlePointerOutside, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handlePointerOutside);
+      document.removeEventListener("touchstart", handlePointerOutside);
+    };
   }, []);
 
   useEffect(() => {
@@ -71,9 +96,11 @@ const CategoryDropdown = ({
       <button
         onClick={() => setOpen((v) => !v)}
         onKeyDown={handleKeyDown}
-        className="w-full pr-2 pl-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-left flex items-center gap-2 text-sm text-white hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full pr-2 pl-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-left flex items-center gap-2 text-sm text-white hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 touch-manipulation"
       >
-        <span className="truncate flex-1">{selected?.name || "Select category"}</span>
+        <span className="truncate flex-1">
+          {selected ? getLocalizedCategoryLabel(selected.name, t) : "Select category"}
+        </span>
         <Pencil className="w-4 h-4 opacity-70 hover:opacity-100 transition-opacity" />
       </button>
 
@@ -96,16 +123,23 @@ const CategoryDropdown = ({
               onChange(cat.id);
               setOpen(false);
             }}
-            onMouseEnter={() => setHighlightedIndex(index)}
+            onPointerDown={(event) => {
+              if (event.pointerType === "touch" || event.pointerType === "pen") {
+                event.preventDefault();
+                onChange(cat.id);
+                setOpen(false);
+              }
+            }}
+            onPointerEnter={() => setHighlightedIndex(index)}
             className={`cursor-pointer px-3 py-2 flex items-center gap-2 text-white ${
               highlightedIndex === index ? "bg-gray-700" : ""
             }`}
           >
             <span
-              className="inline-block w-2.5 h-2.5 rounded-full"
+              className="inline-block w-2.5 h-2.5 min-w-[10px] min-h-[10px] rounded-full shrink-0 flex-none"
               style={{ backgroundColor: cat.color }}
             />
-            <span className="truncate">{cat.name}</span>
+            <span className="truncate">{getLocalizedCategoryLabel(cat.name, t)}</span>
           </div>
         ))}
       </div>

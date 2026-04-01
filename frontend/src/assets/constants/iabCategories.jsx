@@ -52,12 +52,12 @@ export const IAB_CATEGORIES = [
   {
     id: "11",
     name: "shopping",
-    color: "#8338ec" // deep purple
+    color: "#0033ff" // royal blue
   },
   {
     id: "12",
     name: "sports",
-    color: "#aaaaaa" // gray
+    color: "#bb6633" // brown-orange
   },
   {
     id: "13", 

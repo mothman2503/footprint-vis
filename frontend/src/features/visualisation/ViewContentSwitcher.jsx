@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import MonthlyCalendarView from "./calendar/months/MonthlyCalendarView";
 import DailyCalendarView from "./calendar/days/DailyCalendarView";
 import OverviewDashboard from "./OverviewDashboard";
+import OverviewTrends from "./OverviewTrends";
 import Viewer from "./datasets/Viewer";
 import { IAB_CATEGORIES } from "../../assets/constants/iabCategories";
 
@@ -23,7 +24,7 @@ const ViewContentSwitcher = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3 }}
-      className={`flex-grow relative h-full pt-[80px] md:pt-10  ${
+      className={`flex-grow relative h-full ${
         viewMode === "By Day" ? "overflow-hidden" : "overflow-auto"
       }`}
     >
@@ -53,10 +54,15 @@ const ViewContentSwitcher = ({
           onChangeDate={setSelectedDate}
         />
       ) : viewMode === "Overview" ? (
-        <OverviewDashboard
+        <OverviewTrends
           dataset={dataset}
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
+          setViewMode={setViewMode}
+        />
+      ) : viewMode === "Dashboard" ? (
+        <OverviewDashboard
+          dataset={dataset}
           setViewMode={setViewMode}
         />
       ) : viewMode === "Table" ? (

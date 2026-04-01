@@ -2,10 +2,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import CategoryDropdown from "../../../../../shared/components/CategoryDropdown";
+import { IAB_CATEGORIES } from "../../../../../assets/constants/iabCategories";
+import { useTranslation } from "react-i18next";
+
+const getLocalizedCategoryLabel = (category, t) => {
+  const fallbackName = category?.name || "uncategorized";
+  const canonical =
+    IAB_CATEGORIES.find((c) => c.id === String(category?.id))?.name || fallbackName;
+  const bare = String(canonical).trim().replace(/^categories\./, "");
+  const key = bare.toLowerCase() === "uncategorized" ? "uncategorized" : bare;
+  const defaultLabel = key.replaceAll("_", " ");
+  return t(`categories.${key}`, { defaultValue: defaultLabel });
+};
 
 const Tooltip = ({ point, radius, position, screen, onClose, onCategoryChange }) => {
   const tooltipRef = useRef(null);
   const [size, setSize] = useState({ width: 300, height: 80 });
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (tooltipRef.current) {
@@ -82,8 +95,13 @@ const Tooltip = ({ point, radius, position, screen, onClose, onCategoryChange })
         style={{ backgroundColor: point.category.color }}
       >
         <div className="py-2 px-2">
-          <div className="flex justify-between">
-            <p className="text-xs px-6">SEARCHED AT {point.fullDate?.toLocaleTimeString()}</p>
+          <div className="flex justify-between items-start gap-2 px-2">
+            <p className="text-[11px] px-4 leading-snug">
+              SEARCHED AT{" "}
+              {point.fullDate
+                ? `${point.fullDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · ${point.fullDate.toLocaleDateString("de-DE")}`
+                : "—"}
+            </p>
             <button
               onClick={onClose}
               className="text-white bg-red-600 w-5 h-5 text-xs rounded-full text-center"
@@ -93,7 +111,7 @@ const Tooltip = ({ point, radius, position, screen, onClose, onCategoryChange })
             </button>
           </div>
           <p className="text-lg font-medium my-2 px-6">"{point.query}"</p>
-          <p className="px-6">{point.category?.name}</p>
+          <p className="px-6">{getLocalizedCategoryLabel(point.category, t)}</p>
         </div>
 
         <div className="h-[0.3px] w-full bg-[#444]" />

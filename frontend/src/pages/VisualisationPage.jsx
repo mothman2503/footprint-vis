@@ -8,10 +8,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { toZonedTime, format } from "date-fns-tz";
 
 // App context
-import { useDataset } from "../app/providers";
+import { useConsent, useDataset } from "../app/providers";
 import sampleDataset from "../assets/constants/sample-datasets/classified_records_OvGU.json";
 
 import sampleDataset2 from "../assets/constants/sample-datasets/billy_search_history_custom_iab.json";
+import sampleDataset3 from "../assets/constants/sample-datasets/classified_records_BachelorThesis.json";
 
 // Utility functions
 import { classifyQueries } from "../utils/classify";
@@ -40,6 +41,8 @@ function buildSearchCounts(records) {
 
 const VisualisationPage = () => {
   const { dataset, setDataset } = useDataset();
+  const { consent } = useConsent();
+  const canPersist = consent === "accepted";
 
   const [selectedDate, setSelectedDate] = useState(() => new Date());
 
@@ -53,8 +56,10 @@ const VisualisationPage = () => {
   const [savedDatasets, setSavedDatasets] = useState([]);
   const [sampleDatasets, setSampleDatasets] = useState([]);
   const [datasetRange, setDatasetRange] = useState(null);
+  const [toolbarHeight, setToolbarHeight] = useState(72);
 
   const containerRef = useRef(null);
+  const toolbarRef = useRef(null);
   const progressIntervalRef = useRef(null);
 
   useEffect(() => {
@@ -80,6 +85,11 @@ const VisualisationPage = () => {
   );
 
   const refreshSavedDatasets = useCallback(async () => {
+    if (!canPersist) {
+      setSavedDatasets([]);
+      return [];
+    }
+
     try {
       const db = await getDB();
       const saved = await db.getAll(DB_CONSTANTS.STORE_NAME_SAVED);
@@ -97,7 +107,7 @@ const VisualisationPage = () => {
       console.error("❌ Failed to refresh saved datasets:", error);
       return [];
     }
-  }, [normalizeSavedDataset]);
+  }, [canPersist, normalizeSavedDataset]);
 
   useEffect(() => {
     const seedDatasets = async () => {
@@ -113,6 +123,11 @@ const VisualisationPage = () => {
           source: "sample",
           label: "Billy",
           records: sampleDataset2,
+        },
+        {
+          source: "sample",
+          label: "Sample - BachelorThesis",
+          records: sampleDataset3,
         },
       ]);
     };
@@ -150,6 +165,31 @@ const VisualisationPage = () => {
 
   useEffect(() => {
     return () => stopProgress();
+  }, []);
+
+  useEffect(() => {
+    const node = toolbarRef.current;
+    if (!node) return undefined;
+
+    const update = () => {
+      const next = Math.ceil(node.getBoundingClientRect().height);
+      if (next > 0) setToolbarHeight(next);
+    };
+
+    update();
+
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(() => update());
+      observer.observe(node);
+      window.addEventListener("resize", update);
+      return () => {
+        observer.disconnect();
+        window.removeEventListener("resize", update);
+      };
+    }
+
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
 
   // Derive dataset min/max dates and clamp current selection into range
@@ -203,29 +243,31 @@ const VisualisationPage = () => {
       return match ? { ...rec, category: match.category } : rec;
     });
 
-    const db = await getDB();
+    if (canPersist) {
+      const db = await getDB();
 
-    if (dataset.source === "user") {
-      // Update the primary searchResults store
-      const tx = db.transaction(DB_CONSTANTS.STORE_NAME, "readwrite");
-      const store = tx.objectStore(DB_CONSTANTS.STORE_NAME);
-      for (const rec of updatedRecords) {
-        if (rec.id !== undefined) await store.put(rec);
-      }
-      await tx.done;
-    } else if (dataset.source === "saved") {
-      // Update the saved dataset entry by label/name
-      const saved = await db.getAll(DB_CONSTANTS.STORE_NAME_SAVED);
-      const found = saved.find(
-        (d) => d.label === dataset.label || d.name === dataset.label
-      );
-      if (found) {
-        await db.put(DB_CONSTANTS.STORE_NAME_SAVED, {
-          ...found,
-          label: found.label || found.name, // normalize
-          records: updatedRecords,
-          date: new Date().toISOString(),
-        });
+      if (dataset.source === "user") {
+        // Update the primary searchResults store
+        const tx = db.transaction(DB_CONSTANTS.STORE_NAME, "readwrite");
+        const store = tx.objectStore(DB_CONSTANTS.STORE_NAME);
+        for (const rec of updatedRecords) {
+          if (rec.id !== undefined) await store.put(rec);
+        }
+        await tx.done;
+      } else if (dataset.source === "saved") {
+        // Update the saved dataset entry by label/name
+        const saved = await db.getAll(DB_CONSTANTS.STORE_NAME_SAVED);
+        const found = saved.find(
+          (d) => d.label === dataset.label || d.name === dataset.label
+        );
+        if (found) {
+          await db.put(DB_CONSTANTS.STORE_NAME_SAVED, {
+            ...found,
+            label: found.label || found.name, // normalize
+            records: updatedRecords,
+            date: new Date().toISOString(),
+          });
+        }
       }
     }
 
@@ -239,7 +281,7 @@ const VisualisationPage = () => {
       className="flex w-full flex-col max-h-dvh"
       style={{}}
     >
-      <div className="fixed top-0 z-40 w-full flex justify-center">
+      <div ref={toolbarRef} className="fixed top-0 z-40 w-full flex justify-center">
         <Toolbar
           datasetLabel={dataset?.label}
           savedDatasets={savedDatasets}
@@ -254,53 +296,55 @@ const VisualisationPage = () => {
         />
       </div>
 
-      {!dataset?.records?.length ? (
-        <p className="text-white text-center mt-28 text-lg">
-          ⚠️ No dataset selected. Please choose or upload one above to begin.
-        </p>
-      ) : (
-        <>
-          <ClassificationControls
-            showDialog={showDialog}
-            setShowDialog={setShowDialog}
-            loading={loading}
-            progress={classificationProgress}
-            onClassify={handleClassify}
-            preview={classificationPreview}
-            onApply={applyClassification}
-            onCancel={() => setClassificationPreview(null)}
-          />
+      <div style={{ paddingTop: toolbarHeight, height: "100dvh" }} className="flex flex-col min-h-0">
+        {!dataset?.records?.length ? (
+          <p className="text-white text-center mt-6 text-lg">
+            ⚠️ No dataset selected. Please choose or upload one above to begin.
+          </p>
+        ) : (
+          <>
+            <ClassificationControls
+              showDialog={showDialog}
+              setShowDialog={setShowDialog}
+              loading={loading}
+              progress={classificationProgress}
+              onClassify={handleClassify}
+              preview={classificationPreview}
+              onApply={applyClassification}
+              onCancel={() => setClassificationPreview(null)}
+            />
 
-          <div className="flex-grow h-[100dvh] min-h-0 flex flex-col overflow-hidden pt-7">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={viewMode + showGridLoading}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="flex-grow overflow-auto relative"
-              >
-                <ViewContentSwitcher
-                  viewMode={viewMode}
-                  showGridLoading={showGridLoading}
-                  dataset={dataset}
-                  selectedDate={selectedDate}
-                  setSelectedDate={setSelectedDate}
-                  datasetRange={datasetRange}
-                  numDays={numDays}
-                  setViewMode={setViewMode}
-                  searchCounts={searchCounts}
-                />
-              </motion.div>
-            </AnimatePresence>
+            <div className="flex-grow min-h-0 flex flex-col overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={viewMode + showGridLoading}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex-grow overflow-auto relative"
+                >
+                  <ViewContentSwitcher
+                    viewMode={viewMode}
+                    showGridLoading={showGridLoading}
+                    dataset={dataset}
+                    selectedDate={selectedDate}
+                    setSelectedDate={setSelectedDate}
+                    datasetRange={datasetRange}
+                    numDays={numDays}
+                    setViewMode={setViewMode}
+                    searchCounts={searchCounts}
+                  />
+                </motion.div>
+              </AnimatePresence>
 
-            <div className="shadow-up">
-              <Legend />
+              <div className="shadow-up">
+                <Legend />
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

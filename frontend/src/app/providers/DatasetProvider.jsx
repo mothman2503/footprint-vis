@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getDB, DB_CONSTANTS } from "../../utils/db";
+import { useConsent } from "./ConsentProvider";
 
 const DatasetContext = createContext();
 
@@ -23,9 +24,12 @@ const migrateOldSavedDatasets = async (db) => {
 
 export const DatasetProvider = ({ children }) => {
   const [dataset, setDataset] = useState(null);
+  const { consent } = useConsent();
 
   // 🔁 Load dataset from IndexedDB on startup if previously selected
   useEffect(() => {
+    if (consent !== "accepted") return;
+
     const loadFromStorage = async () => {
       const savedLabel = localStorage.getItem("selectedDatasetLabel");
       if (!savedLabel) return;
@@ -50,16 +54,21 @@ export const DatasetProvider = ({ children }) => {
     };
 
     loadFromStorage();
-  }, []);
+  }, [consent]);
 
   // 💾 Sync selected label to localStorage
   useEffect(() => {
+    if (consent !== "accepted") {
+      localStorage.removeItem("selectedDatasetLabel");
+      return;
+    }
+
     if (dataset?.label) {
       localStorage.setItem("selectedDatasetLabel", dataset.label);
     } else {
       localStorage.removeItem("selectedDatasetLabel");
     }
-  }, [dataset]);
+  }, [dataset, consent]);
 
   return (
     <DatasetContext.Provider value={{ dataset, setDataset }}>

@@ -4,6 +4,39 @@ import { ChevronDown, ChevronUp, EyeOff, Eye } from "lucide-react";
 import { useCategoryFilter } from "../../app/providers";
 import { useTranslation } from "react-i18next";
 
+const getCategoryLabel = (name, t) => {
+  switch (name) {
+    case "computers_technology_video_games":
+      return t("categories.computers_technology_video_games");
+    case "education_and_science":
+      return t("categories.education_and_science");
+    case "family_and_relationships":
+      return t("categories.family_and_relationships");
+    case "finance_and_career":
+      return t("categories.finance_and_career");
+    case "health_fitness_beauty":
+      return t("categories.health_fitness_beauty");
+    case "hobbies_interests_leisure":
+      return t("categories.hobbies_interests_leisure");
+    case "lifestyle_food_home_fashion_travel_pets":
+      return t("categories.lifestyle_food_home_fashion_travel_pets");
+    case "politics_economics_law_world_affairs":
+      return t("categories.politics_economics_law_world_affairs");
+    case "pop_culture_arts_entertainment_film_music":
+      return t("categories.pop_culture_arts_entertainment_film_music");
+    case "sensitive_topics":
+      return t("categories.sensitive_topics");
+    case "shopping":
+      return t("categories.shopping");
+    case "sports":
+      return t("categories.sports");
+    case "uncategorized":
+      return t("categories.uncategorized");
+    default:
+      return name?.replaceAll("_", " ") || "";
+  }
+};
+
 const Legend = () => {
   const [expanded, setExpanded] = useState(false);
   const containerRef = useRef();
@@ -18,7 +51,7 @@ const Legend = () => {
   };
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handlePointerOutside = (event) => {
       if (
         containerRef.current &&
         !containerRef.current.contains(event.target)
@@ -26,8 +59,21 @@ const Legend = () => {
         setExpanded(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    const canUsePointerEvents =
+      typeof window !== "undefined" && "PointerEvent" in window;
+
+    if (canUsePointerEvents) {
+      document.addEventListener("pointerdown", handlePointerOutside);
+      return () => document.removeEventListener("pointerdown", handlePointerOutside);
+    }
+
+    document.addEventListener("mousedown", handlePointerOutside);
+    document.addEventListener("touchstart", handlePointerOutside, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handlePointerOutside);
+      document.removeEventListener("touchstart", handlePointerOutside);
+    };
   }, []);
 
   // Sort: visible first, then hidden
@@ -63,7 +109,7 @@ const Legend = () => {
                   isHidden
                     ? "opacity-40 grayscale border-gray-700"
                     : "border-transparent"
-                } hover:border-white`}
+                } hover:border-white touch-manipulation`}
                 title={
                   isHidden ? "Click to show category" : "Click to hide category"
                 }
@@ -76,7 +122,7 @@ const Legend = () => {
                   className="text-sm text-white font-medium"
                   style={{ fontFamily: "Noto Sans JP" }}
                 >
-                  {t(cat.name)}{" "}
+                  {getCategoryLabel(cat.name, t)}{" "}
                 </span>
                 <span className="text-white">
                   {isHidden ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -88,7 +134,7 @@ const Legend = () => {
 
         {/* Expand/collapse button */}
         <button
-          className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 hover:text-white p-1 bg-gray-800 rounded z-30"
+          className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 hover:text-white p-1 bg-gray-800 rounded z-30 touch-manipulation"
           onClick={() => setExpanded((prev) => !prev)}
           title={expanded ? "Collapse legend" : "Expand legend"}
         >

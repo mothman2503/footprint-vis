@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import DonutChart from "../../../../charts/Donut";
 import MonthCategoryBarChart from "../../../../charts/MonthCategoryBarChart";
 import MonthSelectorModal from "./MonthSelectorModal";
-import MobileGrid from "./Grid";
+import MobileGrid from "./MobileGrid";
 import CalendarWeekdaysRow from "../CalendarWeekdaysRow";
 
 export default function MobilePanel({

@@ -11,9 +11,15 @@ import {
 } from "lucide-react";
 
 /* ---------- helpers ---------- */
-const ema = (arr, alpha = 0.3) => {
-  let prev = arr[0] || 0;
-  return arr.map((v) => (prev = alpha * v + (1 - alpha) * prev));
+const centeredMovingAverage = (arr, win = 3) => {
+  const window = Math.max(1, win | 0);
+  if (window <= 1) return arr.slice();
+  const half = Math.floor(window / 2);
+  return arr.map((_, i) => {
+    const s = Math.max(0, i - half);
+    const e = Math.min(arr.length, i + half + 1);
+    return d3.mean(arr.slice(s, e)) || 0;
+  });
 };
 const rollingMedianMAD = (arr, win = 9) => {
   const half = Math.floor(win / 2);
@@ -38,13 +44,28 @@ const findEpisodes = (series, zThresh = 2, minLen = 2) => {
       while (j < series.length && series[j].z >= zThresh) j++;
       if (j - i >= minLen) {
         const seg = series.slice(i, j);
-        const peak = seg.reduce((a, b) => (b.smooth > a.smooth ? b : a), seg[0]);
-        out.push({ start: seg[0].date, end: seg[seg.length - 1].date, peakDate: peak.date, peakValue: peak.smooth });
+        const peak = seg.reduce((a, b) => (b.count > a.count ? b : a), seg[0]);
+        out.push({ start: seg[0].date, end: seg[seg.length - 1].date, peakDate: peak.date, peakValue: peak.count });
       }
       i = j;
     } else i++;
   }
   return out;
+};
+const findPrimaryPeak = (series) => {
+  if (!series?.length) return [];
+
+  const maxValue = d3.max(series, (d) => d.count) || 0;
+  if (maxValue <= 0) return [];
+
+  const peak = series.reduce((best, point) => {
+    if (!best) return point;
+    if (point.count > best.count) return point;
+    if (point.count === best.count && point.date < best.date) return point;
+    return best;
+  }, null);
+
+  return peak ? [{ date: peak.date, value: peak.count }] : [];
 };
 /* -------------------------------- */
 
@@ -59,7 +80,7 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
     [state.excludedCategoryIds]
   );
 
-  const [smaWindow, setSmaWindow] = useState(3);
+  const [smaWindow, setSmaWindow] = useState(1);
   const [hoverData, setHoverData] = useState(null);
   const [hoverSummary, setHoverSummary] = useState(null);
   const [flagArmed, setFlagArmed] = useState(false);
@@ -108,10 +129,9 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
 
     const byCategory = d3.group(valid, (r) => r.category.id);
     let globalMax = 0;
-    const minDate = d3.timeWeek.floor(d3.min(valid, (d) => new Date(d.timestamp)));
-    const maxDate = d3.timeWeek.ceil(d3.max(valid, (d) => new Date(d.timestamp)));
-    const weekTicks = d3.timeWeek.range(minDate, maxDate);
-    const weeksISO = weekTicks.map((d) => d.toISOString().slice(0, 10));
+    const minWeek = d3.timeWeek.floor(d3.min(valid, (d) => new Date(d.timestamp)));
+    const maxWeek = d3.timeWeek.floor(d3.max(valid, (d) => new Date(d.timestamp)));
+    const weekTicks = d3.timeWeek.range(minWeek, d3.timeWeek.offset(maxWeek, 1));
 
     const dataByCategory = {};
     const episodesByCategory = {};
@@ -120,29 +140,24 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
     byCategory.forEach((recs, catId) => {
       const weekly = new Map();
       recs.forEach((r) => {
-        const w = d3.timeWeek.floor(new Date(r.timestamp)).toISOString().slice(0, 10);
-        weekly.set(w, (weekly.get(w) || 0) + 1);
+        const weekStart = d3.timeWeek.floor(new Date(r.timestamp));
+        const key = +weekStart;
+        weekly.set(key, (weekly.get(key) || 0) + 1);
       });
 
-      const dense = weeksISO.map((w) => ({ date: new Date(w), count: weekly.get(w) || 0 }));
-      const sm = ema(dense.map((d) => d.count), 0.3);
-      const sm2 = sm.map((v, i, arr) => {
-        const h = Math.floor(smaWindow / 2);
-        const s = Math.max(0, i - h), e = Math.min(arr.length, i + h + 1);
-        return d3.mean(arr.slice(s, e));
-      });
+      const dense = weekTicks.map((w) => ({ date: new Date(w), count: weekly.get(+w) || 0 }));
+      const smoothed = centeredMovingAverage(dense.map((d) => d.count), smaWindow);
 
-      const { med, mad } = rollingMedianMAD(sm2, 9);
-      const series = dense.map((d, i) => ({ date: d.date, smooth: sm2[i] || 0, z: (sm2[i] - med[i]) / mad[i] }));
+      const { med, mad } = rollingMedianMAD(smoothed, 9);
+      const series = dense.map((d, i) => ({ date: d.date, count: smoothed[i] || 0, z: (smoothed[i] - med[i]) / mad[i] }));
       const episodes = findEpisodes(series, 2, 2);
       episodesByCategory[catId] = episodes;
 
-      const peaks = episodes.map((ep) => ({ date: ep.peakDate, value: ep.peakValue }));
+      const peaks = findPrimaryPeak(series);
       peaksByCategory[catId] = peaks;
 
-      const smoothed = series.map((d) => ({ date: d.date, count: d.smooth }));
-      dataByCategory[catId] = smoothed;
-      globalMax = Math.max(globalMax, d3.max(smoothed, (d) => d.count) || 0);
+      dataByCategory[catId] = series.map((d) => ({ date: d.date, count: d.count }));
+      globalMax = Math.max(globalMax, d3.max(series, (d) => d.count) || 0);
     });
 
     return { dataByCategory, colorMap, weeks: weekTicks, maxY: globalMax, episodesByCategory, peaksByCategory };
@@ -164,19 +179,23 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const margin = { top: 30, right: 20, bottom: 30, left: 50 };
+    const margin = { top: 56, right: 10, bottom: 36, left: 50 };
     
-    const width = dimensions.width - margin.left - margin.right;
-    const height = dimensions.height - margin.top - margin.bottom;
+    const width = Math.max(20, dimensions.width - margin.left - margin.right);
+    const height = Math.max(20, dimensions.height - margin.top - margin.bottom);
 
-    const xScale = d3.scaleTime().domain(d3.extent(weeks)).range([0, width]);
-    const yScale = d3.scaleLinear().domain([0, maxY]).range([height, 0]).nice();
+    const [minWeek, maxWeek] = d3.extent(weeks);
+    const safeMaxWeek = +minWeek === +maxWeek ? d3.timeWeek.offset(maxWeek, 1) : maxWeek;
+    const yMax = Math.max(1, maxY);
+    const xScale = d3.scaleTime().domain([minWeek, safeMaxWeek]).range([0, width]);
+    const yScale = d3.scaleLinear().domain([0, yMax]).range([height, 0]).nice();
     scalesRef.current = { xScale, yScale, margin, width, height };
 
     const lineGen = d3.line()
+      .defined((d) => Number.isFinite(d.count))
       .x((d) => xScale(d.date))
       .y((d) => yScale(d.count))
-      .curve(d3.curveCatmullRom.alpha(0.5));
+      .curve(d3.curveLinear);
 
     const root = svg.attr("width", dimensions.width).attr("height", dimensions.height);
     const g = root.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
@@ -255,7 +274,7 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
       Object.entries(peaksByCategory).forEach(([catId, peaks]) => {
         const color = colorMap[catId] || "#aaa";
         const sel = markers.selectAll(`circle.peak-${catId}`)
-          .data(peaks, (d) => d.date)
+          .data(peaks, (d) => +d.date)
           .enter()
           .append("circle")
           .attr("class", `peak-${catId}`)
@@ -457,8 +476,7 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
   return (
     <div
       ref={wrapperRef}
-      className="relative w-full h-full bg-gradient-to-br from-[#0d1418] to-[#0b1012] p-4 rounded-2xl border border-white/10 shadow-2xl flex flex-col gap-2"
-      style={{ minHeight: 240 }}
+      className="relative w-full h-full min-h-[420px] overflow-hidden"
     >
       {/* Controls */}
       <div className="absolute top-2 right-3 z-10 flex items-center gap-2">
@@ -548,7 +566,7 @@ const CategoryTrendChart = ({ records, selectedDate, onSelectDate, onOpenMonthly
         </div>
       ) : null}
 
-      <svg ref={svgRef} className="w-full flex-1" style={{ height: "100%" }} />
+      <svg ref={svgRef} className="block w-full h-full" />
     </div>
   );
 };

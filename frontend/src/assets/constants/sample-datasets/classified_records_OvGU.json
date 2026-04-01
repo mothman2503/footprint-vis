@@ -2,11 +2,11 @@
   {
     "id": 1,
     "query": "boruto staffeln alle wo",
-    "timestamp": "2023-06-21T17:13:29",
+    "timestamp": "2023-06-21T15:13:29.000Z",
     "category": {
-      "id": "IAB22",
-      "name": "Shopping",
-      "color": "#ffb703"
+      "id": "11",
+      "name": "shopping",
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -16,11 +16,11 @@
   {
     "id": 2,
     "query": "ebay kleinanzeigen",
-    "timestamp": "2023-06-21T16:53:49",
+    "timestamp": "2023-06-21T14:53:49.000Z",
     "category": {
-      "id": "IAB22",
-      "name": "Shopping",
-      "color": "#ffb703"
+      "id": "11",
+      "name": "shopping",
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -30,11 +30,11 @@
   {
     "id": 3,
     "query": "ebay",
-    "timestamp": "2023-06-21T16:53:31",
+    "timestamp": "2023-06-21T14:53:31.000Z",
     "category": {
-      "id": "IAB22",
-      "name": "Shopping",
-      "color": "#ffb703"
+      "id": "11",
+      "name": "shopping",
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -44,11 +44,11 @@
   {
     "id": 4,
     "query": "ebay posaune",
-    "timestamp": "2023-06-21T16:52:54",
+    "timestamp": "2023-06-21T14:52:54.000Z",
     "category": {
-      "id": "IAB22",
-      "name": "Shopping",
-      "color": "#ffb703"
+      "id": "11",
+      "name": "shopping",
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -58,11 +58,11 @@
   {
     "id": 5,
     "query": "posaune yamaha",
-    "timestamp": "2023-06-21T16:52:23",
+    "timestamp": "2023-06-21T14:52:23.000Z",
     "category": {
-      "id": "IAB9",
-      "name": "Hobbies & Interests",
-      "color": "#3a86ff"
+      "id": "6",
+      "name": "hobbies_interests_leisure",
+      "color": "#ffbe0b"
     },
     "coords": {
       "lat": "",
@@ -72,11 +72,11 @@
   {
     "id": 6,
     "query": "warp punkt griefer games orb",
-    "timestamp": "2023-06-21T14:56:12",
+    "timestamp": "2023-06-21T12:56:12.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -86,10 +86,10 @@
   {
     "id": 8,
     "query": "Busfahrplan Reiterweg",
-    "timestamp": "2023-06-20T20:02:46",
+    "timestamp": "2023-06-20T18:02:46.000Z",
     "category": {
-      "id": "IAB20",
-      "name": "Travel",
+      "id": "7",
+      "name": "lifestyle_food_home_fashion_travel_pets",
       "color": "#8ecae6"
     },
     "coords": {
@@ -100,11 +100,11 @@
   {
     "id": 9,
     "query": "Ghostsitter Staffel 14",
-    "timestamp": "2023-06-20T17:21:53",
+    "timestamp": "2023-06-20T15:21:53.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -114,11 +114,11 @@
   {
     "id": 10,
     "query": "Wann kommt Ghostsitter Staffel 13",
-    "timestamp": "2023-06-20T17:21:35",
+    "timestamp": "2023-06-20T15:21:35.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -128,11 +128,11 @@
   {
     "id": 11,
     "query": "wie viele ghostsitter staffeln gibt es",
-    "timestamp": "2023-06-20T17:20:11",
+    "timestamp": "2023-06-20T15:20:11.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -142,11 +142,11 @@
   {
     "id": 13,
     "query": "schütze eigenschaften",
-    "timestamp": "2023-06-13T11:10:20",
+    "timestamp": "2023-06-13T09:10:20.000Z",
     "category": {
-      "id": "IAB9",
-      "name": "Hobbies & Interests",
-      "color": "#3a86ff"
+      "id": "6",
+      "name": "hobbies_interests_leisure",
+      "color": "#ffbe0b"
     },
     "coords": {
       "lat": "",
@@ -156,11 +156,11 @@
   {
     "id": 14,
     "query": "skorpion eigenschaften",
-    "timestamp": "2023-06-13T11:07:18",
+    "timestamp": "2023-06-13T09:07:18.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -170,11 +170,11 @@
   {
     "id": 16,
     "query": "ab wie vielen abonnenten auf youtube bekommt man geld",
-    "timestamp": "2023-05-28T20:15:39",
+    "timestamp": "2023-05-28T18:15:39.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -184,25 +184,11 @@
   {
     "id": 17,
     "query": "unbreaking minecraft deutsch",
-    "timestamp": "2023-05-28T10:51:27",
+    "timestamp": "2023-05-28T08:51:27.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
-    },
-    "coords": {
-      "lat": "",
-      "lon": ""
-    }
-  },
-  {
-    "id": 18,
-    "query": "NaT",
-    "timestamp": "NaT",
-    "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -212,11 +198,11 @@
   {
     "id": 19,
     "query": "erzähl mir einen Witz zum wegschmeißen",
-    "timestamp": "2023-05-26T18:24:28",
+    "timestamp": "2023-05-26T16:24:28.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -226,11 +212,11 @@
   {
     "id": 20,
     "query": "erzähl mir einen Witz",
-    "timestamp": "2023-05-26T18:23:36",
+    "timestamp": "2023-05-26T16:23:36.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -240,11 +226,11 @@
   {
     "id": 21,
     "query": "wann und wie kann man sich für Ninja Warrior kids 2023 bewerben",
-    "timestamp": "2023-05-26T12:27:57",
+    "timestamp": "2023-05-26T10:27:57.000Z",
     "category": {
-      "id": "IAB17",
-      "name": "Sports",
-      "color": "#8338ec"
+      "id": "12",
+      "name": "sports",
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -254,11 +240,11 @@
   {
     "id": 22,
     "query": "ninja warrior kids 2023 anmelden",
-    "timestamp": "2023-05-26T12:26:19",
+    "timestamp": "2023-05-26T10:26:19.000Z",
     "category": {
-      "id": "IAB17",
-      "name": "Sports",
-      "color": "#8338ec"
+      "id": "12",
+      "name": "sports",
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -268,11 +254,11 @@
   {
     "id": 23,
     "query": "ninja warrior bewerbung voraussetzungen",
-    "timestamp": "2023-05-26T12:25:27",
+    "timestamp": "2023-05-26T10:25:27.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -282,11 +268,11 @@
   {
     "id": 24,
     "query": "ninja warrior kids 2022",
-    "timestamp": "2023-05-26T12:23:08",
+    "timestamp": "2023-05-26T10:23:08.000Z",
     "category": {
-      "id": "IAB17",
-      "name": "Sports",
-      "color": "#8338ec"
+      "id": "12",
+      "name": "sports",
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -296,11 +282,11 @@
   {
     "id": 25,
     "query": "wie lange sollte man baby mollys von den anderen fischen vernhalten",
-    "timestamp": "2023-05-26T11:46:42",
+    "timestamp": "2023-05-26T09:46:42.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -310,11 +296,11 @@
   {
     "id": 26,
     "query": "ab wann steht bei baby mollys das geschlecht",
-    "timestamp": "2023-05-26T11:41:56",
+    "timestamp": "2023-05-26T09:41:56.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -324,11 +310,11 @@
   {
     "id": 27,
     "query": "ab wann steht das geschlecht beim baby fest",
-    "timestamp": "2023-05-26T11:41:21",
+    "timestamp": "2023-05-26T09:41:21.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -338,11 +324,11 @@
   {
     "id": 28,
     "query": "Hühner im Garten halten – Diese Vorüberlegungen sind wichtig",
-    "timestamp": "2023-05-26T15:29:32",
+    "timestamp": "2023-05-26T13:29:32.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -352,11 +338,11 @@
   {
     "id": 29,
     "query": "hühner im garten ",
-    "timestamp": "2023-05-26T15:28:03",
+    "timestamp": "2023-05-26T13:28:03.000Z",
     "category": {
-      "id": "IAB22",
-      "name": "Shopping",
-      "color": "#ffb703"
+      "id": "11",
+      "name": "shopping",
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -366,11 +352,11 @@
   {
     "id": 30,
     "query": "ist noob das gegenteil von pro",
-    "timestamp": "2023-05-26T14:30:26",
+    "timestamp": "2023-05-26T12:30:26.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -380,25 +366,11 @@
   {
     "id": 31,
     "query": "was ist das Gegenteil von pro",
-    "timestamp": "2023-05-26T14:29:38",
+    "timestamp": "2023-05-26T12:29:38.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
-    },
-    "coords": {
-      "lat": "",
-      "lon": ""
-    }
-  },
-  {
-    "id": 32,
-    "query": "NaT",
-    "timestamp": "NaT",
-    "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -408,11 +380,11 @@
   {
     "id": 33,
     "query": "sind ballaststoffe gut",
-    "timestamp": "2023-04-21T21:16:40",
+    "timestamp": "2023-04-21T19:16:40.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -422,25 +394,11 @@
   {
     "id": 34,
     "query": "wie heißt es der die das nutella",
-    "timestamp": "2023-04-21T19:02:09",
+    "timestamp": "2023-04-21T17:02:09.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
-    },
-    "coords": {
-      "lat": "",
-      "lon": ""
-    }
-  },
-  {
-    "id": 35,
-    "query": "NaT",
-    "timestamp": "NaT",
-    "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -450,25 +408,11 @@
   {
     "id": 36,
     "query": "akinator",
-    "timestamp": "2023-03-23T08:09:17",
+    "timestamp": "2023-03-23T07:09:17.000Z",
     "category": {
-      "id": "IAB8",
-      "name": "Food & Drink",
-      "color": "#ff6f61"
-    },
-    "coords": {
-      "lat": "",
-      "lon": ""
-    }
-  },
-  {
-    "id": 37,
-    "query": "NaT",
-    "timestamp": "NaT",
-    "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "7",
+      "name": "lifestyle_food_home_fashion_travel_pets",
+      "color": "#8ecae6"
     },
     "coords": {
       "lat": "",
@@ -478,11 +422,11 @@
   {
     "id": 38,
     "query": "Harry Styles Watermelon Sugar",
-    "timestamp": "2023-03-22T20:19:55",
+    "timestamp": "2023-03-22T19:19:55.000Z",
     "category": {
-      "id": "IAB8",
-      "name": "Food & Drink",
-      "color": "#ff6f61"
+      "id": "7",
+      "name": "lifestyle_food_home_fashion_travel_pets",
+      "color": "#8ecae6"
     },
     "coords": {
       "lat": "",
@@ -492,11 +436,11 @@
   {
     "id": 39,
     "query": "the voice kids",
-    "timestamp": "2023-03-22T20:08:29",
+    "timestamp": "2023-03-22T19:08:29.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -506,11 +450,11 @@
   {
     "id": 40,
     "query": "ps4 lenkrad",
-    "timestamp": "2023-03-22T16:40:18",
+    "timestamp": "2023-03-22T15:40:18.000Z",
     "category": {
-      "id": "IAB19",
-      "name": "Technology & Computing",
-      "color": "#3cba54"
+      "id": "1",
+      "name": "computers_technology_video_games",
+      "color": "#ff4b5c"
     },
     "coords": {
       "lat": "",
@@ -520,11 +464,11 @@
   {
     "id": 41,
     "query": "deutsch-latein text übersetzer",
-    "timestamp": "2023-03-22T15:20:33",
+    "timestamp": "2023-03-22T14:20:33.000Z",
     "category": {
-      "id": "IAB22",
-      "name": "Shopping",
-      "color": "#ffb703"
+      "id": "11",
+      "name": "shopping",
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -534,11 +478,11 @@
   {
     "id": 42,
     "query": "deutsch latein",
-    "timestamp": "2023-03-22T15:20:00",
+    "timestamp": "2023-03-22T14:20:00.000Z",
     "category": {
-      "id": "IAB7",
-      "name": "Health & Fitness",
-      "color": "#4ade80"
+      "id": "5",
+      "name": "health_fitness_beauty",
+      "color": "#ff6f61"
     },
     "coords": {
       "lat": "",
@@ -548,11 +492,11 @@
   {
     "id": 43,
     "query": "Madara Uchiha",
-    "timestamp": "2023-03-22T19:45:25",
+    "timestamp": "2023-03-22T18:45:25.000Z",
     "category": {
-      "id": "IAB8",
-      "name": "Food & Drink",
-      "color": "#ff6f61"
+      "id": "7",
+      "name": "lifestyle_food_home_fashion_travel_pets",
+      "color": "#8ecae6"
     },
     "coords": {
       "lat": "",
@@ -562,11 +506,11 @@
   {
     "id": 44,
     "query": "Jiraiya",
-    "timestamp": "2023-03-22T19:44:41",
+    "timestamp": "2023-03-22T18:44:41.000Z",
     "category": {
-      "id": "IAB8",
-      "name": "Food & Drink",
-      "color": "#ff6f61"
+      "id": "7",
+      "name": "lifestyle_food_home_fashion_travel_pets",
+      "color": "#8ecae6"
     },
     "coords": {
       "lat": "",
@@ -576,11 +520,11 @@
   {
     "id": 45,
     "query": "Kushina Uzumaki",
-    "timestamp": "2023-03-22T19:43:50",
+    "timestamp": "2023-03-22T18:43:50.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -590,25 +534,11 @@
   {
     "id": 46,
     "query": "Minato Namikaze",
-    "timestamp": "2023-03-22T19:42:23",
+    "timestamp": "2023-03-22T18:42:23.000Z",
     "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
-    },
-    "coords": {
-      "lat": "",
-      "lon": ""
-    }
-  },
-  {
-    "id": 47,
-    "query": "NaT",
-    "timestamp": "NaT",
-    "category": {
-      "id": "IAB1",
-      "name": "Arts & Entertainment",
-      "color": "#ff4b5c"
+      "id": "9",
+      "name": "pop_culture_arts_entertainment_film_music",
+      "color": "#9d4edd"
     },
     "coords": {
       "lat": "",
@@ -618,10 +548,10 @@
   {
     "id": 48,
     "query": "scooter im bus mitnehmen",
-    "timestamp": "2023-01-11T06:18:31",
+    "timestamp": "2023-01-11T05:18:31.000Z",
     "category": {
-      "id": "IAB20",
-      "name": "Travel",
+      "id": "7",
+      "name": "lifestyle_food_home_fashion_travel_pets",
       "color": "#8ecae6"
     },
     "coords": {
@@ -632,11 +562,11 @@
   {
     "id": 49,
     "query": "df man mit einem scooter bus fahren",
-    "timestamp": "2023-01-11T06:17:42",
+    "timestamp": "2023-01-11T05:17:42.000Z",
     "category": {
-      "id": "IAB2",
-      "name": "Automotive",
-      "color": "#f9cb40"
+      "id": "7",
+      "name": "lifestyle_food_home_fashion_travel_pets",
+      "color": "#8ecae6"
     },
     "coords": {
       "lat": "",

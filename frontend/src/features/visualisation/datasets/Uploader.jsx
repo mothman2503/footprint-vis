@@ -1,15 +1,28 @@
 import React, { useState } from "react";
 import { getDB, DB_CONSTANTS } from "../../../utils/db";
 import { parseActivityHtml } from "../../../utils/parser";
-import { useDataset } from "../../../app/providers";
+import { useConsent, useDataset } from "../../../app/providers";
 
 export default function Uploader({ onDatasetSaved }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const { setDataset } = useDataset();
+  const { consent } = useConsent();
 
   const storeRecords = async (records) => {
     try {
+      if (consent !== "accepted") {
+        setDataset({
+          source: "session",
+          label: "Your Google History (not saved)",
+          records,
+        });
+        setSuccess(
+          `✅ Loaded ${records.length} entries for this session (not persisted).`
+        );
+        return;
+      }
+
       const db = await getDB();
       await db.clear(DB_CONSTANTS.STORE_NAME);
 
@@ -23,7 +36,6 @@ export default function Uploader({ onDatasetSaved }) {
       }
 
       await tx.done;
-      console.log(records[0]);
       setDataset({ source: "user", label: "Your Google History", records });
       setSuccess(`✅ Stored ${records.length} search entries.`);
 

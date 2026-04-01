@@ -4,6 +4,13 @@ import * as d3 from "d3";
 import { useCategoryFilter } from "../../../app/providers";
 import { useTranslation } from "react-i18next";
 
+const getLocalizedCategoryLabel = (label, t) => {
+  const raw = String(label || "uncategorized").trim();
+  const bare = raw.replace(/^categories\./, "");
+  const key = bare.toLowerCase() === "uncategorized" ? "uncategorized" : bare;
+  const defaultLabel = key.replaceAll("_", " ");
+  return t(`categories.${key}`, { defaultValue: defaultLabel });
+};
 
 const MonthCategoryBarChart = ({ data }) => {
   const ref = useRef();
@@ -13,7 +20,7 @@ const MonthCategoryBarChart = ({ data }) => {
     [state.excludedCategoryIds]
   );
 
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const visibleData = useMemo(
     () => data.filter((d) => !hiddenIds.has(d.id)).sort((a, b) => b.value - a.value),
@@ -33,8 +40,8 @@ const MonthCategoryBarChart = ({ data }) => {
 
     const container = ref.current.parentNode;
     const fullWidth = container.offsetWidth || 400;
-    const barHeight = 30;
-    const gap = 30;
+    const barHeight = 15; // reduced by ~50%
+    const gap = 22;
     const topPadding = 24;
     const margin = { left: 0, right: 50, top: topPadding, bottom: 10 };
     const height = visibleData.length * (barHeight + gap) + topPadding;
@@ -72,11 +79,11 @@ const MonthCategoryBarChart = ({ data }) => {
       // Label
       rowGroup
         .append("text")
-        .text(t(d.label))
+        .text(getLocalizedCategoryLabel(d.label, t))
         .attr("x", 0)
         .attr("y", -6)
         .attr("fill", "#fff")
-        .attr("font-size", "13px")
+        .attr("font-size", "11px")
         .attr("font-weight", 600);
 
       // Bar
@@ -87,7 +94,7 @@ const MonthCategoryBarChart = ({ data }) => {
         .attr("height", barHeight)
         .attr("width", 0)
         .attr("fill", d.color)
-        .attr("rx", 6)
+        .attr("rx", 3)
         .transition()
         .duration(700)
         .attr("width", x(d.value));
@@ -97,7 +104,7 @@ const MonthCategoryBarChart = ({ data }) => {
         .append("text")
         .text(d.value)
         .attr("x", 0)
-        .attr("y", barHeight / 2 + 4)
+        .attr("y", barHeight / 2 + 3)
         .attr("fill", "#eee")
         .attr("font-size", "13px")
         .attr("font-weight", "bold")
@@ -157,7 +164,7 @@ const MonthCategoryBarChart = ({ data }) => {
                   className="text-sm text-white font-medium truncate"
                   style={{ fontFamily: "Noto Sans JP" }}
                 >
-                  {t(cat.label)}
+                  {getLocalizedCategoryLabel(cat.label, t)}
                 </span>
                 <EyeOff className="text-white w-4 h-4 shrink-0" />
               </button>

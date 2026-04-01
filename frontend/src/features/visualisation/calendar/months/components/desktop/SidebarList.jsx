@@ -50,9 +50,9 @@ const SidebarList = ({ monthSummaries, currentMonth, onClick }) => {
                   : "text-white"
               )}
             >
-              <div className="w-4 h-4 rounded-full relative right-2 bg-[#1b1f24]">
+              <div className="w-6 h-4 rounded-full relative right-2 bg-[#1b1f24]">
                 <div
-                  className="w-4 h-4 rounded-full right-2 border-[0.5px] border-[#1b1f24]"
+                  className="w-6 h-4 rounded right-2 border-[0.5px] border-[#1b1f24]"
                   style={{ backgroundColor: bg }}
                 />
               </div>

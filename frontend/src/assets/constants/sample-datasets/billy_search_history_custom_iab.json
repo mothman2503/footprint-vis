@@ -20,7 +20,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "51.2277",
@@ -48,7 +48,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "51.2673",
@@ -118,7 +118,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -132,7 +132,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -146,7 +146,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -188,7 +188,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -216,7 +216,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -244,7 +244,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -454,7 +454,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -552,7 +552,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -706,7 +706,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -818,7 +818,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -958,7 +958,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -972,7 +972,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -986,7 +986,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -1000,7 +1000,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -1014,7 +1014,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -1028,7 +1028,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -1126,7 +1126,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -1154,7 +1154,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -1238,7 +1238,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "51.2673",
@@ -1504,7 +1504,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -1518,7 +1518,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",
@@ -1546,7 +1546,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -1588,7 +1588,7 @@
     "category": {
       "id": "11",
       "name": "shopping",
-      "color": "#8338ec"
+      "color": "#0033ff"
     },
     "coords": {
       "lat": "",
@@ -1616,7 +1616,7 @@
     "category": {
       "id": "12",
       "name": "sports",
-      "color": "#aaaaaa"
+      "color": "#bb6633"
     },
     "coords": {
       "lat": "",

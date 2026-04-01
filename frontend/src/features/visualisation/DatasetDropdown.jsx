@@ -121,13 +121,28 @@ const DatasetDropdown = ({
 
   // Outside click to close
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+    const handlePointerOutside = (e) => {
+      if (!dropdownRef.current) return;
+      const target = e.target;
+      if (target && !dropdownRef.current.contains(target)) {
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    const canUsePointerEvents =
+      typeof window !== "undefined" && "PointerEvent" in window;
+
+    if (canUsePointerEvents) {
+      document.addEventListener("pointerdown", handlePointerOutside);
+      return () => document.removeEventListener("pointerdown", handlePointerOutside);
+    }
+
+    document.addEventListener("mousedown", handlePointerOutside);
+    document.addEventListener("touchstart", handlePointerOutside, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handlePointerOutside);
+      document.removeEventListener("touchstart", handlePointerOutside);
+    };
   }, []);
 
   useEffect(() => {
@@ -260,7 +275,7 @@ const DatasetDropdown = ({
         onClick={() => setOpen((o) => !o)}
         onKeyDown={handleKeyDown}
         ref={triggerRef}
-        className="w-full text-left rounded-sm border border-white/10 bg-[#0c1316] px-3 py-1.5 min-h-[34px] flex items-center gap-3 hover:border-emerald-300/40 transition focus:outline-none focus:ring-1 focus:ring-emerald-300/60"
+        className="w-full text-left rounded-sm border border-white/10 bg-[#0c1316] px-3 py-1.5 min-h-[34px] flex items-center gap-3 hover:border-emerald-300/40 transition focus:outline-none focus:ring-1 focus:ring-emerald-300/60 touch-manipulation"
       >
         <div className="flex items-center justify-center w-6 h-6 rounded bg-white/5 border border-white/10 text-emerald-200">
           <BookOpen className="w-3.5 h-3.5" />
@@ -393,7 +408,14 @@ const DatasetDropdown = ({
                       aria-selected={active}
                       ref={(el) => setItemRef(el, idx)}
                       onClick={() => !disabled && applySelection(ds)}
-                      onMouseEnter={() => setHighlightedIndex(idx)}
+                      onPointerDown={(event) => {
+                        if (disabled) return;
+                        if (event.pointerType === "touch" || event.pointerType === "pen") {
+                          event.preventDefault();
+                          applySelection(ds);
+                        }
+                      }}
+                      onPointerEnter={() => setHighlightedIndex(idx)}
                       className={`group relative cursor-pointer border px-3 py-2 transition ${
                         active
                           ? "border-emerald-400/60 bg-emerald-900/20"
