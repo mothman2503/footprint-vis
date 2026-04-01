@@ -65,12 +65,6 @@ export default function MonthSelectorModal({
                         .sort((a, b) => a.summary.date - b.summary.date)
                         .map(({ key, summary }) => {
                           const isActive = key === currentMonth;
-                          const topCategories = summary.categoryCounts
-                            ?.slice(0, 2)
-                            .map((cat) => ({
-                              label: cat.label,
-                              color: cat.color,
-                            })) || [];
 
                           const chartData =
                             summary.categoryCounts?.map((cat) => ({
